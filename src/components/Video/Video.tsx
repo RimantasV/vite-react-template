@@ -97,14 +97,14 @@ export default function Video({ examples }: Props) {
           >
             <ReactPlayer
               style={{ position: 'relative' }}
-              // url={`https://movie-tongue.b-cdn.net/file_${videoIds[playIndex]}.mp4`}
+              url={`https://movie-tongue.b-cdn.net/file_${videoIds[playIndex]}.mp4`}
               // url={`https://movie-tongue.b-cdn.net/file_4127.webm`}
               // url={
               //   'https://movie-tongue.b-cdn.net/test/Gangs%20of%20Galicia_S01E01_Episode%201.mp4'
               // }
-              url={
-                'https://movie-tongue.b-cdn.net/test/Berlin_S01E01_The%20Energy%20of%20Love.mp4'
-              }
+              // url={
+              //   'https://movie-tongue.b-cdn.net/test/Berlin_S01E01_The%20Energy%20of%20Love.mp4'
+              // }
               controls
               width={'100%'}
               height={'450px'}
