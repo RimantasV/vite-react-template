@@ -107,15 +107,15 @@ export default function Video({ examples }: Props) {
               // }
               controls
               width={'100%'}
-              height={'450px'}
+              // height={'450px'}
               // muted
               // playing
               // loop
-              // config={{
-              //   attributes: {
-              //     controlsList: 'nofullscreen nodownload',
-              //   },
-              // }}
+              config={{
+                attributes: {
+                  controlsList: 'nofullscreen nodownload',
+                },
+              }}
             ></ReactPlayer>
             <div
               style={{
