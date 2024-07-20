@@ -10,16 +10,17 @@ import { EmailPasswordPreBuiltUI } from 'supertokens-auth-react/recipe/emailpass
 import Session from 'supertokens-auth-react/recipe/session';
 
 export function getApiDomain() {
-  const apiPort = import.meta.env.REACT_APP_API_PORT || 3333;
+  const apiPort = import.meta.env.VITE_REACT_APP_API_PORT || 3333;
   const apiUrl =
-    import.meta.env.MOVIE_TONGUE_API_URL || `http://localhost:${apiPort}`;
+    import.meta.env.VITE_MOVIE_TONGUE_API_URL || `http://localhost:${apiPort}`;
   return apiUrl;
 }
 
 export function getWebsiteDomain() {
-  const websitePort = import.meta.env.REACT_APP_WEBSITE_PORT || 5173;
+  const websitePort = import.meta.env.VITE_REACT_APP_WEBSITE_PORT || 5173;
   const websiteUrl =
-    import.meta.env.MOVIE_TONGUE_FE_URL || `http://localhost:${websitePort}`;
+    import.meta.env.VITE_MOVIE_TONGUE_FE_URL ||
+    `http://localhost:${websitePort}`;
   return websiteUrl;
 }
 
