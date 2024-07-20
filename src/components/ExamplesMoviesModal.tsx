@@ -16,7 +16,7 @@ type Props = {
 const ExamplesMoviesModal: React.FC<Props> = ({
   activeWord,
   resourceKey,
-  episode,
+  // episode,
   renderOnlyExampes = false,
   translationStatus = 'visible',
 }) => {

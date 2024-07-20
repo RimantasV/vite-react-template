@@ -13,7 +13,7 @@ import {
 import { Wordx } from '../../../types';
 
 type Props = {
-  onClick: () => {};
+  onClick: () => void;
   wordsData: Wordx[][] | undefined;
 };
 

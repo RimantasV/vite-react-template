@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { signOut } from 'supertokens-auth-react/recipe/session';
 import { recipeDetails } from '../../config';
-import CallAPIView from './CallAPIView';
+// import CallAPIView from './CallAPIView';
 import {
   BlogsIcon,
   CelebrateIcon,
@@ -66,7 +66,7 @@ export default function SuccessView(props: { userId: string; email: string }) {
           <div className='truncate' id='user-id'>
             {userId}
           </div>
-          <CallAPIView />
+          {/* <CallAPIView /> */}
         </div>
       </div>
       <div className='bottom-links-container'>

@@ -23,7 +23,7 @@ type Props = {
 
 const Items: React.FC<Props> = ({
   id,
-  episode,
+  // episode,
   setActiveWord,
   setShow,
   handleExcludeClick,
