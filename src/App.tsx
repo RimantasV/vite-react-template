@@ -28,6 +28,10 @@ import { Episode } from './pages/Episode/index copy';
 SuperTokens.init(SuperTokensConfig);
 
 function App() {
+  console.log(
+    import.meta.env.MOVIE_TONGUE_FE_URL,
+    import.meta.env.MOVIE_TONGUE_API_URL
+  );
   return (
     <SuperTokensWrapper>
       <ComponentWrapper>
