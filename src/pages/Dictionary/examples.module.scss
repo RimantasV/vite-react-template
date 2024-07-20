@@ -1,0 +1,59 @@
+p.highlight {
+  color: red !important;
+}
+
+.layout {
+  max-width: 1100px;
+  margin-inline: auto;
+  flex: 1;
+}
+
+.headerContainer {
+  display: flex;
+  align-items: baseline;
+
+  h2 {
+    margin-right: 15px;
+  }
+}
+
+li {
+  margin-bottom: 10px;
+}
+
+.translationsCard {
+  background-color: rgb(204, 200, 169);
+  padding: 15px;
+  border-radius: 8px;
+  max-width: 800px;
+  &:first-child {
+    margin-bottom: 15px;
+  }
+  &:hover {
+    background-color: rgb(180, 177, 148);
+  }
+}
+
+.languageContainer {
+  display: flex;
+
+  .flagContainer {
+    display: flex;
+    img {
+      width: 25px;
+    }
+  }
+}
+
+ol {
+  li {
+    img {
+      width: 15px;
+      margin-right: 5px;
+    }
+  }
+}
+
+.hidden {
+  filter: blur(6px);
+}

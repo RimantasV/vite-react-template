@@ -1,0 +1,42 @@
+.levelContainer {
+  border: 1px solid black;
+  padding: 5px;
+  margin-bottom: 25px;
+  position: relative;
+  cursor: pointer;
+
+  h6 {
+    background-color: rgb(0, 153, 255);
+    padding: 10px;
+    font-size: 18px;
+    margin: 0 0 10px;
+  }
+}
+
+.active {
+  background-color: greenyellow;
+}
+
+.checkmarkIcon {
+  position: absolute;
+  color: green;
+  background-color: white;
+  top: -16px;
+  right: -16px;
+  font-size: 32px;
+  border-radius: 50%;
+  display: none;
+  &.visible {
+    display: block;
+  }
+}
+
+.wordContainer {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.word {
+  padding: 3px;
+  font-size: 14px;
+}

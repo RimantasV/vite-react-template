@@ -1,0 +1,26 @@
+// .translation.visible {
+//   filter: blur(0);
+//   color: red;
+// }
+
+// .translation.hidden {
+//   filter: blur(6px);
+// }
+
+// /* .visible {
+//   filter: blur(0);
+//   color: red;
+// }
+
+// .hidden {
+//   filter: blur(6px);
+// } */
+
+.translation {
+  &.visible {
+    filter: blur(0);
+  }
+  &.hidden {
+    filter: blur(6px);
+  }
+}

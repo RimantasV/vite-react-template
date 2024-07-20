@@ -1,4 +1,4 @@
-#root {
+/* #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
@@ -39,4 +39,32 @@
 
 .read-the-docs {
   color: #888;
+} */
+
+/* .fill {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+}
+
+.sessionButton {
+  padding-left: 13px;
+  padding-right: 13px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  background-color: black;
+  border-radius: 10px;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+  font-size: 17px;
+} */
+
+.App {
+  /* display: flex; */
+  /* flex-direction: column; */
+  /* width: 100vw; */
+  height: calc(100vh - 64px);
+  /* font-family: Rubik; */
 }

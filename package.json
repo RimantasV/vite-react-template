@@ -9,8 +9,25 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.1.1",
+    "@mantine/core": "^7.11.1",
+    "@mantine/hooks": "^7.11.1",
+    "@mantine/modals": "^7.11.1",
+    "@mantine/notifications": "^7.11.1",
+    "@mantine/spotlight": "^7.11.1",
+    "@restart/ui": "^1.6.9",
+    "@tabler/icons-react": "^3.9.0",
+    "@tanstack/react-query": "^5.50.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.2.1",
+    "react-infinite-scroller": "^1.2.6",
+    "react-loading-skeleton": "^3.4.0",
+    "react-modal-sheet": "^3.1.0",
+    "react-player": "^2.16.0",
+    "react-router-dom": "^6.24.0",
+    "react-toastify": "^10.0.5",
+    "supertokens-auth-react": "^0.43.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
@@ -22,7 +39,17 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
     "typescript": "^5.2.2",
-    "vite": "^5.3.2"
+    "vite": "^5.3.2",
+    "@tanstack/eslint-plugin-query": "^5.50.1",
+    "@types/node": "^20.14.9",
+    "@types/react-infinite-scroller": "^1.2.5",
+    "@types/react-window": "^1.8.8",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.39",
+    "postcss-preset-mantine": "^1.15.0",
+    "postcss-simple-vars": "^7.0.1",
+    "sass": "^1.77.6",
+    "tailwindcss": "^3.4.4"
   },
   "engines": {
     "node": "20"
