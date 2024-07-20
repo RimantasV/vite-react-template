@@ -20,6 +20,7 @@ export function getWebsiteDomain() {
   const websitePort = import.meta.env.REACT_APP_WEBSITE_PORT || 5173;
   const websiteUrl =
     import.meta.env.RAILWAY_PUBLIC_DOMAIN || `http://localhost:${websitePort}`;
+  console.log({ websiteUrl });
   return websiteUrl;
 }
 
