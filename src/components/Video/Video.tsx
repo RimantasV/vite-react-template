@@ -111,6 +111,7 @@ export default function Video({ examples }: Props) {
               // muted
               // playing
               // loop
+              playsinline
               config={{
                 attributes: {
                   controlsList: 'nofullscreen nodownload',
