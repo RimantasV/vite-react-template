@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { Accordion, Button, Card, Group, Text } from '@mantine/core';
-import { IconBook, IconCheck, IconMovie } from '@tabler/icons-react';
+import { IconCheck } from '@tabler/icons-react';
 
 import { SegmentTitleArray } from '../../pages/MoviesAndTV/MoviesAndTV';
 

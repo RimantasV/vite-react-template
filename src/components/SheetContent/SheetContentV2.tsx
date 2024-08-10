@@ -11,7 +11,7 @@ type Props = {
   dictionaryRecord: DictionaryRecord[];
   isExpanded: boolean;
   setIsExpanded: React.Dispatch<React.SetStateAction<boolean>>;
-  setOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const SheetContent: FC<Props> = ({
@@ -19,7 +19,7 @@ const SheetContent: FC<Props> = ({
   activeForm,
   isExpanded,
   setIsExpanded,
-  setOpenModal,
+  setOpen,
   dictionaryRecord,
 }) => {
   const handleLearningClick = () => {
@@ -38,7 +38,7 @@ const SheetContent: FC<Props> = ({
         localStorage.setItem('learning', JSON.stringify([...newState]));
       }
     }
-    setOpenModal(false);
+    setOpen(false);
   };
 
   function removeTextInBrackets(input: string): string {
@@ -128,7 +128,7 @@ const SheetContent: FC<Props> = ({
         <button
           className={styles.button}
           onClick={() => {
-            setOpenModal(false);
+            setOpen(false);
           }}
         >
           Dismiss

@@ -1,10 +1,12 @@
 export { Dictionary } from './Dictionary';
 export { Home } from './Home';
-export { List } from './List';
 export { Learn } from './Learn';
+export { List } from './List';
+export { Lists } from './Lists';
 export { Movie } from './Movie';
 export { MoviesAndTV } from './MoviesAndTV';
 export { Quiz } from './Quiz';
+export { QuizMovie } from './QuizMovie';
 export { Settings } from './Settings';
 export { Subtitles } from './Subtitles';
 export { VocabularyLevel } from './VocabularyLevel';

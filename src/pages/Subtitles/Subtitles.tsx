@@ -42,7 +42,7 @@ export default function Subtitles() {
   const [dictionaryRecord, setDictionaryRecord] = useState<DictionaryRecord[]>(
     [],
   );
-  const [isOpenModal, setOpenModal] = useState(false);
+  const [isOpen, setOpen] = useState(false);
   const [activeWords, setActiveWords] = useState<string[]>();
   const [activeForm, setActiveForm] = useState<string>();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -104,7 +104,7 @@ export default function Subtitles() {
     if (wordId) {
       setActiveForm(target.textContent!);
       setActiveWords(wordIdArray);
-      setOpenModal(true);
+      setOpen(true);
       fetchEng(wordIdArray);
     }
   };
@@ -187,8 +187,8 @@ export default function Subtitles() {
           mx='auto'
         />
         <Sheet
-          isOpen={isOpenModal}
-          onClose={() => setOpenModal(false)}
+          isOpen={isOpen}
+          onClose={() => setOpen(false)}
           detent='content-height'
           onCloseEnd={() => {
             setIsExpanded(false);
@@ -205,13 +205,13 @@ export default function Subtitles() {
                 dictionaryRecord={dictionaryRecord}
                 isExpanded={isExpanded}
                 setIsExpanded={setIsExpanded}
-                setOpenModal={setOpenModal}
+                setOpen={setOpen}
               />
             </Sheet.Content>
           </Sheet.Container>
           <Sheet.Backdrop
             onTap={() => {
-              setOpenModal(false);
+              setOpen(false);
             }}
           />
         </Sheet>

@@ -23,7 +23,6 @@ import {
 import { useLanguageStore } from '../../store';
 import { Wordx } from '../../types/types';
 
-// import Items from './Items';
 import styles from './movie.module.scss';
 
 export default function Movie() {
@@ -31,10 +30,8 @@ export default function Movie() {
   const { selectedLanguage } = useLanguageStore();
   const { id } = useParams();
   const { state } = useLocation();
-  // const [words, setWords] = useState<Words>([]);
   const [activePage, setPage] = useState(1);
   const [isOpen, setOpen] = useState(false);
-  // const [show, setShow] = useState(false);
   const [activeWord, setActiveWord] = useState<Wordx>();
   const [isFollowing, setIsFollowing] = useState(false);
   const { mutate } = useUpdateWordStatusMutation();
@@ -64,49 +61,6 @@ export default function Movie() {
   useEffect(() => {
     setIsFollowing(resourceStatusData);
   }, [resourceStatusData]);
-
-  // const handleFormSubmit = async (
-  //   word: Wordx,
-  //   isLearning: boolean,
-  //   isExcluded: boolean,
-  // ) => {
-  //   const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/words/progress`;
-  //   const payload = {
-  //     word_id: word.word_id,
-  //     learningLevel: word.learning_level,
-  //     lastAnswerTs: word.last_answer_ts,
-  //     markedToLearn: isLearning,
-  //     markedToExclude: isExcluded,
-  //   };
-
-  //   const response = await fetch(`${ENDPOINT}`, {
-  //     method: 'POST',
-  //     headers: {
-  //       Accept: 'application.json',
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify(payload),
-  //   });
-
-  //   if (response.ok) {
-  //     // Utility function to deeply clone and update the state
-  //     const updateNestedState = (words: Words, id: string): Words => {
-  //       return words.map((wordList) =>
-  //         wordList.map((word) =>
-  //           word.word_id === id
-  //             ? {
-  //                 ...word,
-  //                 marked_to_learn: isLearning,
-  //                 marked_to_exclude: isExcluded,
-  //               }
-  //             : word,
-  //         ),
-  //       );
-  //     };
-
-  //     setWords((prevWords) => updateNestedState(prevWords, word.word_id));
-  //   }
-  // };
 
   const handleExcludeClick = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -183,15 +137,6 @@ export default function Movie() {
           <Title order={2} my='lg'>
             Learning
           </Title>
-          {/* <Items
-            // resource='movie'
-            // id={id!}
-            // chapter_or_episode='n/a'
-            mediaItemId={state.mediaItemId}
-            setShow={setShow}
-            setActiveWord={setActiveWord}
-            handleExcludeClick={handleExcludeClick}
-          /> */}
           <Pagination
             value={activePage}
             onChange={setPage}
@@ -226,52 +171,6 @@ export default function Movie() {
                 />
               ))}
           </ul>
-          {/* <Modal
-            show={show}
-            aria-labelledby='modal-1-label'
-            onHide={() => setShow(false)}
-            renderBackdrop={(
-              props: JSX.IntrinsicAttributes &
-                ClassAttributes<HTMLDivElement> &
-                HTMLAttributes<HTMLDivElement>,
-            ) => <div {...props} className={styles2.backdrop} />}
-            className={styles2.modal}
-          >
-            <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-              <div style={{ flex: '1' }}>
-                <ExamplesMoviesModal
-                  activeWord={activeWord!}
-                  resourceKey={''}
-                />
-              </div>
-              <div className={styles2.toolbar}>
-                <button
-                  className={styles2.button}
-                  onClick={() => setShow(false)}
-                >
-                  Close
-                </button>
-                <button
-                  className={styles2.button}
-                  onClick={() => {
-                    handleLearnClick([activeWord!]);
-                    setShow(false);
-                  }}
-                >
-                  Learn
-                </button>
-                <button
-                  className={styles2.button}
-                  onClick={(e) => {
-                    handleExcludeClick(e, [activeWord!]);
-                    setShow(false);
-                  }}
-                >
-                  Exclude
-                </button>
-              </div>
-            </div>
-          </Modal> */}
           <Sheet
             isOpen={isOpen}
             onClose={() => setOpen(false)}
