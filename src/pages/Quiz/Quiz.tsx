@@ -1,7 +1,5 @@
 import { useState } from 'react';
-
-import styles from '../Lists/lists.module.scss';
-import styles2 from './quiz.module.scss';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import {
   ActionIcon,
@@ -25,9 +23,10 @@ import {
   IconRepeat,
   IconX,
 } from '@tabler/icons-react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+
 import { Layout } from '../../components';
 import { useUserCreatedListVocabularyQuery } from '../../queries';
+import { useLanguageStore } from '../../store';
 import {
   QUIZ_STEPS,
   TRANSLATION_STATUS,
@@ -36,7 +35,9 @@ import {
 } from '../../types/types';
 import RenderFlag from './RenderFlag';
 import { Settings } from './components';
-import { useLanguageStore } from '../../store';
+
+import styles from '../Learn/learn.module.scss';
+import styles2 from './quiz.module.scss';
 
 export default function Quiz() {
   const { selectedLanguage } = useLanguageStore();
@@ -147,8 +148,8 @@ export default function Quiz() {
       learningLevel: !x.learning_level
         ? 1
         : x.learning_level === 5
-        ? 5
-        : x.learning_level + 1,
+          ? 5
+          : x.learning_level + 1,
       lastAnswerTs: new Date(),
       markedToLearn: x.marked_to_learn,
       markedToExclude: x.marked_to_exclude,
@@ -250,8 +251,8 @@ export default function Quiz() {
                   marked_to_learn: markedToLearn,
                   marked_to_exclude: markedToExclude,
                 }
-              : word
-          )
+              : word,
+          ),
         );
       };
       setWords((prevWords) => updateNestedState(prevWords, word));

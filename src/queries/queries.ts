@@ -1,6 +1,6 @@
 import { SetStateAction } from 'react';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 import {
   DataMovies,
@@ -8,12 +8,11 @@ import {
   Resource,
   SentenceObj,
   UserCreatedList,
-  Wordsx,
   Wordx,
 } from '../types';
 import { getNextReviewDate } from '../utils';
 
-// const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const fetchUserCreatedLists = async (
   lang: Languages,
@@ -52,11 +51,11 @@ export const useResourcesQuery = (lang: Languages) =>
     queryFn: () => fetchResources(lang),
   });
 
-const fetchUserCreatedListVocabulary = async (lang: Languages, key: number) => {
+const fetchUserCreatedListVocabulary = async (lang: Languages, id: number) => {
   const ENDPOINT = `${
     import.meta.env.VITE_BASE_URL
-  }/api/vocabulary-translation/lists/${key}?lang=${lang}`;
-
+  }/api/vocabulary-translation/lists/${id}?lang=${lang}`;
+  await sleep(2000);
   const response = await fetch(ENDPOINT);
 
   if (response.ok) {
@@ -90,11 +89,11 @@ const fetchUserCreatedListVocabulary = async (lang: Languages, key: number) => {
 
 export const useUserCreatedListVocabularyQuery = (
   lang: Languages,
-  key: number,
+  id: number,
 ) =>
   useQuery({
-    queryKey: ['userCreatedListVocabulary'],
-    queryFn: () => fetchUserCreatedListVocabulary(lang, key),
+    queryKey: ['userCreatedListVocabulary', id],
+    queryFn: () => fetchUserCreatedListVocabulary(lang, id),
   });
 
 const fetchMovieVocabulary = async (
@@ -119,10 +118,7 @@ const fetchMovieVocabulary = async (
     }));
 
     return Object.values(
-      data.reduce(function (
-        obj: { [x: string]: any },
-        item: { word_id: string },
-      ) {
+      data.reduce(function (obj: { [x: string]: Wordx[] }, item: Wordx) {
         if (
           !Object.prototype.hasOwnProperty.call(obj, item.word_id.split('-')[0])
         ) {
@@ -227,112 +223,3 @@ export const useResourceStatusQuery = (lang: Languages, id: string) =>
     queryKey: ['resourceStatus'],
     queryFn: () => fetchResourceStatus(lang, id),
   });
-
-type UpdateWordStatus = {
-  word: Wordx;
-  isLearning: boolean;
-  isExcluded: boolean;
-};
-
-export const useUpdateWordStatusMutation = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ word, isLearning, isExcluded }: UpdateWordStatus) =>
-      updateWordStatus(word, isLearning, isExcluded),
-
-    // mutationFn: async ({ word, isLearning, isExcluded }: UpdateWordStatus) =>
-    //   await fetch(`${import.meta.env.VITE_BASE_URL}/api/words/progress`, {
-    //     method: 'POST',
-    //     headers: {
-    //       Accept: 'application.json',
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       word: word.word,
-    //       learningLevel: word.learning_level,
-    //       lastAnswerTs: word.last_answer_ts,
-    //       markedToLearn: isLearning,
-    //       markedToExclude: isExcluded,
-    //     }),
-    //   }),
-
-    onSuccess: (_, variables) => {
-      const updateNestedState = (
-        words: Wordsx,
-        id: string,
-        isLearning: boolean,
-        isExcluded: boolean,
-      ) => {
-        return words.map((wordList) =>
-          wordList.map((word) =>
-            word.word_id === id
-              ? {
-                  ...word,
-                  marked_to_learn: isLearning,
-                  marked_to_exclude: isExcluded,
-                }
-              : word,
-          ),
-        );
-      };
-
-      queryClient.setQueryData(['movieVocabulary'], (oldData: any) => {
-        console.log({ oldData });
-        return updateNestedState(
-          oldData,
-          variables.word.word_id,
-          variables.isLearning,
-          variables.isExcluded,
-        );
-      });
-    },
-  });
-};
-
-const updateWordStatus = async (
-  word: Wordx,
-  isLearning: boolean,
-  isExcluded: boolean,
-) => {
-  const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/words/progress`;
-  const payload = {
-    word: word.word_id,
-    learningLevel: word.learning_level,
-    lastAnswerTs: word.last_answer_ts,
-    markedToLearn: isLearning,
-    markedToExclude: isExcluded,
-  };
-
-  const response = await fetch(`${ENDPOINT}`, {
-    method: 'POST',
-    headers: {
-      Accept: 'application.json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-
-  // if (response.ok) {
-  return await response.json();
-  // return { test: 2 };
-  // } else throw new Error((await response.json()).message);
-};
-
-// if (response.ok) {
-//   // Utility function to deeply clone and update the state
-// const updateNestedState = (words: Words, id: string): Words => {
-//   return words.map((wordList) =>
-//     wordList.map((word) =>
-//       word.word === id
-//         ? {
-//             ...word,
-//             marked_to_learn: isLearning,
-//             marked_to_exclude: isExcluded,
-//           }
-//         : word
-//     )
-//   );
-// };
-
-//   setWords((prevWords) => updateNestedState(prevWords, word.word));
-// }

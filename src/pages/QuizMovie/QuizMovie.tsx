@@ -36,7 +36,7 @@ import {
 import RenderFlag from './RenderFlag';
 import { Settings } from './components';
 
-import styles from '../Lists/lists.module.scss';
+import styles from '../Learn/learn.module.scss';
 import styles2 from './quiz.module.scss';
 
 export default function Quiz() {

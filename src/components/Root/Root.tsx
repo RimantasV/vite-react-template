@@ -29,9 +29,9 @@ import {
 
 import { LanguageSelect } from '../LanguageSelect';
 
-import classes from './appContainer.module.scss';
+import classes from './root.module.scss';
 
-export default function AppContainer() {
+export default function Root() {
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme('light', {
     getInitialValueInEffect: true,
@@ -74,9 +74,9 @@ export default function AppContainer() {
                 <UnstyledButton
                   className={classes.control}
                   component={Link}
-                  to={'./lists'}
+                  to={'./learn'}
                 >
-                  My Vocabulary
+                  Learn
                 </UnstyledButton>
                 <UnstyledButton
                   className={classes.control}
@@ -174,9 +174,7 @@ export default function AppContainer() {
 
       <AppShell.Navbar py='md' px={4}>
         <UnstyledButton className={classes.control}>Home</UnstyledButton>
-        <UnstyledButton className={classes.control}>
-          My Vocabulaty
-        </UnstyledButton>
+        <UnstyledButton className={classes.control}>Learn </UnstyledButton>
         <UnstyledButton className={classes.control}>
           Browse Movies & TV
         </UnstyledButton>

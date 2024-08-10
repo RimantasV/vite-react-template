@@ -1,0 +1,30 @@
+// .react-modal-sheet-backdrop {
+//   /* custom styles */
+// }
+.react-modal-sheet-container {
+  background-color: light-dark(
+    var(--mantine-color-gray-0),
+    var(--mantine-color-dark-6)
+  ) !important;
+
+  // width: var(--container-size-xl) !important;
+  // width: calc(71.25rem * var(--mantine-scale)) !important;
+  max-width: calc(71.25rem * var(--mantine-scale)) !important;
+  // width: 900px !important;
+  left: calc((100vw - calc(71.25rem * var(--mantine-scale))) / 2) !important;
+  // transform: translateX(-50%) !important;
+
+  @media (max-width: $mantine-breakpoint-lg) {
+    left: 0 !important;
+    max-width: 100% !important;
+  }
+}
+// .react-modal-sheet-header {
+//   /* custom styles */
+// }
+// .react-modal-sheet-drag-indicator {
+//   /* custom styles */
+// }
+// .react-modal-sheet-content {
+//   /* custom styles */
+// }

@@ -1,7 +1,7 @@
-export { default as Home } from './Home/HomePage';
 export { Dictionary } from './Dictionary';
+export { Home } from './Home';
 export { List } from './List';
-export { Lists } from './Lists';
+export { Learn } from './Learn';
 export { Movie } from './Movie';
 export { MoviesAndTV } from './MoviesAndTV';
 export { Quiz } from './Quiz';

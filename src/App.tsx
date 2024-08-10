@@ -7,6 +7,7 @@ import { getSuperTokensRoutesForReactRouterDom } from 'supertokens-auth-react/ui
 
 import '@mantine/core/styles.css';
 
+import { Root } from './components/Root';
 import {
   ComponentWrapper,
   PreBuiltUIList,
@@ -15,16 +16,15 @@ import {
 import {
   Dictionary,
   Home,
+  Learn,
   List,
-  Lists,
   Movie,
   Quiz,
   Settings,
   Subtitles,
   VocabularyLevel,
 } from './pages';
-import { Episode } from './pages/Episode';
-import { Episodes } from './pages/Episodes';
+import { Lists } from './pages/Lists';
 import MoviesAndTV from './pages/MoviesAndTV/MoviesAndTV';
 import { QuizMovie } from './pages/QuizMovie';
 
@@ -55,15 +55,15 @@ function App() {
                           Else it redirects the user to "/auth" */
                   <SessionAuth>
                     {/* <Home /> */}
-                    <Home />
+                    <Root />
                   </SessionAuth>
                 }
               >
+                <Route index element={<Home />} />
                 <Route path='/lists' element={<Lists />} />
+                <Route path='/learn' element={<Learn />} />
                 <Route path='/lists/:id' element={<List />} />
                 <Route path='/movie/:id' element={<Movie />} />
-                <Route path='/series/:id' element={<Episodes />} />
-                <Route path='/series/:id/:episode' element={<Episode />} />
                 <Route path='/dictionary' element={<Dictionary />} />
                 <Route path='/movies-and-tv' element={<MoviesAndTV />} />
                 <Route path='/subtitles' element={<Subtitles />} />

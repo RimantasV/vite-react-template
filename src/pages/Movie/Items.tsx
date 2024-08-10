@@ -5,7 +5,7 @@ import { IconEyeOff, IconPlaylistAdd } from '@tabler/icons-react';
 
 import { useMovieVocabularyQuery } from '../../queries';
 import { useLanguageStore } from '../../store';
-import { DataMovies, Wordx } from '../../types';
+import { Wordsx, Wordx } from '../../types';
 // import InfiniteScroll from 'react-infinite-scroller';
 import { getDisplayDate, getNextReviewDate } from '../../utils/index';
 
@@ -40,7 +40,7 @@ const Items: React.FC<Props> = ({
   } = useMovieVocabularyQuery(selectedLanguage, mediaItemId);
 
   const [activePage, setPage] = useState(1);
-  const [data, setData] = useState<DataMovies>();
+  const [data, setData] = useState<Wordsx>();
 
   movieVocabularyData
     // ?.filter((word) => !word[0].marked_to_exclude)
