@@ -1,36 +1,44 @@
-import { useQuery } from '@tanstack/react-query';
+import { SetStateAction } from 'react';
+
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
 import {
   DataMovies,
+  Languages,
   Resource,
   SentenceObj,
   UserCreatedList,
+  Wordsx,
   Wordx,
 } from '../types';
 import { getNextReviewDate } from '../utils';
 
-const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/user-created-lists`;
-
 // const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-const fetchUserCreatedLists = async (): Promise<UserCreatedList[]> => {
+const fetchUserCreatedLists = async (
+  lang: Languages,
+): Promise<UserCreatedList[]> => {
   // await sleep(5000);
+  const ENDPOINT = `${
+    import.meta.env.VITE_BASE_URL
+  }/api/user-created-lists?lang=${lang}`;
   const response = await fetch(ENDPOINT);
   if (response.ok) {
     return await response.json();
   } else throw new Error((await response.json()).message);
 };
 
-export const useUserCreatedListsQuery = () =>
+export const useUserCreatedListsQuery = (lang: Languages) =>
   useQuery({
     queryKey: ['userCreatedLists'],
-    queryFn: fetchUserCreatedLists,
+    queryFn: () => fetchUserCreatedLists(lang),
   });
 
-const fetchResources = async (): Promise<Resource[]> => {
+const fetchResources = async (lang: Languages): Promise<Resource[]> => {
   const ENDPOINT =
     import.meta.env.VITE_ENVIRONMENT === 'TEST'
       ? '/resources.json'
-      : `${import.meta.env.VITE_BASE_URL}/api/resources`;
+      : `${import.meta.env.VITE_BASE_URL}/api/resources?lang=${lang}`;
   const response = await fetch(ENDPOINT);
   if (response.ok) {
     const data: Resource[] = await response.json();
@@ -38,16 +46,16 @@ const fetchResources = async (): Promise<Resource[]> => {
   } else throw new Error((await response.json()).message);
 };
 
-export const useResourcesQuery = () =>
+export const useResourcesQuery = (lang: Languages) =>
   useQuery({
     queryKey: ['resources'],
-    queryFn: fetchResources,
+    queryFn: () => fetchResources(lang),
   });
 
-const fetchUserCreatedListVocabulary = async (key: number) => {
+const fetchUserCreatedListVocabulary = async (lang: Languages, key: number) => {
   const ENDPOINT = `${
     import.meta.env.VITE_BASE_URL
-  }/api/vocabulary-translation/lists/${key}`;
+  }/api/vocabulary-translation/lists/${key}?lang=${lang}`;
 
   const response = await fetch(ENDPOINT);
 
@@ -63,33 +71,42 @@ const fetchUserCreatedListVocabulary = async (key: number) => {
     return Object.values(
       data.reduce(function (obj: { [x: string]: Wordx[] }, item: Wordx) {
         if (
-          !Object.prototype.hasOwnProperty.call(obj, item.word.split('-')[0])
+          !Object.prototype.hasOwnProperty.call(obj, item.word_id.split('-')[0])
         ) {
           // for movie lists where one word can have several parts of speech
-          // obj[item.word.split('-')[0]] = [item];
-          obj[item.word] = [item];
+          // obj[item.word_id.split('-')[0]] = [item];
+          obj[item.word_id] = [item];
         } else {
           // for movie lists where one word can have several parts of speech
-          // obj[item.word.split('-')[0]] = [...obj[item.word.split('-')[0]], item];
-          obj[item.word] = [...obj[item.word.split('-')[0]], item];
+          // obj[item.word_id.split('-')[0]] = [...obj[item.word_id.split('-')[0]], item];
+          obj[item.word_id] = [...obj[item.word_id.split('-')[0]], item];
         }
 
         return obj;
-      }, {})
+      }, {}),
     );
   } else throw new Error((await response.json()).message);
 };
 
-export const useUserCreatedListVocabularyQuery = (key: number) =>
+export const useUserCreatedListVocabularyQuery = (
+  lang: Languages,
+  key: number,
+) =>
   useQuery({
     queryKey: ['userCreatedListVocabulary'],
-    queryFn: () => fetchUserCreatedListVocabulary(key),
+    queryFn: () => fetchUserCreatedListVocabulary(lang, key),
   });
 
-const fetchMovieVocabulary = async (key: string) => {
+const fetchMovieVocabulary = async (
+  // resource: string,
+  // key: string,
+  // chapter_or_episode: string
+  lang: Languages,
+  mediaItemId: string,
+) => {
   const ENDPOINT = `${
     import.meta.env.VITE_BASE_URL
-  }/api/vocabulary-translation/movies/${key}`;
+  }/api/vocabulary-translation/movies/?lang=${lang}&media-item-id=${mediaItemId}`;
 
   const response = await fetch(ENDPOINT);
 
@@ -102,34 +119,43 @@ const fetchMovieVocabulary = async (key: string) => {
     }));
 
     return Object.values(
-      data.reduce(function (obj: { [x: string]: any }, item: { word: string }) {
+      data.reduce(function (
+        obj: { [x: string]: any },
+        item: { word_id: string },
+      ) {
         if (
-          !Object.prototype.hasOwnProperty.call(obj, item.word.split('-')[0])
+          !Object.prototype.hasOwnProperty.call(obj, item.word_id.split('-')[0])
         ) {
-          obj[item.word.split('-')[0]] = [item];
+          obj[item.word_id.split('-')[0]] = [item];
         } else {
-          obj[item.word.split('-')[0]] = [
-            ...obj[item.word.split('-')[0]],
+          obj[item.word_id.split('-')[0]] = [
+            ...obj[item.word_id.split('-')[0]],
             item,
           ];
         }
 
         return obj;
-      }, {})
+      }, {}),
     );
   } else throw new Error((await response.json()).message);
 };
 
-export const useMovieVocabularyQuery = (key: string) =>
+export const useMovieVocabularyQuery = (
+  // resource: string,
+  // key: string,
+  // chapter_or_episode: string
+  lang: Languages,
+  mediaItemId: string,
+) =>
   useQuery({
     queryKey: ['movieVocabulary'],
-    queryFn: () => fetchMovieVocabulary(key),
+    queryFn: () => fetchMovieVocabulary(lang, mediaItemId),
   });
 
-const fetchSubtitles = async (type: string, key: string) => {
+const fetchSubtitles = async (lang: Languages, mediaItemId: string) => {
   const ENDPOINT = `${
     import.meta.env.VITE_BASE_URL
-  }/api/resource?type=${type}&key=${key}`;
+  }/api/resource?lang=${lang}&media-item-id=${mediaItemId}`;
 
   const response = await fetch(ENDPOINT);
   if (response.ok) {
@@ -139,24 +165,21 @@ const fetchSubtitles = async (type: string, key: string) => {
   } else throw new Error((await response.json()).message);
 };
 
-export const useSubtitlesQuery = (type: string, key: string) =>
+export const useSubtitlesQuery = (lang: Languages, mediaItemId: string) =>
   useQuery({
     queryKey: ['subtitles'],
-    queryFn: () => fetchSubtitles(type, key),
+    queryFn: () => fetchSubtitles(lang, mediaItemId),
   });
 
 const toggleFollow = async (
-  resource: string,
-  key: string,
-  chapter_or_episode: string,
-  setFollowing: any
+  lang: Languages,
+  mediaItemId: string,
+  setFollowing: (arg0: (prevState: boolean) => boolean) => void,
 ) => {
-  const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/lists`;
+  const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/lists?lang=${lang}`;
 
   const payload = {
-    resource,
-    key,
-    chapter_or_episode,
+    mediaItemId,
   };
 
   const response = await fetch(`${ENDPOINT}`, {
@@ -169,25 +192,29 @@ const toggleFollow = async (
   });
 
   if (response.ok) {
-    setFollowing((prevState: any) => !prevState);
+    setFollowing((prevState: boolean) => !prevState);
   } else throw new Error((await response.json()).message);
 };
 
-export const usetoggleFollowQuery = (
-  resource: string,
-  key: string,
-  chapter_or_episode: string,
-  setFollowing: any
+export const useToggleFollowQuery = (
+  lang: Languages,
+  mediaItemId: string,
+  setFollowing: {
+    (value: SetStateAction<boolean>): void;
+    (value: SetStateAction<boolean>): void;
+    (arg0: (prevState: boolean) => boolean): void;
+  },
 ) =>
   useQuery({
     queryKey: ['toggleFollow'],
-    queryFn: () =>
-      toggleFollow(resource, key, chapter_or_episode, setFollowing),
+    queryFn: () => toggleFollow(lang, mediaItemId, setFollowing),
     enabled: false,
   });
 
-const fetchResourceStatus = async (id: string) => {
-  const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/resources/${id}`;
+const fetchResourceStatus = async (lang: Languages, id: string) => {
+  const ENDPOINT = `${
+    import.meta.env.VITE_BASE_URL
+  }/api/resources/${id}?lang=${lang}`;
   const response = await fetch(ENDPOINT);
   if (response.ok) {
     const data = await response.json();
@@ -195,8 +222,117 @@ const fetchResourceStatus = async (id: string) => {
   } else throw new Error((await response.json()).message);
 };
 
-export const useResourceStatusQuery = (id: string) =>
+export const useResourceStatusQuery = (lang: Languages, id: string) =>
   useQuery({
     queryKey: ['resourceStatus'],
-    queryFn: () => fetchResourceStatus(id),
+    queryFn: () => fetchResourceStatus(lang, id),
   });
+
+type UpdateWordStatus = {
+  word: Wordx;
+  isLearning: boolean;
+  isExcluded: boolean;
+};
+
+export const useUpdateWordStatusMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ word, isLearning, isExcluded }: UpdateWordStatus) =>
+      updateWordStatus(word, isLearning, isExcluded),
+
+    // mutationFn: async ({ word, isLearning, isExcluded }: UpdateWordStatus) =>
+    //   await fetch(`${import.meta.env.VITE_BASE_URL}/api/words/progress`, {
+    //     method: 'POST',
+    //     headers: {
+    //       Accept: 'application.json',
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({
+    //       word: word.word,
+    //       learningLevel: word.learning_level,
+    //       lastAnswerTs: word.last_answer_ts,
+    //       markedToLearn: isLearning,
+    //       markedToExclude: isExcluded,
+    //     }),
+    //   }),
+
+    onSuccess: (_, variables) => {
+      const updateNestedState = (
+        words: Wordsx,
+        id: string,
+        isLearning: boolean,
+        isExcluded: boolean,
+      ) => {
+        return words.map((wordList) =>
+          wordList.map((word) =>
+            word.word_id === id
+              ? {
+                  ...word,
+                  marked_to_learn: isLearning,
+                  marked_to_exclude: isExcluded,
+                }
+              : word,
+          ),
+        );
+      };
+
+      queryClient.setQueryData(['movieVocabulary'], (oldData: any) => {
+        console.log({ oldData });
+        return updateNestedState(
+          oldData,
+          variables.word.word_id,
+          variables.isLearning,
+          variables.isExcluded,
+        );
+      });
+    },
+  });
+};
+
+const updateWordStatus = async (
+  word: Wordx,
+  isLearning: boolean,
+  isExcluded: boolean,
+) => {
+  const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/words/progress`;
+  const payload = {
+    word: word.word_id,
+    learningLevel: word.learning_level,
+    lastAnswerTs: word.last_answer_ts,
+    markedToLearn: isLearning,
+    markedToExclude: isExcluded,
+  };
+
+  const response = await fetch(`${ENDPOINT}`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application.json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  // if (response.ok) {
+  return await response.json();
+  // return { test: 2 };
+  // } else throw new Error((await response.json()).message);
+};
+
+// if (response.ok) {
+//   // Utility function to deeply clone and update the state
+// const updateNestedState = (words: Words, id: string): Words => {
+//   return words.map((wordList) =>
+//     wordList.map((word) =>
+//       word.word === id
+//         ? {
+//             ...word,
+//             marked_to_learn: isLearning,
+//             marked_to_exclude: isExcluded,
+//           }
+//         : word
+//     )
+//   );
+// };
+
+//   setWords((prevWords) => updateNestedState(prevWords, word.word));
+// }

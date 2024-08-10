@@ -2,32 +2,36 @@ import { useCallback, useEffect, useState } from 'react';
 import { ListCardMovie } from '../../components/ListCard';
 import { Layout } from '../../components';
 import { Flex } from '@mantine/core';
+import { useLanguageStore } from '../../store';
 
-type Resource = {
-  resource: string;
-  key: string;
-  chapter_or_episode: string;
-  is_following: boolean;
+type MediaItem = {
+  media_item_id: string;
+  media_type: string;
+  title: string;
+  segment_title: string;
+  // is_following: boolean; //TODO: add is_following property to API response
 };
 
 export default function MoviesAndTV() {
-  const [resources, setResources] = useState<Resource[]>([]);
-
-  const fetchResources = useCallback(async () => {
+  const { selectedLanguage } = useLanguageStore();
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+  const fetchMediaItems = useCallback(async () => {
     const ENDPOINT =
       import.meta.env.VITE_ENVIRONMENT === 'TEST'
-        ? '/resources.json'
-        : `${import.meta.env.VITE_BASE_URL}/api/resources`;
+        ? '/media-items.json'
+        : `${
+            import.meta.env.VITE_BASE_URL
+          }/api/media-items?lang=${selectedLanguage}`;
 
     const response = await fetch(ENDPOINT);
     const data = await response.json();
 
-    setResources(data);
-  }, []);
+    setMediaItems(data);
+  }, [selectedLanguage]);
 
   useEffect(() => {
-    fetchResources();
-  }, [fetchResources]);
+    fetchMediaItems();
+  }, [fetchMediaItems]);
 
   return (
     <Layout>
@@ -38,13 +42,15 @@ export default function MoviesAndTV() {
         justify='flex-start'
         wrap='wrap'
       >
-        {resources.map((resource) => (
+        {mediaItems.map((resource) => (
           <ListCardMovie
-            name={`${resource.resource} -  ${resource.key}`}
-            key={resource.key}
-            linkToList={`../${resource.resource}/${resource.key}`}
-            linkToSubtitles={`../subtitles?type=${resource.resource}&key=${resource.key}`}
-            isFollowing={resource.is_following}
+            mediaItemId={resource.media_item_id}
+            name={`${resource.media_type} -  ${resource.title}`}
+            key={resource.title}
+            linkToList={`../${resource.media_type}/${resource.title}`}
+            linkToSubtitles={`../subtitles?media-item-id=${resource.media_item_id}`}
+            // isFollowing={resource.is_following}
+            isFollowing={false}
           />
         ))}
       </Flex>

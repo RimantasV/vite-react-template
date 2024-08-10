@@ -21,4 +21,4 @@ const Translation: FC<Props> = ({ translation, isExpanded }) => {
   return <li>{translationToRender}</li>;
 };
 
-export { Translation };
+export default Translation;

@@ -1,6 +1,8 @@
 import { FC } from 'react';
-import { Translation } from './TranslationV2';
-import styles from './sheetContent.module.scss';
+
+import { Translation } from '../Translation';
+
+import styles from '../SheetContent/sheetContent.module.scss';
 
 type Props = {
   excluded: boolean;
@@ -9,7 +11,7 @@ type Props = {
     {
       glosses: string;
       tags?: string[];
-    }
+    },
   ];
   isExpanded: boolean;
 };
@@ -38,4 +40,4 @@ const WordTranslation: FC<Props> = ({ el, words, isExpanded, excluded }) => {
   );
 };
 
-export { WordTranslation };
+export default WordTranslation;

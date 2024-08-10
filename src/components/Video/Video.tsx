@@ -1,6 +1,8 @@
-import { Button, Group } from '@mantine/core';
 import { useCallback, useEffect, useState } from 'react';
 import ReactPlayer from 'react-player/file';
+
+import { Button, Group } from '@mantine/core';
+
 import { SentencesRespose } from '../../types';
 import { calculateTimeDifference } from '../../utils';
 
@@ -8,66 +10,66 @@ type Props = {
   examples: SentencesRespose;
 };
 
+type VideoDetails = {
+  resource: string;
+  key: string;
+  chapter_or_episode: string;
+  id: number;
+};
+
 export default function Video({ examples }: Props) {
-  // console.log(examples);
-
-  // const [videoId, setVideoId] = useState<number>();
   const [playIndex, setPlayIndex] = useState<number>(0);
-  const [videoIds, setVideoIds] = useState<number[]>([]);
-  const [ids, setIds] = useState<number[]>();
-
+  const [videoIds, setVideoIds] = useState<VideoDetails[]>([]);
+  const [videoDetails, setVideoDetails] = useState<VideoDetails[]>();
+  const [playing, setPlaying] = useState(false);
   useEffect(() => {
-    setIds(
+    setVideoDetails(
       examples
         .filter(
-          (el) =>
-            // el.key === 'iLoveYouStupid' &&
-            el.timestamps && calculateTimeDifference(el.timestamps) > 2
+          (el) => el.timestamps && calculateTimeDifference(el.timestamps) > 2,
         )
-        .map((el) => el.id)
-        .slice(0, 10)
+        .map((el) => ({
+          resource: el.resource,
+          key: el.key,
+          chapter_or_episode: el.chapter_or_episode,
+          id: el.id,
+        }))
+        .slice(0, 10),
     );
   }, [examples]);
 
-  // const ids =
-
-  // const idToCheck = ids[0];
-  //
-  // console.log(ids);
-  // console.log(videoIds);
-  // console.log(idToCheck);
-
-  // ids.forEach((id) => checkIfVideoExists(id));
+  const checkIfVideoExists = useCallback(
+    async ({ resource, key, chapter_or_episode, id }: VideoDetails) => {
+      if (id) {
+        const ENDPOINT =
+          `https://movie-tongue.b-cdn.net/${key}` +
+          (chapter_or_episode === 'n/a' ? '' : `/${chapter_or_episode}`) +
+          `/file_${id}.mp4`;
+        const response = await fetch(ENDPOINT, {
+          method: 'HEAD',
+        });
+        if (response.ok) {
+          setVideoIds((prevState) => {
+            if (prevState.some((el) => el.id === id)) {
+              return prevState;
+            } else
+              return [...prevState, { resource, key, chapter_or_episode, id }];
+          });
+        } else {
+          console.log('HTTP error:', response.status, response.statusText);
+        }
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
-    // console.log('effect');
-    // console.log(ids?.length);
-    if (ids?.length) {
-      for (let i = 0; i < (ids?.length || 0); i++) {
-        checkIfVideoExists(ids[i]);
+    if (videoDetails?.length) {
+      for (let i = 0; i < (videoDetails?.length || 0); i++) {
+        checkIfVideoExists(videoDetails[i]);
       }
     }
-  }, [ids?.length]);
-
-  const checkIfVideoExists = useCallback(async (id: number) => {
-    if (id) {
-      const ENDPOINT = `https://movie-tongue.b-cdn.net/file_${id}.mp4`;
-      // console.log({ ENDPOINT });
-      const response = await fetch(ENDPOINT, {
-        method: 'HEAD',
-      });
-      if (response.ok) {
-        // setVideoId(idToCheck);
-        setVideoIds((prevState) => {
-          if (prevState.includes(id)) {
-            return prevState;
-          } else return [...prevState, id];
-        });
-      } else {
-        console.log('HTTP error:', response.status, response.statusText);
-      }
-    }
-  }, []);
+  }, [checkIfVideoExists, videoDetails, videoDetails?.length]);
 
   const previousVideo = () => {
     setPlayIndex((prevState) => prevState - 1);
@@ -75,13 +77,8 @@ export default function Video({ examples }: Props) {
 
   const nextVideo = () => {
     setPlayIndex((prevState) => prevState + 1);
+    setPlaying(true);
   };
-
-  // useEffect(() => {
-  //   if (idToCheck) {
-  //     checkIfVideoExists();
-  //   }
-  // }, [idToCheck]);
 
   return (
     <>
@@ -90,27 +87,26 @@ export default function Video({ examples }: Props) {
           <div
             style={{
               outline: '1px solid black',
-              width: '100%',
-              display: 'flex',
-              position: 'relative',
+              // width: '100%',
+              // display: 'flex',
+              // position: 'relative',
+              backgroundColor: 'black',
             }}
           >
             <ReactPlayer
               style={{ position: 'relative' }}
-              url={`https://movie-tongue.b-cdn.net/file_${videoIds[playIndex]}.mp4`}
-              // url={`https://movie-tongue.b-cdn.net/file_4127.webm`}
-              // url={
-              //   'https://movie-tongue.b-cdn.net/test/Gangs%20of%20Galicia_S01E01_Episode%201.mp4'
-              // }
-              // url={
-              //   'https://movie-tongue.b-cdn.net/test/Berlin_S01E01_The%20Energy%20of%20Love.mp4'
-              // }
+              playing={playing}
+              url={
+                `https://movie-tongue.b-cdn.net/${videoIds[playIndex].key}` +
+                (videoIds[playIndex].chapter_or_episode === 'n/a'
+                  ? ''
+                  : `/${videoIds[playIndex].chapter_or_episode}`) +
+                `/file_${videoIds[playIndex].id}.mp4`
+              }
               controls
               width={'100%'}
               // height={'450px'}
-              // muted
-              // playing
-              // loop
+
               playsinline
               config={{
                 attributes: {
@@ -118,42 +114,35 @@ export default function Video({ examples }: Props) {
                 },
               }}
             ></ReactPlayer>
-            <div
-              style={{
-                position: 'absolute',
-                color: 'yellow',
-                bottom: '55px',
-                left: '50%',
-                transform: 'translate(-50%)',
-                backgroundColor: 'black',
-                padding: '10px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                width: '100%',
-              }}
-            >
-              <p style={{ marginBottom: '10px' }}>
-                {
-                  examples.filter(
-                    (el) => el.id === videoIds[playIndex]
-                    // el.key === 'iLoveYouStupid' &&
-                    // el.timestamps &&
-                    // calculateTimeDifference(el.timestamps) > 2
-                  )[0].sentence
-                }
-              </p>
-              <p style={{ color: 'white', fontSize: '14px' }}>
-                {
-                  examples.filter(
-                    (el) => el.id === videoIds[playIndex]
-                    // el.key === 'iLoveYouStupid' &&
-                    // el.timestamps &&
-                    // calculateTimeDifference(el.timestamps) > 2
-                  )[0].sentence_en_semantic
-                }
-              </p>
-            </div>
+          </div>
+          <div
+            style={{
+              // position: 'absolute',
+              color: 'yellow',
+              // bottom: '55px',
+              // left: '50%',
+              // transform: 'translate(-50%)',
+              backgroundColor: 'black',
+              padding: '10px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              // width: '100%',
+              textAlign: 'center',
+            }}
+          >
+            <p style={{ marginBottom: '10px' }}>
+              {
+                examples.filter((el) => el.id === videoIds[playIndex].id)[0]
+                  .sentence
+              }
+            </p>
+            <p style={{ color: 'white', fontSize: '14px' }}>
+              {
+                examples.filter((el) => el.id === videoIds[playIndex].id)[0]
+                  .sentence_en_semantic
+              }
+            </p>
           </div>
           <Group>
             <Button

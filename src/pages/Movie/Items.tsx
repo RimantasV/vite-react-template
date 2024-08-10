@@ -1,46 +1,52 @@
-import styles from './movie.module.scss';
+import { Key, useEffect, useState } from 'react';
 
-import { IconEyeOff, IconPlaylistAdd, IconTrash } from '@tabler/icons-react';
+import { ActionIcon, Flex, Pagination, Text } from '@mantine/core';
+import { IconEyeOff, IconPlaylistAdd } from '@tabler/icons-react';
+
+import { useMovieVocabularyQuery } from '../../queries';
+import { useLanguageStore } from '../../store';
+import { DataMovies, Wordx } from '../../types';
 // import InfiniteScroll from 'react-infinite-scroller';
 import { getDisplayDate, getNextReviewDate } from '../../utils/index';
 
-import { Flex, Pagination, Text } from '@mantine/core';
-import { Key, useEffect, useState } from 'react';
-import { useMovieVocabularyQuery } from '../../queries';
-import { DataMovies } from '../../types';
+import styles from './movie.module.scss';
 
 type Props = {
-  id: string;
+  // resource: string;
+  // id: string;
+  // chapter_or_episode: string;
+  mediaItemId: string;
   setShow: React.Dispatch<React.SetStateAction<boolean>>;
-  setActiveWord: React.Dispatch<React.SetStateAction<string>>;
-  handleExcludeClick: (
-    word: {
-      word: string;
-    }[]
-  ) => void;
+  setActiveWord: React.Dispatch<React.SetStateAction<Wordx | undefined>>;
+  handleExcludeClick: (word: Wordx[]) => void;
 };
 
 const Items: React.FC<Props> = ({
-  id,
+  // resource,
+  // id,
+  // chapter_or_episode,
+  mediaItemId,
   setActiveWord,
   setShow,
   handleExcludeClick,
 }) => {
+  const { selectedLanguage } = useLanguageStore();
+
   const {
     isPending: isPendingMovieVocabulary,
     isError: isErrorMovieVocabulary,
     data: movieVocabularyData,
     error: movieVocabularyError,
-  } = useMovieVocabularyQuery(id);
+  } = useMovieVocabularyQuery(selectedLanguage, mediaItemId);
 
   const [activePage, setPage] = useState(1);
   const [data, setData] = useState<DataMovies>();
 
   movieVocabularyData
-    ?.filter((word) => !word[0].marked_to_exclude)
+    // ?.filter((word) => !word[0].marked_to_exclude)
     // ?.slice(0, 1000)
     // .map((el) => [...el])
-    .sort((a, b) => {
+    ?.sort((a, b) => {
       if (a[0].nextReviewDate === null) {
         return 1;
       }
@@ -160,53 +166,58 @@ const Items: React.FC<Props> = ({
               className={styles.item}
               onClick={() => {
                 setShow(true);
-                setActiveWord(item[0].word);
+                setActiveWord(item[0]);
               }}
             >
               <div>
-                <Text>{item[0].word.split('-')[0]}</Text>
+                <Text>{item[0].word_id.split('-')[0]}</Text>
                 {item.map(
                   (
                     item: {
-                      word: string;
+                      word_id: string;
                       info: {
                         glosses: string;
                       }[];
                     },
-                    i: Key | null | undefined
+                    i: Key | null | undefined,
                   ) => (
                     <Text key={i} c='blue' size='lg'>
-                      {item.word.split('-')[1]} - {item.info[0].glosses}
+                      {item.word_id.split('-')[1]} - {item.info[0].glosses}
                     </Text>
-                  )
+                  ),
                 )}
               </div>
               <Flex gap='lg'>
                 {getDisplayDate(
                   getNextReviewDate(
                     item[0].learning_level,
-                    item[0].last_answer_ts
-                  )
+                    item[0].last_answer_ts,
+                  ),
                 )}
-                <IconPlaylistAdd
-                  size={24}
-                  color='blue'
-                  stroke={2}
-                  strokeLinejoin='miter'
-                />
-                <IconEyeOff
-                  size={24}
-                  color='gray'
-                  stroke={2}
-                  strokeLinejoin='miter'
-                />
-                <IconTrash
-                  onClick={() => handleExcludeClick(item)}
-                  size={24}
-                  color='red'
-                  stroke={2}
-                  strokeLinejoin='round'
-                />
+                <ActionIcon
+                  size='lg'
+                  variant='subtle'
+                  aria-label='Add to custom list'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  radius='lg'
+                >
+                  <IconPlaylistAdd stroke={2} />
+                </ActionIcon>
+                <ActionIcon
+                  size='lg'
+                  c='gray'
+                  variant='subtle'
+                  aria-label='Exclude word'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleExcludeClick(item);
+                  }}
+                  radius='lg'
+                >
+                  <IconEyeOff stroke={2} />
+                </ActionIcon>
               </Flex>
             </div>
           ))}

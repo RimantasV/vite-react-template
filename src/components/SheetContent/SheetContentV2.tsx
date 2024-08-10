@@ -1,8 +1,9 @@
 import React, { FC } from 'react';
-import { WordTranslation } from './WordTranslationV2';
+
+import { DictionaryRecord } from '../../types';
+import { WordTranslation } from '../WordTranslation';
 
 import styles from './sheetContent.module.scss';
-import { DictionaryRecord } from '../types';
 
 type Props = {
   activeWords: string[] | undefined;
@@ -51,12 +52,12 @@ const SheetContent: FC<Props> = ({
   };
 
   const shouldRenderReadMoreButton = activeWords?.some((word) => {
-    const record = dictionaryRecord.find((record) => record.word === word);
+    const record = dictionaryRecord.find((record) => record.word_id === word);
     const hasMoreThanTwoTranslations = record
       ? record.info.translation.length > 2
       : false;
     const hasBracketsAtTheEnd = dictionaryRecord
-      .find((record) => record.word === word)
+      .find((record) => record.word_id === word)
       ?.info.translation.some((translation) => {
         return (
           translation.glosses.trim() !==
@@ -76,7 +77,7 @@ const SheetContent: FC<Props> = ({
               ?.filter((el) => !el.endsWith('*'))
               .map((word) =>
                 dictionaryRecord
-                  .find((record) => record.word === word)
+                  .find((record) => record.word_id === word)
                   ?.info.forms.filter((el) => el.form === activeForm)
                   .map((el, i) => {
                     return el.tags ? (
@@ -86,7 +87,7 @@ const SheetContent: FC<Props> = ({
                         word.split('-')[0]
                       }`}</p>
                     ) : null;
-                  })
+                  }),
               )}
           </div>
         }
@@ -100,7 +101,7 @@ const SheetContent: FC<Props> = ({
                 el={el}
                 // words={words[el]}
                 words={
-                  dictionaryRecord.find((record) => record.word === el)?.info
+                  dictionaryRecord.find((record) => record.word_id === el)?.info
                     .translation
                 }
                 isExpanded={isExpanded}
@@ -115,7 +116,7 @@ const SheetContent: FC<Props> = ({
                 el={el}
                 // words={words[el]}
                 words={
-                  dictionaryRecord.find((record) => record.word === el)?.info
+                  dictionaryRecord.find((record) => record.word_id === el)?.info
                     .translation
                 }
                 isExpanded={isExpanded}
@@ -145,4 +146,4 @@ const SheetContent: FC<Props> = ({
   );
 };
 
-export { SheetContent };
+export default SheetContent;

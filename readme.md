@@ -39,3 +39,21 @@ The configuration for Caddy is called a Caddyfile, and you can edit that file to
 - [encode](https://caddyserver.com/docs/caddyfile/directives/encode)
 - [file_server](https://caddyserver.com/docs/caddyfile/directives/file_server)
 - [try_files](https://caddyserver.com/docs/caddyfile/directives/try_files)
+
+<!-- {
+  "plugins": ["@trivago/prettier-plugin-sort-imports"],
+
+  "importOrder": [
+    "react",
+    "^(?!react)\\w+$",
+    "@mui",
+    "<THIRD_PARTY_MODULES>",
+    "@components",
+    "^[./]"
+  ],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "singleQuote": true,
+  "jsxSingleQuote": true,
+  "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"]
+} -->

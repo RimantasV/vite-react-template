@@ -1,7 +1,6 @@
 import {
   Button,
-  Card,
-  // Container,
+  Card, // Container,
   Flex,
   Group,
   Indicator,
@@ -10,22 +9,19 @@ import {
   Text,
   Title,
 } from '@mantine/core';
+
 import { Wordx } from '../../../types';
 
 type Props = {
-  onClick: () => {};
+  onClick: () => void;
   wordsData: Wordx[][] | undefined;
 };
 
 export default function Settings({ onClick, wordsData }: Props) {
   const numberOfWords = wordsData?.length;
   const numberOfWordsDue = wordsData?.filter(
-    (el) => new Date(el[0].nextReviewDate!).getTime() < new Date().getTime()
+    (el) => new Date(el[0].nextReviewDate!).getTime() < new Date().getTime(),
   ).length;
-
-  console.log(wordsData?.length);
-
-  console.log({ numberOfWordsDue });
 
   return (
     // <Container my='lg' size='md' bg='whitesmoke'>

@@ -16,12 +16,12 @@ export type EnglishTranslation = {
 };
 
 export type DictionaryRecord = {
-  word: string;
+  word_id: string;
   info: EnglishTranslation;
 };
 
 export type Words = {
-  word: string;
+  word_id: string;
   chapters: string[];
   frequency: number;
   info: { tags: string[]; glosses: string }[];
@@ -33,7 +33,7 @@ export type Words = {
 }[][];
 
 export type Wordx = {
-  word: string;
+  word_id: string;
   chapters: string[];
   frequency: number;
   info: { tags: string[]; glosses: string }[];
@@ -50,7 +50,7 @@ export type Wordsx = Wordx[][];
 
 export type Data = {
   list_id: number;
-  word: string;
+  word_id: string;
   info: { tags: string[]; glosses: string }[];
   learning_level: number;
   last_answer_ts: Date;
@@ -60,7 +60,7 @@ export type Data = {
 }[];
 
 export type DataMovies = {
-  word: string;
+  word_id: string;
   chapters: string[];
   frequency: number;
   info: { tags: string[]; glosses: string }[];
@@ -83,15 +83,16 @@ export type Word = {
 };
 
 export type Resource = {
-  resource: string;
-  key: string;
-  chapter_or_episode: string;
+  media_item_id: string;
+  media_type: string;
+  title: string;
+  segment_title: string;
   is_following: boolean;
 };
 
 export type UserCreatedList = {
-  id: number;
-  list_name: string;
+  custom_item_id: number;
+  title: string;
 };
 
 export enum QUIZ_STEPS {
@@ -122,8 +123,14 @@ export type SentencesRespose = {
   id: number;
   resource: string;
   key: string;
+  chapter_or_episode: string;
   sentence: string;
   sentence_html: string;
   sentence_en_semantic: string;
   timestamps: { startTime: Date; endTime: Date };
 }[];
+
+export enum Languages {
+  es = 'es',
+  de = 'de',
+}

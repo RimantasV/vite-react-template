@@ -1,4 +1,3 @@
-import { Modal } from '@restart/ui';
 import {
   ClassAttributes,
   HTMLAttributes,
@@ -7,12 +6,9 @@ import {
   useState,
 } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import ExamplesMoviesModal from '../../components/ExamplesMoviesModal';
 
-import styles from './list.module.scss';
-import styles2 from './vocabularyOverview.module.scss';
-
-import { getDisplayDate, getNextReviewDate } from '../../utils/index';
+import { Container, Flex, Text, Title } from '@mantine/core';
+import { Modal } from '@restart/ui';
 import {
   IconCheck,
   IconEdit,
@@ -22,50 +18,64 @@ import {
   IconX,
 } from '@tabler/icons-react';
 
-import { Container, Flex, Text, Title } from '@mantine/core';
+import { ExamplesMoviesModal } from '../../components';
+import { useLanguageStore } from '../../store';
+import { Data, Words, Wordx } from '../../types/types';
+import { getDisplayDate, getNextReviewDate } from '../../utils/index';
+
 import classes from './DndList.module.css';
-import { Data, Words } from '../../types/types';
+import styles from './list.module.scss';
+import styles2 from './vocabularyOverview.module.scss';
 
 export default function List() {
   const { id } = useParams();
   const { state } = useLocation();
+  const { selectedLanguage } = useLanguageStore();
 
   const [words, setWords] = useState<Words>([]);
   const [show, setShow] = useState(false);
-  const [activeWord, setActiveWord] = useState<string>('');
+  const [activeWord, setActiveWord] = useState<Wordx>();
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(state.listName);
 
-  const fetchUserCreatedListVocabulary = useCallback(async (key: string) => {
-    const ENDPOINT = `${
-      import.meta.env.VITE_BASE_URL
-    }/api/vocabulary-translation/lists/${key}`;
+  const fetchUserCreatedListVocabulary = useCallback(
+    async (key: string) => {
+      const ENDPOINT = `${
+        import.meta.env.VITE_BASE_URL
+      }/api/vocabulary-translation/lists/${key}?lang=${selectedLanguage}`;
 
-    const response = await fetch(ENDPOINT);
-    let data: Data = await response.json();
-    // data = data.filter((el) => !el.marked_to_exclude);
+      const response = await fetch(ENDPOINT);
+      let data: Data = await response.json();
+      // data = data.filter((el) => !el.marked_to_exclude);
 
-    data = data.map((el) => ({
-      ...el,
-      nextReviewDate: getNextReviewDate(el.learning_level, el.last_answer_ts),
-    }));
+      data = data.map((el) => ({
+        ...el,
+        nextReviewDate: getNextReviewDate(el.learning_level, el.last_answer_ts),
+      }));
 
-    const cleaned = data.reduce(function (
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      obj: { [x: string]: any },
-      item: { word: string }
-    ) {
-      if (!Object.prototype.hasOwnProperty.call(obj, item.word.split('-')[0])) {
-        obj[item.word.split('-')[0]] = [item];
-      } else {
-        obj[item.word.split('-')[0]] = [...obj[item.word.split('-')[0]], item];
-      }
+      const cleaned = data.reduce(function (
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        obj: { [x: string]: any },
+        item: { word_id: string },
+      ) {
+        if (
+          !Object.prototype.hasOwnProperty.call(obj, item.word_id.split('-')[0])
+        ) {
+          obj[item.word_id.split('-')[0]] = [item];
+        } else {
+          obj[item.word_id.split('-')[0]] = [
+            ...obj[item.word_id.split('-')[0]],
+            item,
+          ];
+        }
 
-      return obj;
-    }, {});
+        return obj;
+      }, {});
 
-    setWords(Object.values(cleaned));
-  }, []);
+      setWords(Object.values(cleaned));
+    },
+    [selectedLanguage],
+  );
 
   const items = words
     .filter((word) => !word[0].marked_to_exclude)
@@ -88,20 +98,20 @@ export default function List() {
         className={classes.item}
         onClick={() => {
           setShow(true);
-          setActiveWord(item[0].word);
+          setActiveWord(item[0]);
         }}
       >
         <div>
-          <Text>{item[0].word.split('-')[0]}</Text>
+          <Text>{item[0].word_id.split('-')[0]}</Text>
           {item.map((item, i) => (
             <Text key={i} c='blue' size='lg'>
-              {item.word.split('-')[1]} - {item.info[0].glosses}
+              {item.word_id.split('-')[1]} - {item.info?.[0].glosses}
             </Text>
           ))}
         </div>
         <Flex gap='lg'>
           {getDisplayDate(
-            getNextReviewDate(item[0].learning_level, item[0].last_answer_ts)
+            getNextReviewDate(item[0].learning_level, item[0].last_answer_ts),
           )}
           <IconPlaylistAdd
             size={24}
@@ -135,7 +145,7 @@ export default function List() {
   const handleFormSubmit = async (
     word: string,
     isLearning: boolean,
-    isExcluded: boolean
+    isExcluded: boolean,
   ) => {
     const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/words/status`;
     const payload = {
@@ -158,14 +168,14 @@ export default function List() {
       const updateNestedState = (words: Words, id: string): Words => {
         return words.map((wordList) =>
           wordList.map((word) =>
-            word.word === id
+            word.word_id === id
               ? {
                   ...word,
                   marked_to_learn: isLearning,
                   marked_to_exclude: isExcluded,
                 }
-              : word
-          )
+              : word,
+          ),
         );
       };
 
@@ -173,12 +183,12 @@ export default function List() {
     }
   };
 
-  const handleExcludeClick = (word: { word: string }[]) => {
-    word.forEach((el) => handleFormSubmit(el.word, false, true));
+  const handleExcludeClick = (word: { word_id: string }[]) => {
+    word.forEach((el) => handleFormSubmit(el.word_id, false, true));
   };
 
-  const handleLearnClick = (word: { word: string }[]) => {
-    word.forEach((el) => handleFormSubmit(el.word, true, false));
+  const handleLearnClick = (word: { word_id: string }[]) => {
+    word.forEach((el) => handleFormSubmit(el.word_id, true, false));
   };
 
   const handleRenameTitle = async () => {
@@ -254,10 +264,10 @@ export default function List() {
             <li key={i} className={styles.rowContainer}>
               <div className={styles.wordCard}>
                 <div>
-                  <p>{el[0].word.split('-')[0]}</p>
+                  <p>{el[0].word_id.split('-')[0]}</p>
                   {el.map((el, i) => (
                     <p key={i}>
-                      {el.word.split('-')[1]} - {el.info[0].glosses}
+                      {el.word_id.split('-')[1]} - {el.info[0].glosses}
                     </p>
                   ))}
                 </div>
@@ -274,13 +284,13 @@ export default function List() {
         renderBackdrop={(
           props: JSX.IntrinsicAttributes &
             ClassAttributes<HTMLDivElement> &
-            HTMLAttributes<HTMLDivElement>
+            HTMLAttributes<HTMLDivElement>,
         ) => <div {...props} className={styles2.backdrop} />}
         className={styles2.modal}
       >
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
           <div style={{ flex: '1' }}>
-            <ExamplesMoviesModal activeWord={activeWord} resourceKey={''} />
+            <ExamplesMoviesModal activeWord={activeWord!} resourceKey={''} />
           </div>
           <div className={styles2.toolbar}>
             <button className={styles2.button} onClick={() => setShow(false)}>
@@ -289,7 +299,7 @@ export default function List() {
             <button
               className={styles2.button}
               onClick={() => {
-                handleLearnClick([{ word: activeWord }]);
+                handleLearnClick([{ word_id: activeWord?.word_id ?? '' }]);
                 setShow(false);
               }}
             >
@@ -298,7 +308,7 @@ export default function List() {
             <button
               className={styles2.button}
               onClick={() => {
-                handleExcludeClick([{ word: activeWord }]);
+                handleExcludeClick([{ word_id: activeWord?.word_id ?? '' }]);
                 setShow(false);
               }}
             >

@@ -1,5 +1,7 @@
 import { Container } from '@mantine/core';
 
+import styles from './layout.module.scss';
+
 type Props = {
   children: React.ReactNode;
 };
@@ -7,14 +9,9 @@ type Props = {
 export default function Layout({ children }: Props): React.ReactNode {
   return (
     <Container
-      style={{
-        minHeight: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
+      className={styles.container}
+      // bg='white'
       size='lg'
-      bg='white'
-      p='xl'
     >
       {children}
     </Container>

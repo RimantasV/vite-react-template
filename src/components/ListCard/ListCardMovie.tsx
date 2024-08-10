@@ -1,20 +1,24 @@
+import { Link } from 'react-router-dom';
+
 import { Button, Card, Group, Text } from '@mantine/core';
 import { IconBook, IconCheck, IconMovie } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
+
 import classes from './ListCard.module.css';
 
 type Props = {
-  name: string;
-  linkToSubtitles: string;
-  linkToList: string;
   isFollowing: boolean;
+  linkToList: string;
+  linkToSubtitles: string;
+  mediaItemId: string;
+  name: string;
 };
 
 export function ListCardMovie({
-  name,
+  isFollowing,
   linkToList,
   linkToSubtitles,
-  isFollowing,
+  mediaItemId,
+  name,
 }: Props) {
   return (
     <Card
@@ -46,7 +50,7 @@ export function ListCardMovie({
         </Button>
         <Button
           component={Link}
-          state={{ listName: name }}
+          state={{ listName: name, mediaItemId }}
           to={linkToList}
           variant='outline'
           radius='md'

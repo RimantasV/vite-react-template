@@ -6,16 +6,21 @@ import {
   useState,
 } from 'react';
 
-import styles from './examples.module.scss';
-import styles2 from './dictionary.module.scss';
-import { EnglishTranslation } from '../../types/types';
 import { Modal } from '@restart/ui';
 
-type Word = { word: string; info: EnglishTranslation };
+import { useLanguageStore } from '../../store';
+import { EnglishTranslation } from '../../types/types';
 
-type List = { id: number; list_name: string };
+import styles2 from './dictionary.module.scss';
+import styles from './examples.module.scss';
+
+type Word = { word_id: string; info: EnglishTranslation };
+
+type List = { custom_item_id: number; title: string };
 
 export default function Dictionary() {
+  const { selectedLanguage } = useLanguageStore();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [activeWord, setActiveWord] = useState('');
   const [words, setWords] = useState<Word[]>([]);
@@ -27,7 +32,9 @@ export default function Dictionary() {
   };
 
   const fetchUserCreatedLists = async () => {
-    const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/user-created-lists`;
+    const ENDPOINT = `${
+      import.meta.env.VITE_BASE_URL
+    }/api/user-created-lists?lang=${selectedLanguage}`;
 
     const response = await fetch(ENDPOINT);
     const data = await response.json();
@@ -38,13 +45,13 @@ export default function Dictionary() {
   const fetchWords = useCallback(async () => {
     const ENDPOINT = `${
       import.meta.env.VITE_BASE_URL
-    }/api/dictionary/search/${searchTerm}`;
+    }/api/dictionary/search/${searchTerm}?lang=${selectedLanguage}`;
 
     const response = await fetch(ENDPOINT);
     const data = await response.json();
 
     setWords(data);
-  }, [searchTerm]);
+  }, [searchTerm, selectedLanguage]);
 
   const handleSearch = () => {
     if (searchTerm) {
@@ -74,13 +81,13 @@ export default function Dictionary() {
     if (Array.isArray(tags)) {
       if (
         tags.some((el) =>
-          ['Argentina', 'Costa-Rica', 'Mexico', 'Spain'].includes(el)
+          ['Argentina', 'Costa-Rica', 'Mexico', 'Spain'].includes(el),
         )
       ) {
         const countryCode = getCountryCode(
           tags.filter((el) =>
-            ['Argentina', 'Costa-Rica', 'Mexico', 'Spain'].includes(el)
-          )
+            ['Argentina', 'Costa-Rica', 'Mexico', 'Spain'].includes(el),
+          ),
         );
         return (
           <img
@@ -94,14 +101,14 @@ export default function Dictionary() {
 
   const handleLearn = (word: Word) => {
     fetchUserCreatedLists();
-    setActiveWord(word.word);
+    setActiveWord(word.word_id);
     setShow(true);
   };
 
   const fetchAddWordToList = async (id: number) => {
     const ENDPOINT = `${
       import.meta.env.VITE_BASE_URL
-    }/api/user-created-list/word`;
+    }/api/user-created-list/word?lang=${selectedLanguage}`;
 
     const payload = { listId: id, word: activeWord };
 
@@ -129,7 +136,7 @@ export default function Dictionary() {
   const fetchCreateNewList = async () => {
     const ENDPOINT = `${
       import.meta.env.VITE_BASE_URL
-    }/api/user-created-lists/list-word`;
+    }/api/user-created-lists/list-word?lang=${selectedLanguage}`;
 
     const payload = { word: activeWord };
 
@@ -169,14 +176,14 @@ export default function Dictionary() {
       <button onClick={handleSearch}>Search</button>
       <ul style={{ listStyle: 'none' }}>
         {words.map((word) => (
-          <li key={word.word} style={{ display: 'flex', flex: '1' }}>
+          <li key={word.word_id} style={{ display: 'flex', flex: '1' }}>
             <div
               className={styles.translationsCard}
               style={{ flex: '1', marginRight: '20px' }}
             >
               <div className={styles.headerContainer}>
-                <h2>{word.word?.split('-')[0]}</h2>
-                <p>{word.word?.split('-')[1]}</p>
+                <h2>{word.word_id?.split('-')[0]}</h2>
+                <p>{word.word_id?.split('-')[1]}</p>
               </div>
               <div className={styles.languageContainer}>
                 <div className={styles.flagContainer}>
@@ -222,7 +229,7 @@ export default function Dictionary() {
         renderBackdrop={(
           props: JSX.IntrinsicAttributes &
             ClassAttributes<HTMLDivElement> &
-            HTMLAttributes<HTMLDivElement>
+            HTMLAttributes<HTMLDivElement>,
         ) => <div {...props} className={styles2.backdrop} />}
         className={styles2.modal}
       >
@@ -230,11 +237,11 @@ export default function Dictionary() {
           <ul style={{ listStyle: 'none', padding: '0' }}>
             {lists.map((list) => (
               <li
-                onClick={() => handleAddWordToList(list.id)}
-                key={list.id}
+                onClick={() => handleAddWordToList(list.custom_item_id)}
+                key={list.custom_item_id}
                 className={styles2.listItem}
               >
-                {list.list_name}
+                {list.title}
               </li>
             ))}
           </ul>

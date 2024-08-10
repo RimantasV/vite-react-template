@@ -2,8 +2,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { Resource } from '../../types';
 import { Layout } from '../../components';
 import { Link, useParams } from 'react-router-dom';
+import { useLanguageStore } from '../../store';
 
 export default function Episodes() {
+  const { selectedLanguage } = useLanguageStore();
   const { id } = useParams();
   const [resources, setResources] = useState<Resource[]>([]);
 
@@ -11,7 +13,9 @@ export default function Episodes() {
     const ENDPOINT =
       import.meta.env.VITE_ENVIRONMENT === 'TEST'
         ? '/resources.json'
-        : `${import.meta.env.VITE_BASE_URL}/api/resources`;
+        : `${
+            import.meta.env.VITE_BASE_URL
+          }/api/resources?lang=${selectedLanguage}`;
 
     const response = await fetch(ENDPOINT);
     const data: Resource[] = await response.json();

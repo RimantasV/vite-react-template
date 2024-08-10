@@ -36,8 +36,10 @@ import {
 } from '../../types/types';
 import RenderFlag from './RenderFlag';
 import { Settings } from './components';
+import { useLanguageStore } from '../../store';
 
 export default function Quiz() {
+  const { selectedLanguage } = useLanguageStore();
   const [searchParams] = useSearchParams();
   const id = searchParams.get('id');
   const [, setWords] = useState<Wordsx>([]);
@@ -87,7 +89,7 @@ export default function Quiz() {
     isError: isErrorWords,
     data: wordsData,
     error: wordsError,
-  } = useUserCreatedListVocabularyQuery(parseInt(id!));
+  } = useUserCreatedListVocabularyQuery(selectedLanguage, parseInt(id!));
 
   const handleStartQuizUserCreatedQuiz = async () => {
     setQuizState((prevState) => ({ ...prevState, step: QUIZ_STEPS.PROGRESS }));
@@ -141,7 +143,7 @@ export default function Quiz() {
 
   const handleSubmitPositive = (x: Wordx) => {
     const payload: WordProgressPayload = {
-      word: x.word,
+      word: x.word_id,
       learningLevel: !x.learning_level
         ? 1
         : x.learning_level === 5
@@ -165,7 +167,7 @@ export default function Quiz() {
 
   const handleSubmitNegative = (x: Wordx) => {
     const payload: WordProgressPayload = {
-      word: x.word,
+      word: x.word_id,
       learningLevel: !x.learning_level ? 0 : x.learning_level - 1,
       lastAnswerTs: new Date(),
       markedToLearn: x.marked_to_learn,
@@ -193,7 +195,7 @@ export default function Quiz() {
   const handleExcludeWordClick = (word: Wordx[]) => {
     word.forEach((el) => {
       const payload = {
-        word: el.word,
+        word: el.word_id,
         learningLevel: el.learning_level,
         lastAnswerTs: el.last_answer_ts,
         markedToLearn: false,
@@ -241,7 +243,7 @@ export default function Quiz() {
       const updateNestedState = (words: Wordsx, id: string): Wordsx => {
         return words.map((wordList) =>
           wordList.map((word) =>
-            word.word === id
+            word.word_id === id
               ? {
                   ...word,
                   //TODO update other properties too.
@@ -323,7 +325,7 @@ export default function Quiz() {
               <Card.Section p='xl' withBorder>
                 <Flex justify='center'>
                   <Title fz={42} order={2}>
-                    {wordsData![quizState.index][0].word.split('-')[0]}
+                    {wordsData![quizState.index][0].word_id.split('-')[0]}
                   </Title>
                 </Flex>
               </Card.Section>
@@ -347,7 +349,7 @@ export default function Quiz() {
                         textTransform: 'uppercase',
                       }}
                     >
-                      {el.word.split('-')[1]}
+                      {el.word_id.split('-')[1]}
                     </Title>
                     <List
                       type='ordered'

@@ -1,7 +1,5 @@
 import { Key, useState } from 'react';
-
-import styles from '../Lists/lists.module.scss';
-import styles2 from './quiz.module.scss';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import {
   ActionIcon,
@@ -25,9 +23,10 @@ import {
   IconRepeat,
   IconX,
 } from '@tabler/icons-react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+
 import { Layout } from '../../components';
 import { useMovieVocabularyQuery } from '../../queries';
+import { useLanguageStore } from '../../store';
 import {
   QUIZ_STEPS,
   TRANSLATION_STATUS,
@@ -37,9 +36,16 @@ import {
 import RenderFlag from './RenderFlag';
 import { Settings } from './components';
 
+import styles from '../Lists/lists.module.scss';
+import styles2 from './quiz.module.scss';
+
 export default function Quiz() {
+  const { selectedLanguage } = useLanguageStore();
   const [searchParams] = useSearchParams();
-  const key = searchParams.get('key');
+  // const resource = searchParams.get('resource');
+  // const key = searchParams.get('key');
+  // const chapter_or_episode = searchParams.get('chapter_or_episode');
+  const mediaItemId = searchParams.get('media-item-id');
   const [, setWords] = useState<Wordsx>([]);
   // const [quizWords, setQuizWords] = useState<Wordsx>([]);
   // const [translationStatus, setTranslationStatus] = useState<
@@ -87,7 +93,7 @@ export default function Quiz() {
     isError: isErrorWordsMovies,
     data: wordsMoviesData,
     error: wordsMoviesError,
-  } = useMovieVocabularyQuery(key!);
+  } = useMovieVocabularyQuery(selectedLanguage, mediaItemId!);
 
   const handleStartQuizUserCreatedQuiz = async () => {
     setQuizState((prevState) => ({ ...prevState, step: QUIZ_STEPS.PROGRESS }));
@@ -141,12 +147,12 @@ export default function Quiz() {
 
   const handleSubmitPositive = (x: Wordx) => {
     const payload: WordProgressPayload = {
-      word: x.word,
+      word: x.word_id,
       learningLevel: !x.learning_level
         ? 1
         : x.learning_level === 5
-        ? 5
-        : x.learning_level + 1,
+          ? 5
+          : x.learning_level + 1,
       lastAnswerTs: new Date(),
       markedToLearn: x.marked_to_learn,
       markedToExclude: x.marked_to_exclude,
@@ -165,7 +171,7 @@ export default function Quiz() {
 
   const handleSubmitNegative = (x: Wordx) => {
     const payload: WordProgressPayload = {
-      word: x.word,
+      word: x.word_id,
       learningLevel: !x.learning_level ? 0 : x.learning_level - 1,
       lastAnswerTs: new Date(),
       markedToLearn: x.marked_to_learn,
@@ -193,7 +199,7 @@ export default function Quiz() {
   const handleExcludeWordClick = (word: Wordx[]) => {
     word.forEach((el) => {
       const payload = {
-        word: el.word,
+        word: el.word_id,
         learningLevel: el.learning_level,
         lastAnswerTs: el.last_answer_ts,
         markedToLearn: false,
@@ -241,22 +247,21 @@ export default function Quiz() {
       const updateNestedState = (words: Wordsx, id: string): Wordsx => {
         return words.map((wordList) =>
           wordList.map((word) =>
-            word.word === id
+            word.word_id === id
               ? {
                   ...word,
                   //TODO update other properties too.
                   marked_to_learn: markedToLearn,
                   marked_to_exclude: markedToExclude,
                 }
-              : word
-          )
+              : word,
+          ),
         );
       };
       setWords((prevWords) => updateNestedState(prevWords, word));
       goToNextWord();
     }
   };
-  console.log(wordsMoviesData?.length);
   if (quizState.step === QUIZ_STEPS.SETTINGS) {
     return (
       <Layout>
@@ -327,7 +332,7 @@ export default function Quiz() {
               <Card.Section p='xl' withBorder>
                 <Flex justify='center'>
                   <Title fz={42} order={2}>
-                    {wordsMoviesData![quizState.index][0].word.split('-')[0]}
+                    {wordsMoviesData![quizState.index][0].word_id.split('-')[0]}
                   </Title>
                 </Flex>
               </Card.Section>
@@ -335,8 +340,11 @@ export default function Quiz() {
               <Card.Section p='xl' mah='300' style={{ overflow: 'auto' }}>
                 {wordsMoviesData![quizState.index].map(
                   (
-                    el: { word: string; info: any[] },
-                    i: Key | null | undefined
+                    el: {
+                      word_id: string;
+                      info: { tags: string[]; glosses: string }[];
+                    },
+                    i: Key | null | undefined,
                   ) => (
                     <div
                       className={`${styles2.translation} ${
@@ -355,7 +363,7 @@ export default function Quiz() {
                           textTransform: 'uppercase',
                         }}
                       >
-                        {el.word.split('-')[1]}
+                        {el.word_id.split('-')[1]}
                       </Title>
                       <List
                         type='ordered'
@@ -373,7 +381,7 @@ export default function Quiz() {
                         ))}
                       </List>
                     </div>
-                  )
+                  ),
                 )}
               </Card.Section>
             </Card>

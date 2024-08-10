@@ -1,3 +1,7 @@
+import { useCallback, useState } from 'react';
+import { Sheet } from 'react-modal-sheet';
+import { useSearchParams } from 'react-router-dom';
+
 import {
   ActionIcon,
   Checkbox,
@@ -7,18 +11,20 @@ import {
   Pagination,
   Paper,
   Skeleton,
+  Space,
   Stack,
   Text,
 } from '@mantine/core';
 import { IconStar } from '@tabler/icons-react';
-import { useCallback, useState } from 'react';
-import { Sheet } from 'react-modal-sheet';
-import { useSearchParams } from 'react-router-dom';
+
 import { Layout } from '../../components';
-import { SheetContent } from '../../components/SheetContentV2';
-import styles from '../../components/sheetContent.module.scss';
+import { SheetContent } from '../../components/';
 import { useSubtitlesQuery } from '../../queries';
+import { useLanguageStore } from '../../store';
 import { DictionaryRecord } from '../../types';
+
+import styles from '../../components/SheetContent/sheetContent.module.scss';
+import styles2 from './subtitles.module.scss';
 
 enum SORT_ORDER {
   CHRONOLOGICALLY = 'Chronologically',
@@ -28,11 +34,13 @@ enum SORT_ORDER {
 
 export default function Subtitles() {
   const [searchParams] = useSearchParams();
-  const type = searchParams.get('type');
-  const key = searchParams.get('key');
+  // const type = searchParams.get('type');
+  // const key = searchParams.get('key');
+  const { selectedLanguage } = useLanguageStore();
+  const mediaItemId = searchParams.get('media-item-id');
 
   const [dictionaryRecord, setDictionaryRecord] = useState<DictionaryRecord[]>(
-    []
+    [],
   );
   const [isOpenModal, setOpenModal] = useState(false);
   const [activeWords, setActiveWords] = useState<string[]>();
@@ -47,18 +55,23 @@ export default function Subtitles() {
     isError: isErrorSubtitles,
     data: subtitlesData,
     error: subtitlesError,
-  } = useSubtitlesQuery(type!, key!);
+  } = useSubtitlesQuery(selectedLanguage, mediaItemId!);
 
-  const fetchDictionaryRecord = useCallback(async (id: string) => {
-    const response = await fetch(
-      `${import.meta.env.VITE_BASE_URL}/api/dictionary/${id}`
-    );
+  const fetchDictionaryRecord = useCallback(
+    async (id: string) => {
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/api/dictionary/${id}?lang=${selectedLanguage}`,
+      );
 
-    const data = await response.json();
-    if (data[0].word) {
-      setDictionaryRecord((prevState) => [...prevState, data[0]]);
-    }
-  }, []);
+      const data: DictionaryRecord[] = await response.json();
+      if (data[0].word_id) {
+        setDictionaryRecord((prevState) => [...prevState, data[0]]);
+      }
+    },
+    [selectedLanguage],
+  );
 
   const fetchEng = (wordIdArray: string[]) => {
     if (wordIdArray && wordIdArray?.length > 0) {
@@ -75,7 +88,7 @@ export default function Subtitles() {
   };
 
   const handleWordClick: React.MouseEventHandler<HTMLParagraphElement> = (
-    e
+    e,
   ) => {
     const target = e.target as HTMLParagraphElement;
 
@@ -144,12 +157,16 @@ export default function Subtitles() {
                   <div>
                     <Text
                       key={i}
+                      fz='h4'
                       onClick={handleWordClick}
                       dangerouslySetInnerHTML={{
                         __html: sentenceObj.sentence_html,
                       }}
-                    ></Text>
-                    <Text>{sentenceObj.sentence_en_semantic}</Text>
+                    />
+                    <Space h='xs' />
+                    <Text fz='sm' className={styles2.translation}>
+                      {sentenceObj.sentence_en_semantic}
+                    </Text>
                   </div>
                   <ActionIcon
                     bg='lightgrey'

@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
 import Skeleton from 'react-loading-skeleton';
-import styles from '../pages/Dictionary/examples.module.scss';
-import { EnglishTranslation, SentencesRespose } from '../types/types';
-import { Video } from './Video';
+
+import { useLanguageStore } from '../../store';
+import { EnglishTranslation, SentencesRespose, Wordx } from '../../types/types';
+import { Video } from '../index';
+
+import styles from '../../pages/Dictionary/examples.module.scss';
+
 // import { useSearchParams } from 'react-router-dom';
 
 type Props = {
-  activeWord: string;
+  activeWord: Wordx;
   resourceKey: string;
   renderOnlyExampes?: boolean;
   translationStatus?: 'hidden' | 'visible';
@@ -22,7 +26,8 @@ const ExamplesMoviesModal: React.FC<Props> = ({
 }) => {
   //   const [searchParams] = useSearchParams();
   //   const id = searchParams.get('word');
-  const id = activeWord;
+  const { selectedLanguage } = useLanguageStore();
+  const id = activeWord.word_id;
   const [examples, setExamples] = useState<SentencesRespose>([]);
   const [englishTranslation, setEnglishTranslation] =
     useState<EnglishTranslation>({
@@ -42,18 +47,18 @@ const ExamplesMoviesModal: React.FC<Props> = ({
   const fetchExamples = useCallback(async () => {
     const ENDPOINT = `${
       import.meta.env.VITE_BASE_URL
-    }/api/sentences-movies?key=${resourceKey}&word=${activeWord}`;
+    }/api/sentences-movies?key=${resourceKey}&word=${activeWord.word_id}`;
 
     const response = await fetch(ENDPOINT);
     const data: SentencesRespose = await response.json();
 
     const re2 = new RegExp(
       `<span class="clickable resolved" data-word-id="[^>]*?${id}[^*].*?>`,
-      'gm'
+      'gm',
     );
     const re = new RegExp(
       `<span class="clickable" data-word-id="[^>]*?${id}.*?>`,
-      'gm'
+      'gm',
     );
 
     const dataWithClass = data.map((el) => ({
@@ -68,20 +73,23 @@ const ExamplesMoviesModal: React.FC<Props> = ({
       sentence_en_semantic: el.sentence_en_semantic,
       resource: el.resource,
       key: el.key,
+      chapter_or_episode: el.chapter_or_episode,
       timestamps: el.timestamps,
     }));
 
     setExamples(dataWithClass);
-  }, [activeWord, id, resourceKey]);
+  }, [activeWord.word_id, id, resourceKey]);
 
   const fetchDictionaryRecord = useCallback(async () => {
     const response = await fetch(
-      `${import.meta.env.VITE_BASE_URL}/api/dictionary/${id}`
+      `${
+        import.meta.env.VITE_BASE_URL
+      }/api/dictionary/${id}?lang=${selectedLanguage}`,
     );
 
     const data = await response.json();
     setEnglishTranslation(data[0]?.info);
-  }, [id]);
+  }, [id, selectedLanguage]);
 
   useEffect(() => {
     fetchExamples();
@@ -112,13 +120,13 @@ const ExamplesMoviesModal: React.FC<Props> = ({
     if (Array.isArray(tags)) {
       if (
         tags.some((el) =>
-          ['Argentina', 'Costa-Rica', 'Mexico', 'Spain'].includes(el)
+          ['Argentina', 'Costa-Rica', 'Mexico', 'Spain'].includes(el),
         )
       ) {
         const countryCode = getCountryCode(
           tags.filter((el) =>
-            ['Argentina', 'Costa-Rica', 'Mexico', 'Spain'].includes(el)
-          )
+            ['Argentina', 'Costa-Rica', 'Mexico', 'Spain'].includes(el),
+          ),
         );
         return (
           <img

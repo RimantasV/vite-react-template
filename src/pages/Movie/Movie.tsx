@@ -1,14 +1,10 @@
-import { Modal } from '@restart/ui';
 import { ClassAttributes, HTMLAttributes, useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import ExamplesMoviesModal from '../../components/ExamplesMoviesModal';
 
-import styles2 from '../List/vocabularyOverview.module.scss';
-import styles from './movie.module.scss';
-
+import { Button, Container, Flex, Tabs, Title, rem } from '@mantine/core';
+import { Modal } from '@restart/ui';
 import {
   IconBook,
-  IconBrain,
   IconCheck,
   IconEdit,
   IconEyeOff,
@@ -16,20 +12,23 @@ import {
   IconX,
 } from '@tabler/icons-react';
 
-import { Button, Container, Flex, rem, Tabs, Title } from '@mantine/core';
-import { Words } from '../../types/types';
+import { ExamplesMoviesModal } from '../../components';
+import { useResourceStatusQuery, useToggleFollowQuery } from '../../queries';
+import { useLanguageStore } from '../../store';
+import { Words, Wordx } from '../../types/types';
 import Items from './Items';
-import { useResourceStatusQuery, usetoggleFollowQuery } from '../../queries';
+
+import styles2 from '../List/vocabularyOverview.module.scss';
+import styles from './movie.module.scss';
 
 export default function Movie() {
   const iconStyle = { width: rem(12), height: rem(12) };
-
+  const { selectedLanguage } = useLanguageStore();
   const { id } = useParams();
   const { state } = useLocation();
-
   const [words, setWords] = useState<Words>([]);
   const [show, setShow] = useState(false);
-  const [activeWord, setActiveWord] = useState<string>('');
+  const [activeWord, setActiveWord] = useState<Wordx>();
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(state.listName);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -40,27 +39,29 @@ export default function Movie() {
     // data: toggleQueryData,
     // error: toggleQueryError,
     refetch: refetchToggleQuery,
-  } = usetoggleFollowQuery('movie', id!, 'n/a', setIsFollowing);
+  } = useToggleFollowQuery(selectedLanguage, state.mediaItemId, setIsFollowing);
 
   const {
     isPending: isPendingResourceStatus,
     // isError: isErrorResourceStatus,
     data: resourceStatusData,
     // error: resourceStatusError,
-  } = useResourceStatusQuery(id!);
+  } = useResourceStatusQuery(selectedLanguage, id!);
 
   useEffect(() => {
     setIsFollowing(resourceStatusData);
   }, [resourceStatusData]);
 
   const handleFormSubmit = async (
-    word: string,
+    word: Wordx,
     isLearning: boolean,
-    isExcluded: boolean
+    isExcluded: boolean,
   ) => {
-    const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/words/status`;
+    const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/words/progress`;
     const payload = {
-      word,
+      word_id: word.word_id,
+      learningLevel: word.learning_level,
+      lastAnswerTs: word.last_answer_ts,
       markedToLearn: isLearning,
       markedToExclude: isExcluded,
     };
@@ -75,31 +76,30 @@ export default function Movie() {
     });
 
     if (response.ok) {
-      // // Utility function to deeply clone and update the state
+      // Utility function to deeply clone and update the state
       const updateNestedState = (words: Words, id: string): Words => {
         return words.map((wordList) =>
           wordList.map((word) =>
-            word.word === id
+            word.word_id === id
               ? {
                   ...word,
                   marked_to_learn: isLearning,
                   marked_to_exclude: isExcluded,
                 }
-              : word
-          )
+              : word,
+          ),
         );
       };
 
-      setWords((prevWords) => updateNestedState(prevWords, word));
+      setWords((prevWords) => updateNestedState(prevWords, word.word_id));
     }
   };
-
-  const handleExcludeClick = (word: { word: string }[]) => {
-    word.forEach((el) => handleFormSubmit(el.word, false, true));
+  const handleExcludeClick = (word: Wordx[]) => {
+    word.forEach((el) => handleFormSubmit(el, false, true));
   };
 
-  const handleLearnClick = (word: { word: string }[]) => {
-    word.forEach((el) => handleFormSubmit(el.word, true, false));
+  const handleLearnClick = (word: Wordx[]) => {
+    word.forEach((el) => handleFormSubmit(el, true, false));
   };
 
   const handleRenameTitle = async () => {
@@ -185,12 +185,6 @@ export default function Movie() {
             Learning
           </Tabs.Tab>
           <Tabs.Tab
-            value='messages'
-            leftSection={<IconBrain style={iconStyle} />}
-          >
-            Known
-          </Tabs.Tab>
-          <Tabs.Tab
             value='settings'
             leftSection={<IconEyeOff style={iconStyle} />}
           >
@@ -203,7 +197,10 @@ export default function Movie() {
             Learning
           </Title>
           <Items
-            id={id!}
+            // resource='movie'
+            // id={id!}
+            // chapter_or_episode='n/a'
+            mediaItemId={state.mediaItemId}
             setShow={setShow}
             setActiveWord={setActiveWord}
             handleExcludeClick={handleExcludeClick}
@@ -215,13 +212,16 @@ export default function Movie() {
             renderBackdrop={(
               props: JSX.IntrinsicAttributes &
                 ClassAttributes<HTMLDivElement> &
-                HTMLAttributes<HTMLDivElement>
+                HTMLAttributes<HTMLDivElement>,
             ) => <div {...props} className={styles2.backdrop} />}
             className={styles2.modal}
           >
             <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
               <div style={{ flex: '1' }}>
-                <ExamplesMoviesModal activeWord={activeWord} resourceKey={''} />
+                <ExamplesMoviesModal
+                  activeWord={activeWord!}
+                  resourceKey={''}
+                />
               </div>
               <div className={styles2.toolbar}>
                 <button
@@ -233,7 +233,7 @@ export default function Movie() {
                 <button
                   className={styles2.button}
                   onClick={() => {
-                    handleLearnClick([{ word: activeWord }]);
+                    handleLearnClick([activeWord!]);
                     setShow(false);
                   }}
                 >
@@ -242,7 +242,7 @@ export default function Movie() {
                 <button
                   className={styles2.button}
                   onClick={() => {
-                    handleExcludeClick([{ word: activeWord }]);
+                    handleExcludeClick([activeWord!]);
                     setShow(false);
                   }}
                 >
@@ -252,9 +252,6 @@ export default function Movie() {
             </div>
           </Modal>
         </Tabs.Panel>
-
-        <Tabs.Panel value='messages'>Known tab content</Tabs.Panel>
-
         <Tabs.Panel value='settings'>
           <Title order={2} mb='lg'>
             Excluded
@@ -266,10 +263,10 @@ export default function Movie() {
                 <li key={i} className={styles.rowContainer}>
                   <div className={styles.wordCard}>
                     <div>
-                      <p>{el[0].word.split('-')[0]}</p>
+                      <p>{el[0].word_id.split('-')[0]}</p>
                       {el.map((el, i) => (
                         <p key={i}>
-                          {el.word.split('-')[1]} - {el.info[0].glosses}
+                          {el.word_id.split('-')[1]} - {el.info[0].glosses}
                         </p>
                       ))}
                     </div>

@@ -1,23 +1,27 @@
 import { Container, Title } from '@mantine/core';
+
 import { ListCard } from '../../components/ListCard';
 import { useResourcesQuery, useUserCreatedListsQuery } from '../../queries';
+import { useLanguageStore } from '../../store';
 
 import styles from './lists.module.scss';
 
 export default function Lists() {
+  const { selectedLanguage } = useLanguageStore();
+
   const {
     isPending: isPendingUsserCreatedLists,
     isError: isErrorUserCreatedLists,
     data: userCreatedListData,
     error: userCreatedListError,
-  } = useUserCreatedListsQuery();
+  } = useUserCreatedListsQuery(selectedLanguage);
 
   const {
     isPending: isPendingResources,
     isError: isErrorResources,
     data: resourcesData,
     error: respurcesError,
-  } = useResourcesQuery();
+  } = useResourcesQuery(selectedLanguage);
 
   if (isPendingUsserCreatedLists || isPendingResources) {
     return <span>Loading...</span>;
@@ -44,9 +48,9 @@ export default function Lists() {
         {userCreatedListData?.map((el, i) => (
           <li key={i}>
             <ListCard
-              name={el.list_name}
-              to={el.id.toString()}
-              id={el.id.toString()}
+              name={el.title}
+              to={el.custom_item_id.toString()}
+              id={el.custom_item_id.toString()}
             />
           </li>
         ))}
@@ -57,7 +61,13 @@ export default function Lists() {
       <ul className={styles.ul}>
         {resourcesData.map((el, i) => (
           <li key={i}>
-            <ListCard name={el.key} key_={el.key} />
+            <ListCard
+              mediaItemId={el.media_item_id}
+              mediaType={el.media_type}
+              segmentTitle={el.segment_title}
+              name={el.title}
+              title={el.title}
+            />
           </li>
         ))}
       </ul>

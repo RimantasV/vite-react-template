@@ -1,11 +1,17 @@
-import '@mantine/core/styles.css';
 import * as reactRouterDom from 'react-router-dom';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+
 import SuperTokens, { SuperTokensWrapper } from 'supertokens-auth-react';
 import { SessionAuth } from 'supertokens-auth-react/recipe/session';
 import { getSuperTokensRoutesForReactRouterDom } from 'supertokens-auth-react/ui';
-import './App.css';
-import { ComponentWrapper, PreBuiltUIList, SuperTokensConfig } from './config';
+
+import '@mantine/core/styles.css';
+
+import {
+  ComponentWrapper,
+  PreBuiltUIList,
+  SuperTokensConfig,
+} from './config/config';
 import {
   Dictionary,
   Home,
@@ -17,10 +23,12 @@ import {
   Subtitles,
   VocabularyLevel,
 } from './pages';
+import { Episode } from './pages/Episode';
+import { Episodes } from './pages/Episodes';
 import MoviesAndTV from './pages/MoviesAndTV/MoviesAndTV';
 import { QuizMovie } from './pages/QuizMovie';
-import { Episodes } from './pages/Episodes';
-import { Episode } from './pages/Episode/index copy';
+
+import './App.css';
 
 // import { ThirdPartyPreBuiltUI } from 'supertokens-auth-react/recipe/thirdparty/prebuiltui';
 // import { EmailPasswordPreBuiltUI } from 'supertokens-auth-react/recipe/emailpassword/prebuiltui';
@@ -28,10 +36,6 @@ import { Episode } from './pages/Episode/index copy';
 SuperTokens.init(SuperTokensConfig);
 
 function App() {
-  console.log(
-    import.meta.env.VITE_MOVIE_TONGUE_FE_URL,
-    import.meta.env.VITE_MOVIE_TONGUE_API_URL
-  );
   return (
     <SuperTokensWrapper>
       <ComponentWrapper>
@@ -41,7 +45,7 @@ function App() {
               {/* This shows the login UI on "/auth" route */}
               {getSuperTokensRoutesForReactRouterDom(
                 reactRouterDom,
-                PreBuiltUIList
+                PreBuiltUIList,
               )}
               <Route
                 path='/'
