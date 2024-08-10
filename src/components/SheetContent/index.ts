@@ -1,1 +1,1 @@
-export { default as SheetContent } from './SheetContentV2';
+export { default as SheetContent } from './SheetContent';

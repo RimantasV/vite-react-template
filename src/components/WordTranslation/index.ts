@@ -1,1 +1,1 @@
-export { default as WordTranslation } from './WordTranslationV2';
+export { default as WordTranslation } from './WordTranslation';
