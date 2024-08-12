@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 
-import { Button, Card, Group, Text } from '@mantine/core';
+import { Button, Card, Group, Pill, Text } from '@mantine/core';
 import { IconBook, IconCheck, IconMovie } from '@tabler/icons-react';
+
+import { Details } from '../../pages/MoviesAndTV/MoviesAndTV';
 
 import classes from './ListCard.module.css';
 
@@ -11,9 +13,11 @@ type Props = {
   linkToSubtitles: string;
   mediaItemId: string;
   name: string;
+  details: Details;
 };
 
 export function ListCardMovie({
+  details,
   isFollowing,
   linkToList,
   linkToSubtitles,
@@ -35,6 +39,11 @@ export function ListCardMovie({
           {name}
         </Text>
         {isFollowing && <IconCheck />}
+      </Group>
+      <Group>
+        {details.genres.map((el, i) => (
+          <Pill key={i}>{el}</Pill>
+        ))}
       </Group>
       <Group mt='xs'>
         <Button

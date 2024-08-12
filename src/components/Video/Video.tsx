@@ -11,9 +11,10 @@ type Props = {
 };
 
 type VideoDetails = {
-  resource: string;
-  key: string;
-  chapter_or_episode: string;
+  // resource: string;
+  // key: string;
+  // chapter_or_episode: string;
+  sentence_id: string;
   id: number;
 };
 
@@ -26,25 +27,27 @@ export default function Video({ examples }: Props) {
     setVideoDetails(
       examples
         .filter(
-          (el) => el.timestamps && calculateTimeDifference(el.timestamps) > 2,
+          (el) =>
+            el.sentence_timestamps &&
+            calculateTimeDifference(el.sentence_timestamps) > 2,
         )
         .map((el) => ({
-          resource: el.resource,
-          key: el.key,
-          chapter_or_episode: el.chapter_or_episode,
+          // resource: el.resource,
+          // key: el.key,
+          // chapter_or_episode: el.chapter_or_episode,
+          sentence_id: el.sentence_id,
           id: el.id,
         }))
         .slice(0, 10),
     );
   }, [examples]);
-
   const checkIfVideoExists = useCallback(
-    async ({ resource, key, chapter_or_episode, id }: VideoDetails) => {
+    async ({ sentence_id, id }: VideoDetails) => {
       if (id) {
         const ENDPOINT =
-          `https://movie-tongue.b-cdn.net/${key}` +
-          (chapter_or_episode === 'n/a' ? '' : `/${chapter_or_episode}`) +
-          `/file_${id}.mp4`;
+          `https://movie-tongue.b-cdn.net/clips/es/theCourier` +
+          // (chapter_or_episode === 'n/a' ? '' : `/${chapter_or_episode}`) +
+          `/${sentence_id}.mp4`;
         const response = await fetch(ENDPOINT, {
           method: 'HEAD',
         });
@@ -52,8 +55,7 @@ export default function Video({ examples }: Props) {
           setVideoIds((prevState) => {
             if (prevState.some((el) => el.id === id)) {
               return prevState;
-            } else
-              return [...prevState, { resource, key, chapter_or_episode, id }];
+            } else return [...prevState, { sentence_id, id }];
           });
         } else {
           console.log('HTTP error:', response.status, response.statusText);
@@ -97,11 +99,11 @@ export default function Video({ examples }: Props) {
               style={{ position: 'relative' }}
               playing={playing}
               url={
-                `https://movie-tongue.b-cdn.net/${videoIds[playIndex].key}` +
-                (videoIds[playIndex].chapter_or_episode === 'n/a'
-                  ? ''
-                  : `/${videoIds[playIndex].chapter_or_episode}`) +
-                `/file_${videoIds[playIndex].id}.mp4`
+                `https://movie-tongue.b-cdn.net/clips/es/theCourier/` + //${videoIds[playIndex].key}` +
+                // (videoIds[playIndex].chapter_or_episode === 'n/a'
+                // ? ''
+                // : `/${videoIds[playIndex].chapter_or_episode}`) +
+                `/${videoIds[playIndex].sentence_id}.mp4`
               }
               controls
               width={'100%'}
@@ -134,7 +136,7 @@ export default function Video({ examples }: Props) {
             <p style={{ marginBottom: '10px' }}>
               {
                 examples.filter((el) => el.id === videoIds[playIndex].id)[0]
-                  .sentence
+                  .sentence_original
               }
             </p>
             <p style={{ color: 'white', fontSize: '14px' }}>

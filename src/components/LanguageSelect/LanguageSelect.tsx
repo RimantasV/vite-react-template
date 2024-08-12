@@ -1,9 +1,11 @@
-import { Select } from '@mantine/core';
+import { Paper, Select } from '@mantine/core';
 
 // import { ES, US } from 'country-flag-icons/react/3x2';
 // import { useState } from 'react';
 import { useLanguageStore } from '../../store';
 import { Languages } from '../../types';
+
+// import styles from './languageSelect.module.scss';
 
 const countryFlags = {
   es: { value: '🇪🇸', disabled: false },
@@ -23,8 +25,10 @@ const LanguageSelect = () => {
   }));
 
   return (
-    <>
+    <Paper visibleFrom='xs'>
       <Select
+        w={75}
+        // className={styles.select}
         value={selectedLanguage}
         onChange={(value) => setSelectedLanguage(value as Languages)}
         data={data}
@@ -51,7 +55,7 @@ const LanguageSelect = () => {
         //   )}
       />
       {/* <ES title='United States' width={40} /> */}
-    </>
+    </Paper>
   );
 };
 

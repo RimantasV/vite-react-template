@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 
-import { Flex, Title } from '@mantine/core';
+import { Flex, Title, Tooltip } from '@mantine/core';
 import { IconCheck, IconEdit, IconX } from '@tabler/icons-react';
+
+import { useLanguageStore } from '../../store';
 
 import styles from './listTitle.module.scss';
 
 export default function ListTitle() {
+  const { selectedLanguage } = useLanguageStore();
   const { id } = useParams();
   const { state } = useLocation();
 
@@ -14,7 +17,7 @@ export default function ListTitle() {
   const [newName, setNewName] = useState(state.listName);
 
   const handleRenameTitle = async () => {
-    const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/user-created-list`;
+    const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/user-created-list?lang=${selectedLanguage}`;
     const payload = { listId: id, newName };
 
     try {
@@ -44,11 +47,13 @@ export default function ListTitle() {
         <>
           <Flex align='baseline' my='lg'>
             <Title>{state.listName}</Title>
-            <IconEdit
-              color='gray'
-              size={20}
-              onClick={() => setIsEditing(true)}
-            />
+            <Tooltip label='Edit list name'>
+              <IconEdit
+                color='gray'
+                size={20}
+                onClick={() => setIsEditing(true)}
+              />
+            </Tooltip>
           </Flex>
         </>
       ) : (

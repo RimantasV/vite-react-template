@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { Wordsx, Wordx } from '../types';
+import { Languages, UserCreatedList, Wordsx, Wordx } from '../types';
 
 type UpdateWordStatus = {
   word: Wordx;
@@ -9,11 +9,40 @@ type UpdateWordStatus = {
   id: number;
 };
 
+const fetchUpdateWordStatus = async (
+  word: Wordx,
+  isLearning: boolean,
+  isExcluded: boolean,
+) => {
+  const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/words/progress`;
+  const payload = {
+    word: word.word_id,
+    learningLevel: word.learning_level,
+    lastAnswerTs: word.last_answer_ts,
+    markedToLearn: isLearning,
+    markedToExclude: isExcluded,
+  };
+
+  const response = await fetch(`${ENDPOINT}`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application.json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  // if (response.ok) {
+  return await response.json();
+  // return { test: 2 };
+  // } else throw new Error((await response.json()).message);
+};
+
 export const useUpdateWordStatusMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ word, isLearning, isExcluded }: UpdateWordStatus) =>
-      updateWordStatus(word, isLearning, isExcluded),
+      fetchUpdateWordStatus(word, isLearning, isExcluded),
 
     onSuccess: (_, variables) => {
       const updateNestedState = (
@@ -50,22 +79,25 @@ export const useUpdateWordStatusMutation = () => {
   });
 };
 
-const updateWordStatus = async (
-  word: Wordx,
-  isLearning: boolean,
-  isExcluded: boolean,
+type DeleteWordFromListPayload = {
+  lang: Languages;
+  wordId: string;
+  customItemId: string;
+};
+
+const fetchDeleteWordFromList = async (
+  lang: Languages,
+  wordId: string,
+  customItemId: string,
 ) => {
-  const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/words/progress`;
+  const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/user-created-list/word?lang=${lang}`;
   const payload = {
-    word: word.word_id,
-    learningLevel: word.learning_level,
-    lastAnswerTs: word.last_answer_ts,
-    markedToLearn: isLearning,
-    markedToExclude: isExcluded,
+    wordId,
+    customItemId,
   };
 
   const response = await fetch(`${ENDPOINT}`, {
-    method: 'POST',
+    method: 'DELETE',
     headers: {
       Accept: 'application.json',
       'Content-Type': 'application/json',
@@ -77,4 +109,70 @@ const updateWordStatus = async (
   return await response.json();
   // return { test: 2 };
   // } else throw new Error((await response.json()).message);
+};
+
+export const useDeleteWordFromListMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ lang, wordId, customItemId }: DeleteWordFromListPayload) =>
+      fetchDeleteWordFromList(lang, wordId, customItemId),
+
+    onSuccess: (_, variables) => {
+      const updateNestedState = (words: Wordsx, wordId: string) => {
+        return words.filter((word) =>
+          word.every((word) => word.word_id !== wordId),
+        );
+      };
+
+      queryClient.setQueryData(
+        ['userCreatedListVocabulary', parseInt(variables.customItemId)],
+        (oldData: Wordsx) => {
+          return updateNestedState(oldData, variables.wordId);
+        },
+      );
+    },
+  });
+};
+
+const fetchDeleteList = async (lang: Languages, customItemId: string) => {
+  const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/user-created-lists/${customItemId}?lang=${lang}`;
+
+  const response = await fetch(`${ENDPOINT}`, {
+    method: 'DELETE',
+    headers: {
+      Accept: 'application.json',
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (response.ok) {
+    return await response.json();
+  } else throw new Error((await response.json()).message);
+};
+
+type DeleteListPayload = {
+  lang: Languages;
+  customItemId: string;
+};
+
+export const useDeleteListMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ lang, customItemId }: DeleteListPayload) =>
+      fetchDeleteList(lang, customItemId),
+
+    onSuccess: (_, variables) => {
+      console.log('success');
+      console.log(_, variables);
+
+      queryClient.setQueryData(
+        ['userCreatedLists'],
+        (oldData: UserCreatedList[]) => {
+          return oldData.filter(
+            (el) => el.custom_item_id !== Number(variables.customItemId),
+          );
+        },
+      );
+    },
+  });
 };

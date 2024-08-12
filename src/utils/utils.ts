@@ -35,7 +35,7 @@ export const getCountryCode = (el: string[]) => {
 export const getNextReviewDate = (learningLevel: number, lastReview: Date) => {
   if (learningLevel === 0) {
     return new Date(
-      new Date(lastReview).getTime() + 6 * 60 * 60 * 1000
+      new Date(lastReview).getTime() + 6 * 60 * 60 * 1000,
     ).toISOString();
   }
 
@@ -45,27 +45,27 @@ export const getNextReviewDate = (learningLevel: number, lastReview: Date) => {
 
   if (learningLevel === 1) {
     return new Date(
-      new Date(lastReview).getTime() + 1 * 24 * 60 * 60 * 1000
+      new Date(lastReview).getTime() + 1 * 24 * 60 * 60 * 1000,
     ).toISOString();
   }
   if (learningLevel === 2) {
     return new Date(
-      new Date(lastReview).getTime() + 3 * 24 * 60 * 60 * 1000
+      new Date(lastReview).getTime() + 3 * 24 * 60 * 60 * 1000,
     ).toISOString();
   }
   if (learningLevel === 3) {
     return new Date(
-      new Date(lastReview).getTime() + 7 * 24 * 60 * 60 * 1000
+      new Date(lastReview).getTime() + 7 * 24 * 60 * 60 * 1000,
     ).toISOString();
   }
   if (learningLevel === 4) {
     return new Date(
-      new Date(lastReview).getTime() + 21 * 24 * 60 * 60 * 1000
+      new Date(lastReview).getTime() + 21 * 24 * 60 * 60 * 1000,
     ).toISOString();
   }
   if (learningLevel === 5) {
     return new Date(
-      new Date(lastReview).getTime() + 42 * 24 * 60 * 60 * 1000
+      new Date(lastReview).getTime() + 42 * 24 * 60 * 60 * 1000,
     ).toISOString();
   }
   return null;
@@ -86,7 +86,7 @@ export const getDisplayDate = (nextReviewDate: string | null) => {
 
   if ((new Date(nextReviewDate).getTime() - new Date().getTime()) / 36e5 < 24) {
     return `${Math.floor(
-      (new Date(nextReviewDate).getTime() - new Date().getTime()) / 36e5
+      (new Date(nextReviewDate).getTime() - new Date().getTime()) / 36e5,
     )} hours`;
   }
 
@@ -95,38 +95,55 @@ export const getDisplayDate = (nextReviewDate: string | null) => {
     168
   ) {
     return `${Math.floor(
-      (new Date(nextReviewDate).getTime() - new Date().getTime()) / 36e5 / 24
+      (new Date(nextReviewDate).getTime() - new Date().getTime()) / 36e5 / 24,
     )} days`;
   }
 
   return `${Math.floor(
-    (new Date(nextReviewDate).getTime() - new Date().getTime()) / 36e5 / 24 / 7
+    (new Date(nextReviewDate).getTime() - new Date().getTime()) / 36e5 / 24 / 7,
   )} weeks`;
 };
 
 interface TimeData {
-  endTime: Date;
-  startTime: Date;
+  endTime: string;
+  startTime: string;
 }
 
-export function calculateTimeDifference(data: TimeData): number {
-  const start = new Date(data.startTime);
-  const end = new Date(data.endTime);
+// export function calculateTimeDifference(data: TimeData): number {
+//   const start = new Date(data.startTime);
+//   const end = new Date(data.endTime);
+//   // Extract time parts
+//   const startTimeInSeconds =
+//     start.getHours() * 3600 +
+//     start.getMinutes() * 60 +
+//     start.getSeconds() +
+//     start.getMilliseconds() / 1000;
+//   const endTimeInSeconds =
+//     end.getHours() * 3600 +
+//     end.getMinutes() * 60 +
+//     end.getSeconds() +
+//     end.getMilliseconds() / 1000;
 
-  // Extract time parts
-  const startTimeInSeconds =
-    start.getHours() * 3600 +
-    start.getMinutes() * 60 +
-    start.getSeconds() +
-    start.getMilliseconds() / 1000;
-  const endTimeInSeconds =
-    end.getHours() * 3600 +
-    end.getMinutes() * 60 +
-    end.getSeconds() +
-    end.getMilliseconds() / 1000;
+//   // Calculate the difference
+//   const differenceInSeconds = endTimeInSeconds - startTimeInSeconds;
 
-  // Calculate the difference
-  const differenceInSeconds = endTimeInSeconds - startTimeInSeconds;
+//   return differenceInSeconds;
+// }
 
-  return differenceInSeconds;
+export function calculateTimeDifference(timeObj: TimeData): number {
+  const parseTime = (time: string): number => {
+    const [hours, minutes, seconds] = time.split(':');
+    const [wholeSeconds, milliseconds] = seconds.split('.');
+    return (
+      parseInt(hours) * 3600 +
+      parseInt(minutes) * 60 +
+      parseInt(wholeSeconds) +
+      parseInt(milliseconds) / 1000
+    );
+  };
+
+  const startSeconds = parseTime(timeObj.startTime);
+  const endSeconds = parseTime(timeObj.endTime);
+
+  return endSeconds - startSeconds;
 }

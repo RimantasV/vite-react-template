@@ -122,6 +122,30 @@ export default function Root() {
                   </Menu.Target>
                   <Menu.Dropdown>
                     <Menu.Label>Settings</Menu.Label>
+                    <Menu.Item
+                      leftSection={
+                        computedColorScheme === 'dark' ? (
+                          <IconSun
+                            style={{ width: rem(16), height: rem(16) }}
+                            stroke={1.5}
+                          />
+                        ) : (
+                          <IconMoon
+                            style={{ width: rem(16), height: rem(16) }}
+                            stroke={1.5}
+                          />
+                        )
+                      }
+                      onClick={() =>
+                        setColorScheme(
+                          computedColorScheme === 'light' ? 'dark' : 'light',
+                        )
+                      }
+                    >
+                      {computedColorScheme === 'dark'
+                        ? 'Switch to light mode'
+                        : 'Switch to dark mode'}
+                    </Menu.Item>
                     <Link to={'./settings'}>
                       <Menu.Item
                         leftSection={
@@ -148,6 +172,7 @@ export default function Root() {
                   </Menu.Dropdown>
                 </Menu>
                 <ActionIcon
+                  visibleFrom='xs'
                   onClick={() =>
                     setColorScheme(
                       computedColorScheme === 'light' ? 'dark' : 'light',
@@ -173,12 +198,38 @@ export default function Root() {
       </AppShell.Header>
 
       <AppShell.Navbar py='md' px={4}>
-        <UnstyledButton className={classes.control}>Home</UnstyledButton>
-        <UnstyledButton className={classes.control}>Learn </UnstyledButton>
-        <UnstyledButton className={classes.control}>
+        <UnstyledButton
+          onClick={toggle}
+          component={Link}
+          to={'./'}
+          className={classes.control}
+        >
+          Home
+        </UnstyledButton>
+        <UnstyledButton
+          onClick={toggle}
+          component={Link}
+          to={'./learn'}
+          className={classes.control}
+        >
+          Learn
+        </UnstyledButton>
+        <UnstyledButton
+          onClick={toggle}
+          component={Link}
+          to={'./movies-and-tv'}
+          className={classes.control}
+        >
           Browse Movies & TV
         </UnstyledButton>
-        <UnstyledButton className={classes.control}>Translate</UnstyledButton>
+        <UnstyledButton
+          onClick={toggle}
+          component={Link}
+          to={'./dictionary'}
+          className={classes.control}
+        >
+          Translate
+        </UnstyledButton>
       </AppShell.Navbar>
       <AppShell.Main>
         <Outlet />

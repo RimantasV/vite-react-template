@@ -6,6 +6,7 @@ import { SessionAuth } from 'supertokens-auth-react/recipe/session';
 import { getSuperTokensRoutesForReactRouterDom } from 'supertokens-auth-react/ui';
 
 import '@mantine/core/styles.css';
+import '@mantine/notifications/styles.css';
 
 import { Root } from './components/Root';
 import {
@@ -63,9 +64,9 @@ function App() {
                 <Route path='/lists' element={<Lists />} />
                 <Route path='/learn' element={<Learn />} />
                 <Route path='/lists/:id' element={<List />} />
-                <Route path='/movie/:id' element={<Movie />} />
                 <Route path='/dictionary' element={<Dictionary />} />
                 <Route path='/movies-and-tv' element={<MoviesAndTV />} />
+                <Route path='/movies-and-tv/:id' element={<Movie />} />
                 <Route path='/subtitles' element={<Subtitles />} />
                 <Route path='/settings' element={<Settings />} />
                 <Route

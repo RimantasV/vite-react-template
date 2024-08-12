@@ -3,11 +3,14 @@ import { Link } from 'react-router-dom';
 import { Button, Card, Container, Group, Text } from '@mantine/core';
 import { IconBook } from '@tabler/icons-react';
 
+import { Details } from '../../pages/MoviesAndTV/MoviesAndTV';
+
 import classes from './ListCard.module.css';
 
 interface CommonProps {
   name: string;
   to?: string;
+  details?: Details;
 }
 interface PropsWithKey extends CommonProps {
   title: string;
@@ -26,20 +29,22 @@ interface PropsWithId extends CommonProps {
 type Props = PropsWithKey | PropsWithId;
 
 export function ListCard({
-  to,
-  name,
-  title,
+  details,
   id,
-  mediaType,
-  segmentTitle,
   mediaItemId,
+  mediaType,
+  name,
+  segmentTitle,
+  title,
+  to,
 }: Props) {
   return (
     <Container size='350'>
       <Card withBorder radius='md' p='md' className={classes.card}>
         <Text fz='h3' fw={500} lineClamp={1}>
-          {name} {mediaType === 'series' ? `- ${segmentTitle}` : ''}
+          {details?.originalTitle || name}
         </Text>
+        {mediaType === 'series' && <Text>{segmentTitle}</Text>}
         <Group mt='xs'>
           <Button
             to={`${
@@ -71,8 +76,8 @@ export function ListCard({
           {title && (
             <Button
               component={Link}
-              state={{ listName: name, mediaItemId }}
-              to={`../movie/${title}`}
+              state={{ listName: name }}
+              to={`../movies-and-tv/${mediaItemId}`}
               variant='outline'
               radius='md'
               style={{ flex: 1 }}

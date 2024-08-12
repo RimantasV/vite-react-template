@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Sheet } from 'react-modal-sheet';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { Container } from '@mantine/core';
+import { ActionIcon, Container, Group, Tooltip } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import { IconTrash } from '@tabler/icons-react';
 
 import {
   ExamplesMoviesModal,
@@ -10,6 +12,8 @@ import {
   VocabularyListRow,
 } from '../../components';
 import {
+  useDeleteListMutation,
+  useDeleteWordFromListMutation,
   useUpdateWordStatusMutation,
   useUserCreatedListVocabularyQuery,
 } from '../../queries';
@@ -19,6 +23,7 @@ import { Wordx } from '../../types/types';
 import './sheet.scss';
 
 export default function List() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const { selectedLanguage } = useLanguageStore();
   const [activeWord, setActiveWord] = useState<Wordx>();
@@ -32,6 +37,8 @@ export default function List() {
   } = useUserCreatedListVocabularyQuery(selectedLanguage, parseInt(id!));
 
   const { mutate } = useUpdateWordStatusMutation();
+  const { mutate: mutateDeleteWord } = useDeleteWordFromListMutation();
+  const { mutate: mutateDeleteList } = useDeleteListMutation();
 
   const handleExcludeClick = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -48,6 +55,45 @@ export default function List() {
     );
   };
 
+  const handleDeleteWordClick = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    word: Wordx[],
+  ) => {
+    e.stopPropagation();
+    word.forEach((el) =>
+      mutateDeleteWord({
+        lang: selectedLanguage,
+        wordId: el.word_id,
+        customItemId: id!,
+      }),
+    );
+  };
+
+  const handleDeleteListClick = () => {
+    mutateDeleteList(
+      {
+        lang: selectedLanguage,
+        customItemId: id!,
+      },
+      {
+        onSuccess: () => {
+          notifications.show({
+            color: 'blue',
+            // title: data.list,
+            message: 'List has been deleted',
+          });
+          navigate('../learn');
+        },
+        onError(error) {
+          notifications.show({
+            color: 'red',
+            message: error.message,
+          });
+        },
+      },
+    );
+  };
+
   if (isPendingWords) {
     return <span>Loading...</span>;
   }
@@ -58,7 +104,21 @@ export default function List() {
 
   return (
     <Container size='lg'>
-      <ListTitle />
+      <Group align='baseline'>
+        <ListTitle />
+        <Tooltip label='Delete list'>
+          <ActionIcon
+            onClick={handleDeleteListClick}
+            variant='subtle'
+            color='red'
+            size='sm'
+            radius='xl'
+            aria-label='Delete list'
+          >
+            <IconTrash style={{ width: '100%', height: '100%' }} stroke={1.5} />
+          </ActionIcon>
+        </Tooltip>
+      </Group>
       <ul style={{ listStyle: 'none', padding: '0' }}>
         {wordsData
           .filter((word) => !word[0].marked_to_exclude)
@@ -76,9 +136,11 @@ export default function List() {
           })
           .map((item, id) => (
             <VocabularyListRow
+              hasDeleteIcon={true}
               key={id}
               item={item}
               handleExcludeClick={handleExcludeClick}
+              handleDeleteWordClick={handleDeleteWordClick}
               setActiveWord={setActiveWord}
               setShow={setOpen}
             />
@@ -93,7 +155,7 @@ export default function List() {
           <Sheet.Header />
           <Sheet.Content>
             <Sheet.Scroller>
-              <ExamplesMoviesModal activeWord={activeWord!} resourceKey={''} />
+              <ExamplesMoviesModal activeWord={activeWord!} mediaItemId='' />
             </Sheet.Scroller>
           </Sheet.Content>
         </Sheet.Container>

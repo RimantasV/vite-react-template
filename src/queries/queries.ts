@@ -17,7 +17,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const fetchUserCreatedLists = async (
   lang: Languages,
 ): Promise<UserCreatedList[]> => {
-  // await sleep(5000);
+  // await sleep(10000);
   const ENDPOINT = `${
     import.meta.env.VITE_BASE_URL
   }/api/user-created-lists?lang=${lang}`;
@@ -55,7 +55,7 @@ const fetchUserCreatedListVocabulary = async (lang: Languages, id: number) => {
   const ENDPOINT = `${
     import.meta.env.VITE_BASE_URL
   }/api/vocabulary-translation/lists/${id}?lang=${lang}`;
-  await sleep(2000);
+  // await sleep(2000);
   const response = await fetch(ENDPOINT);
 
   if (response.ok) {
@@ -144,7 +144,7 @@ export const useMovieVocabularyQuery = (
   mediaItemId: string,
 ) =>
   useQuery({
-    queryKey: ['movieVocabulary'],
+    queryKey: ['movieVocabulary', mediaItemId],
     queryFn: () => fetchMovieVocabulary(lang, mediaItemId),
   });
 
@@ -163,7 +163,7 @@ const fetchSubtitles = async (lang: Languages, mediaItemId: string) => {
 
 export const useSubtitlesQuery = (lang: Languages, mediaItemId: string) =>
   useQuery({
-    queryKey: ['subtitles'],
+    queryKey: ['subtitles', mediaItemId],
     queryFn: () => fetchSubtitles(lang, mediaItemId),
   });
 
@@ -207,19 +207,36 @@ export const useToggleFollowQuery = (
     enabled: false,
   });
 
+type ResourceStatus = {
+  media_item_id: string;
+  media_type: string;
+  title: string;
+  segment_title: string;
+  details: {
+    year: string;
+    genres: string[];
+    imageLink: string;
+    englishTitle: string;
+    originalTitle: string;
+    countryOfOrigin: string[];
+  };
+  is_following: boolean;
+};
+
 const fetchResourceStatus = async (lang: Languages, id: string) => {
+  await sleep(2000);
   const ENDPOINT = `${
     import.meta.env.VITE_BASE_URL
   }/api/resources/${id}?lang=${lang}`;
   const response = await fetch(ENDPOINT);
   if (response.ok) {
-    const data = await response.json();
-    return data[0].is_following;
+    const data: ResourceStatus[] = await response.json();
+    return data[0];
   } else throw new Error((await response.json()).message);
 };
 
 export const useResourceStatusQuery = (lang: Languages, id: string) =>
   useQuery({
-    queryKey: ['resourceStatus'],
+    queryKey: ['resourceStatus', id],
     queryFn: () => fetchResourceStatus(lang, id),
   });

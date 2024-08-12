@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Sheet } from 'react-modal-sheet';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import {
   Button,
   Container,
   Flex,
   Pagination,
+  Stack,
   Tabs,
+  Text,
   Title,
   rem,
 } from '@mantine/core';
@@ -29,7 +31,6 @@ export default function Movie() {
   const iconStyle = { width: rem(12), height: rem(12) };
   const { selectedLanguage } = useLanguageStore();
   const { id } = useParams();
-  const { state } = useLocation();
   const [activePage, setPage] = useState(1);
   const [isOpen, setOpen] = useState(false);
   const [activeWord, setActiveWord] = useState<Wordx>();
@@ -42,11 +43,11 @@ export default function Movie() {
     // data: toggleQueryData,
     // error: toggleQueryError,
     refetch: refetchToggleQuery,
-  } = useToggleFollowQuery(selectedLanguage, state.mediaItemId, setIsFollowing);
+  } = useToggleFollowQuery(selectedLanguage, id!, setIsFollowing);
 
   const {
     isPending: isPendingResourceStatus,
-    // isError: isErrorResourceStatus,
+    isError: isErrorResourceStatus,
     data: resourceStatusData,
     // error: resourceStatusError,
   } = useResourceStatusQuery(selectedLanguage, id!);
@@ -56,10 +57,10 @@ export default function Movie() {
     isError: isErrorWords,
     data: wordsData,
     error: wordsError,
-  } = useMovieVocabularyQuery(selectedLanguage, state.mediaItemId);
+  } = useMovieVocabularyQuery(selectedLanguage, id!);
 
   useEffect(() => {
-    setIsFollowing(resourceStatusData);
+    setIsFollowing(resourceStatusData?.is_following || false);
   }, [resourceStatusData]);
 
   const handleExcludeClick = (
@@ -104,7 +105,18 @@ export default function Movie() {
     <Container size='lg'>
       <div className={styles.titleContainer}>
         <Flex align='baseline' my='lg'>
-          <Title>{state.listName}</Title>
+          {isPendingResourceStatus ? (
+            <Text>Loading...</Text>
+          ) : isErrorResourceStatus ? (
+            <Text>Error ocurred, try refreshing page</Text>
+          ) : (
+            <Stack gap={0}>
+              <Title>{resourceStatusData.details.originalTitle}</Title>
+              <Text size='lg' c='gray' fw='bolder'>
+                {resourceStatusData.segment_title}
+              </Text>
+            </Stack>
+          )}
         </Flex>
       </div>
       <Button
@@ -163,6 +175,7 @@ export default function Movie() {
               })
               .map((item, id) => (
                 <VocabularyListRow
+                  hasAddToListIcon={true}
                   key={id}
                   item={item}
                   handleExcludeClick={handleExcludeClick}
@@ -182,7 +195,8 @@ export default function Movie() {
                 <Sheet.Scroller>
                   <ExamplesMoviesModal
                     activeWord={activeWord!}
-                    resourceKey={''}
+                    // resourceKey={''}
+                    mediaItemId={id!}
                   />
                 </Sheet.Scroller>
               </Sheet.Content>

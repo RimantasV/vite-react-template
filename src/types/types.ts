@@ -5,13 +5,13 @@ export type EnglishTranslation = {
     {
       form: string;
       tags: string[];
-    }
+    },
   ];
   translation: [
     {
       glosses: string;
       tags?: string[];
-    }
+    },
   ];
 };
 
@@ -82,11 +82,23 @@ export type Word = {
   marked_to_exclude: boolean;
 };
 
+type Details = {
+  imdbLink: string;
+  netflixLink: string;
+  countryOfOrigin: string[];
+  genres: string[];
+  originalTitle: string;
+  year: string;
+  englishTitle: string;
+  imageLink: string;
+};
+
 export type Resource = {
   media_item_id: string;
   media_type: string;
   title: string;
   segment_title: string;
+  details: Details;
   is_following: boolean;
 };
 
@@ -121,13 +133,22 @@ export type SentenceObj = {
 
 export type SentencesRespose = {
   id: number;
-  resource: string;
-  key: string;
-  chapter_or_episode: string;
-  sentence: string;
+  sentence_id: string;
+  media_item_id: string;
+  sentence_original: string;
   sentence_html: string;
   sentence_en_semantic: string;
-  timestamps: { startTime: Date; endTime: Date };
+  sentence_en_literal: string;
+  sentence_index: number;
+  sentence_timestamps: {
+    endTime: string;
+    startTime: string;
+  };
+  word_ids: string[];
+  is_verified: boolean;
+  created_at: Date;
+  sentence_start_time: string;
+  sentence_end_time: string;
 }[];
 
 export enum Languages {

@@ -1,3 +1,4 @@
+export { AddWordToListModal } from './AddWordToListModal';
 export { ExamplesMoviesModal } from './ExamplesMoviesModal';
 export { LanguageSelect } from './LanguageSelect';
 export { Layout } from './Layout';

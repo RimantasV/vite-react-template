@@ -11,18 +11,20 @@ import styles from '../../pages/Dictionary/examples.module.scss';
 
 type Props = {
   activeWord: Wordx;
-  resourceKey: string;
+  // resourceKey: string;
   renderOnlyExampes?: boolean;
   translationStatus?: 'hidden' | 'visible';
-  episode?: string;
+  // episode?: string;
+  mediaItemId: string;
 };
 
 const ExamplesMoviesModal: React.FC<Props> = ({
   activeWord,
-  resourceKey,
+  // resourceKey,
   // episode,
   renderOnlyExampes = false,
   translationStatus = 'visible',
+  mediaItemId,
 }) => {
   //   const [searchParams] = useSearchParams();
   //   const id = searchParams.get('word');
@@ -47,7 +49,7 @@ const ExamplesMoviesModal: React.FC<Props> = ({
   const fetchExamples = useCallback(async () => {
     const ENDPOINT = `${
       import.meta.env.VITE_BASE_URL
-    }/api/sentences-movies?key=${resourceKey}&word=${activeWord.word_id}`;
+    }/api/sentences-movies?lang=${selectedLanguage}&media-item-id=${mediaItemId}&word=${activeWord.word_id}`;
 
     const response = await fetch(ENDPOINT);
     const data: SentencesRespose = await response.json();
@@ -63,7 +65,7 @@ const ExamplesMoviesModal: React.FC<Props> = ({
 
     const dataWithClass = data.map((el) => ({
       id: el.id,
-      sentence: el.sentence,
+      sentence: el.sentence_original,
       sentence_html: el.sentence_html
         .replace(re, `<span class="example" data-word-id="${id}">`)
         .replace(re2, `<span class="example" data-word-id="${id}">`)
@@ -71,14 +73,24 @@ const ExamplesMoviesModal: React.FC<Props> = ({
         .replaceAll('class="clickable resolved"', '')
         .replaceAll('class="clickable multiple"', ''),
       sentence_en_semantic: el.sentence_en_semantic,
-      resource: el.resource,
-      key: el.key,
-      chapter_or_episode: el.chapter_or_episode,
-      timestamps: el.timestamps,
+      // resource: el.resource,
+      // key: el.key,
+      // chapter_or_episode: el.chapter_or_episode,
+      sentence_id: el.sentence_id,
+      sentence_original: el.sentence_original,
+      sentence_en_literal: el.sentence_en_literal,
+      sentence_index: el.sentence_index,
+      media_item_id: el.media_item_id,
+      sentence_timestamps: el.sentence_timestamps,
+      word_ids: el.word_ids,
+      is_verified: el.is_verified,
+      created_at: el.created_at,
+      sentence_start_time: el.sentence_start_time,
+      sentence_end_time: el.sentence_end_time,
     }));
 
     setExamples(dataWithClass);
-  }, [activeWord.word_id, id, resourceKey]);
+  }, [activeWord.word_id, id, mediaItemId, selectedLanguage]);
 
   const fetchDictionaryRecord = useCallback(async () => {
     const response = await fetch(
@@ -209,7 +221,7 @@ const ExamplesMoviesModal: React.FC<Props> = ({
                       textAlign: 'right',
                     }}
                   >
-                    {el.key}
+                    {el.media_item_id}
                   </p>
                 </li>
               ))

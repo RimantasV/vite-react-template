@@ -91,7 +91,7 @@ export default function Quiz() {
     data: wordsData,
     error: wordsError,
   } = useUserCreatedListVocabularyQuery(selectedLanguage, parseInt(id!));
-
+  console.log({ wordsData });
   const handleStartQuizUserCreatedQuiz = async () => {
     setQuizState((prevState) => ({ ...prevState, step: QUIZ_STEPS.PROGRESS }));
 
@@ -358,7 +358,7 @@ export default function Quiz() {
                       listStyleType='decimal'
                       withPadding
                     >
-                      {el.info.map((el, i) => (
+                      {el.info?.map((el, i) => (
                         <List.Item key={i}>
                           <div style={{ display: 'flex' }}>
                             {<RenderFlag tags={el.tags} />}

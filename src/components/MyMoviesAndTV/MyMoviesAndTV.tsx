@@ -32,6 +32,7 @@ export default function MyMoviesAndTV() {
             segmentTitle={el.segment_title}
             name={el.title}
             title={el.title}
+            details={el.details}
           />
         </li>
       ))}

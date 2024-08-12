@@ -1,28 +1,33 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { Accordion, Button, Card, Group, Text } from '@mantine/core';
+import { Accordion, Button, Card, Group, Pill, Text } from '@mantine/core';
 import { IconCheck } from '@tabler/icons-react';
 
-import { SegmentTitleArray } from '../../pages/MoviesAndTV/MoviesAndTV';
+import {
+  Details,
+  SegmentTitleArray,
+} from '../../pages/MoviesAndTV/MoviesAndTV';
 
 import classes from './ListCard.module.css';
 
 type Props = {
   isFollowing: boolean;
-  linkToList: string;
-  linkToSubtitles: string;
+  // linkToList: string;
+  // linkToSubtitles: string;
   // mediaItemId: string;
   segmentTitleArray: SegmentTitleArray[];
   name: string;
+  details: Details;
 };
 
 export function ListCardSeries({
   isFollowing,
-  linkToList,
-  linkToSubtitles,
+  // linkToList,
+  // linkToSubtitles,
   segmentTitleArray,
   name,
+  details,
 }: Props) {
   return (
     <Card
@@ -35,10 +40,15 @@ export function ListCardSeries({
       maw={400}
     >
       <Group>
-        <Text fz='h3' fw={500} lineClamp={1}>
+        <Text fz='h3' fw={500} lineClamp={1} mb='xs'>
           {name}
         </Text>
         {isFollowing && <IconCheck />}
+      </Group>
+      <Group>
+        {details.genres.map((el, i) => (
+          <Pill key={i}>{el}</Pill>
+        ))}
       </Group>
       <>
         <Accordion radius='md'>
@@ -55,7 +65,7 @@ export function ListCardSeries({
                   <Group mt='xs'>
                     <Button
                       size='xs'
-                      to={linkToSubtitles}
+                      to={`../subtitles?media-item-id=${el.media_item_id}`}
                       component={Link}
                       radius='md'
                       style={{ flex: 1 }}
@@ -68,8 +78,8 @@ export function ListCardSeries({
                     <Button
                       size='xs'
                       component={Link}
-                      // state={{ listName: name, mediaItemId }}
-                      to={linkToList}
+                      state={{ listName: name, mediaItemId: el.media_item_id }}
+                      to={`../${'movies-and-tv'}/${el.media_item_id}`}
                       variant='outline'
                       radius='md'
                       style={{ flex: 1 }}

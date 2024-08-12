@@ -1,22 +1,15 @@
-import {
-  ChangeEvent,
-  ClassAttributes,
-  HTMLAttributes,
-  useCallback,
-  useState,
-} from 'react';
+import { ChangeEvent, useCallback, useState } from 'react';
 
-import { Modal } from '@restart/ui';
+import { Modal } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 
+import { AddWordToListModal } from '../../components';
 import { useLanguageStore } from '../../store';
 import { EnglishTranslation } from '../../types/types';
 
-import styles2 from './dictionary.module.scss';
 import styles from './examples.module.scss';
 
 type Word = { word_id: string; info: EnglishTranslation };
-
-type List = { custom_item_id: number; title: string };
 
 export default function Dictionary() {
   const { selectedLanguage } = useLanguageStore();
@@ -24,22 +17,10 @@ export default function Dictionary() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeWord, setActiveWord] = useState('');
   const [words, setWords] = useState<Word[]>([]);
-  const [show, setShow] = useState(false);
-  const [lists, setLists] = useState<List[]>([]);
+  const [opened, { open, close }] = useDisclosure(false);
 
   const handleSetSearchTerm = (text: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(text.target.value);
-  };
-
-  const fetchUserCreatedLists = async () => {
-    const ENDPOINT = `${
-      import.meta.env.VITE_BASE_URL
-    }/api/user-created-lists?lang=${selectedLanguage}`;
-
-    const response = await fetch(ENDPOINT);
-    const data = await response.json();
-
-    setLists(data);
   };
 
   const fetchWords = useCallback(async () => {
@@ -100,65 +81,9 @@ export default function Dictionary() {
   };
 
   const handleLearn = (word: Word) => {
-    fetchUserCreatedLists();
+    // fetchUserCreatedLists();
     setActiveWord(word.word_id);
-    setShow(true);
-  };
-
-  const fetchAddWordToList = async (id: number) => {
-    const ENDPOINT = `${
-      import.meta.env.VITE_BASE_URL
-    }/api/user-created-list/word?lang=${selectedLanguage}`;
-
-    const payload = { listId: id, word: activeWord };
-
-    try {
-      const response = await fetch(ENDPOINT, {
-        method: 'POST',
-        headers: {
-          Accept: 'application.json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message);
-    } catch (e) {
-      alert(e);
-    }
-  };
-
-  const handleAddWordToList = (id: number) => {
-    fetchAddWordToList(id);
-    setShow(false);
-  };
-
-  const fetchCreateNewList = async () => {
-    const ENDPOINT = `${
-      import.meta.env.VITE_BASE_URL
-    }/api/user-created-lists/list-word?lang=${selectedLanguage}`;
-
-    const payload = { word: activeWord };
-
-    try {
-      const response = await fetch(ENDPOINT, {
-        method: 'POST',
-        headers: {
-          Accept: 'application.json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message);
-    } catch (e) {
-      alert(e);
-    }
-  };
-
-  const handleCreateNewList = () => {
-    fetchCreateNewList();
-    setShow(false);
+    open();
   };
 
   return (
@@ -222,31 +147,9 @@ export default function Dictionary() {
           </li>
         ))}
       </ul>
-      <Modal
-        show={show}
-        aria-labelledby='modal-1-label'
-        onHide={() => setShow(false)}
-        renderBackdrop={(
-          props: JSX.IntrinsicAttributes &
-            ClassAttributes<HTMLDivElement> &
-            HTMLAttributes<HTMLDivElement>,
-        ) => <div {...props} className={styles2.backdrop} />}
-        className={styles2.modal}
-      >
-        <div>
-          <ul style={{ listStyle: 'none', padding: '0' }}>
-            {lists.map((list) => (
-              <li
-                onClick={() => handleAddWordToList(list.custom_item_id)}
-                key={list.custom_item_id}
-                className={styles2.listItem}
-              >
-                {list.title}
-              </li>
-            ))}
-          </ul>
-          <button onClick={handleCreateNewList}>Create new</button>
-        </div>
+
+      <Modal opened={opened} onClose={close} withCloseButton={false} centered>
+        <AddWordToListModal close={close} activeWord={activeWord} />
       </Modal>
     </div>
   );
