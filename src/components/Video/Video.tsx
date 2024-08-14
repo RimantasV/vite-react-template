@@ -3,6 +3,7 @@ import ReactPlayer from 'react-player/file';
 
 import { Button, Group } from '@mantine/core';
 
+import { useLanguageStore } from '../../store';
 import { SentencesRespose } from '../../types';
 import { calculateTimeDifference } from '../../utils';
 
@@ -14,11 +15,13 @@ type VideoDetails = {
   // resource: string;
   // key: string;
   // chapter_or_episode: string;
+  title: string;
   sentence_id: string;
   id: number;
 };
 
 export default function Video({ examples }: Props) {
+  const { selectedLanguage } = useLanguageStore();
   const [playIndex, setPlayIndex] = useState<number>(0);
   const [videoIds, setVideoIds] = useState<VideoDetails[]>([]);
   const [videoDetails, setVideoDetails] = useState<VideoDetails[]>();
@@ -35,17 +38,19 @@ export default function Video({ examples }: Props) {
           // resource: el.resource,
           // key: el.key,
           // chapter_or_episode: el.chapter_or_episode,
+          title: el.title,
           sentence_id: el.sentence_id,
           id: el.id,
         }))
         .slice(0, 10),
     );
   }, [examples]);
+
   const checkIfVideoExists = useCallback(
-    async ({ sentence_id, id }: VideoDetails) => {
+    async ({ sentence_id, id, title }: VideoDetails) => {
       if (id) {
         const ENDPOINT =
-          `https://movie-tongue.b-cdn.net/clips/es/theCourier` +
+          `https://movie-tongue.b-cdn.net/clips/${selectedLanguage}/${title}` +
           // (chapter_or_episode === 'n/a' ? '' : `/${chapter_or_episode}`) +
           `/${sentence_id}.mp4`;
         const response = await fetch(ENDPOINT, {
@@ -55,14 +60,14 @@ export default function Video({ examples }: Props) {
           setVideoIds((prevState) => {
             if (prevState.some((el) => el.id === id)) {
               return prevState;
-            } else return [...prevState, { sentence_id, id }];
+            } else return [...prevState, { sentence_id, id, title }];
           });
         } else {
           console.log('HTTP error:', response.status, response.statusText);
         }
       }
     },
-    [],
+    [selectedLanguage],
   );
 
   useEffect(() => {
@@ -99,7 +104,7 @@ export default function Video({ examples }: Props) {
               style={{ position: 'relative' }}
               playing={playing}
               url={
-                `https://movie-tongue.b-cdn.net/clips/es/theCourier/` + //${videoIds[playIndex].key}` +
+                `https://movie-tongue.b-cdn.net/clips/${selectedLanguage}/${videoIds[playIndex].title}` + //${videoIds[playIndex].key}` +
                 // (videoIds[playIndex].chapter_or_episode === 'n/a'
                 // ? ''
                 // : `/${videoIds[playIndex].chapter_or_episode}`) +

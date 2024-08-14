@@ -162,9 +162,6 @@ export const useDeleteListMutation = () => {
       fetchDeleteList(lang, customItemId),
 
     onSuccess: (_, variables) => {
-      console.log('success');
-      console.log(_, variables);
-
       queryClient.setQueryData(
         ['userCreatedLists'],
         (oldData: UserCreatedList[]) => {

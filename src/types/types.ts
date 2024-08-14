@@ -149,6 +149,9 @@ export type SentencesRespose = {
   created_at: Date;
   sentence_start_time: string;
   sentence_end_time: string;
+  media_type: string;
+  title: string;
+  segment_title: string;
 }[];
 
 export enum Languages {

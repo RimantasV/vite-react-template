@@ -224,7 +224,7 @@ type ResourceStatus = {
 };
 
 const fetchResourceStatus = async (lang: Languages, id: string) => {
-  await sleep(2000);
+  // await sleep(2000);
   const ENDPOINT = `${
     import.meta.env.VITE_BASE_URL
   }/api/resources/${id}?lang=${lang}`;
@@ -239,4 +239,22 @@ export const useResourceStatusQuery = (lang: Languages, id: string) =>
   useQuery({
     queryKey: ['resourceStatus', id],
     queryFn: () => fetchResourceStatus(lang, id),
+  });
+
+const fetchUserSettings = async () => {
+  await sleep(2000);
+  const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/user-settings`;
+  const response = await fetch(ENDPOINT);
+  if (response.ok) {
+    return await response.json();
+  } else {
+    throw new Error('Error getting user settings');
+  }
+};
+
+export const useUserSettingsQuery = () =>
+  useQuery({
+    queryKey: ['userSettings'],
+    queryFn: () => fetchUserSettings(),
+    enabled: false,
   });

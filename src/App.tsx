@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import * as reactRouterDom from 'react-router-dom';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
@@ -9,8 +10,9 @@ import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 
 import { Root } from './components/Root';
+import { SplashScreen } from './components/SplashScreen';
 import {
-  ComponentWrapper,
+  // ComponentWrapper,
   PreBuiltUIList,
   SuperTokensConfig,
 } from './config/config';
@@ -25,10 +27,12 @@ import {
   Subtitles,
   VocabularyLevel,
 } from './pages';
+import { LanguageSelect } from './pages/LanguageSelect';
 import { Lists } from './pages/Lists';
 import MoviesAndTV from './pages/MoviesAndTV/MoviesAndTV';
 import { QuizMovie } from './pages/QuizMovie';
 
+// import { useUserSettingsQuery } from './queries';
 import './App.css';
 
 // import { ThirdPartyPreBuiltUI } from 'supertokens-auth-react/recipe/thirdparty/prebuiltui';
@@ -37,49 +41,66 @@ import './App.css';
 SuperTokens.init(SuperTokensConfig);
 
 function App() {
+  const [showSplashScreen, setShowSplashScreen] = useState(true);
+
+  if (showSplashScreen) {
+    return (
+      <SessionAuth requireAuth={false}>
+        <SplashScreen setSplashScreenState={setShowSplashScreen} />;
+      </SessionAuth>
+    );
+  }
+
   return (
     <SuperTokensWrapper>
-      <ComponentWrapper>
-        <div className='App app-container'>
-          <Router>
-            <Routes>
-              {/* This shows the login UI on "/auth" route */}
-              {getSuperTokensRoutesForReactRouterDom(
-                reactRouterDom,
-                PreBuiltUIList,
-              )}
-              <Route
-                path='/'
-                element={
-                  /* This protects the "/" route so that it shows
+      {/* <ComponentWrapper> */}
+      <div className='App app-container'>
+        <Router>
+          <Routes>
+            {/* This shows the login UI on "/auth" route */}
+            {getSuperTokensRoutesForReactRouterDom(
+              reactRouterDom,
+              PreBuiltUIList,
+            )}
+            <Route
+              path='/'
+              element={
+                /* This protects the "/" route so that it shows
                           <Home /> only if the user is logged in.
                           Else it redirects the user to "/auth" */
-                  <SessionAuth>
-                    {/* <Home /> */}
-                    <Root />
-                  </SessionAuth>
-                }
-              >
-                <Route index element={<Home />} />
-                <Route path='/lists' element={<Lists />} />
-                <Route path='/learn' element={<Learn />} />
-                <Route path='/lists/:id' element={<List />} />
-                <Route path='/dictionary' element={<Dictionary />} />
-                <Route path='/movies-and-tv' element={<MoviesAndTV />} />
-                <Route path='/movies-and-tv/:id' element={<Movie />} />
-                <Route path='/subtitles' element={<Subtitles />} />
-                <Route path='/settings' element={<Settings />} />
-                <Route
-                  path='/settings/vocabulary-level'
-                  element={<VocabularyLevel />}
-                />
-              </Route>
-              <Route path='/quiz' element={<Quiz />} />
-              <Route path='/quiz-movie' element={<QuizMovie />} />
-            </Routes>
-          </Router>
-        </div>
-      </ComponentWrapper>
+                <SessionAuth>
+                  <Root />
+                </SessionAuth>
+              }
+            >
+              <Route index element={<Home />} />
+              <Route path='/lists' element={<Lists />} />
+              <Route path='/learn' element={<Learn />} />
+              <Route path='/lists/:id' element={<List />} />
+              <Route path='/dictionary' element={<Dictionary />} />
+              <Route path='/movies-and-tv' element={<MoviesAndTV />} />
+              <Route path='/movies-and-tv/:id' element={<Movie />} />
+              <Route path='/subtitles' element={<Subtitles />} />
+              <Route path='/settings' element={<Settings />} />
+              <Route
+                path='/settings/vocabulary-level'
+                element={<VocabularyLevel />}
+              />
+            </Route>
+            <Route
+              path='/quiz'
+              element={
+                <SessionAuth>
+                  <Quiz />
+                </SessionAuth>
+              }
+            />
+            <Route path='/quiz-movie' element={<QuizMovie />} />
+            <Route path='/select-language' element={<LanguageSelect />} />
+          </Routes>
+        </Router>
+      </div>
+      {/* </ComponentWrapper> */}
     </SuperTokensWrapper>
   );
 }

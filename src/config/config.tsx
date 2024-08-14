@@ -1,13 +1,13 @@
-import ThirdParty, {
-  Google,
-  Github,
-  Apple,
-  Twitter,
-} from 'supertokens-auth-react/recipe/thirdparty';
-import { ThirdPartyPreBuiltUI } from 'supertokens-auth-react/recipe/thirdparty/prebuiltui';
 import EmailPassword from 'supertokens-auth-react/recipe/emailpassword';
 import { EmailPasswordPreBuiltUI } from 'supertokens-auth-react/recipe/emailpassword/prebuiltui';
 import Session from 'supertokens-auth-react/recipe/session';
+import ThirdParty, {
+  Apple,
+  Github,
+  Google,
+  Twitter,
+} from 'supertokens-auth-react/recipe/thirdparty';
+import { ThirdPartyPreBuiltUI } from 'supertokens-auth-react/recipe/thirdparty/prebuiltui';
 
 export function getApiDomain() {
   const apiPort = import.meta.env.VITE_REACT_APP_API_PORT || 3333;
@@ -49,8 +49,8 @@ export const recipeDetails = {
 
 export const PreBuiltUIList = [ThirdPartyPreBuiltUI, EmailPasswordPreBuiltUI];
 
-export const ComponentWrapper = (props: {
-  children: JSX.Element;
-}): JSX.Element => {
-  return props.children;
-};
+// export const ComponentWrapper = (props: {
+//   children: JSX.Element;
+// }): JSX.Element => {
+//   return props.children;
+// };

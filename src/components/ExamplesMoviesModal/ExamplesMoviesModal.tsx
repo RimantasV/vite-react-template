@@ -87,6 +87,9 @@ const ExamplesMoviesModal: React.FC<Props> = ({
       created_at: el.created_at,
       sentence_start_time: el.sentence_start_time,
       sentence_end_time: el.sentence_end_time,
+      media_type: el.media_type,
+      title: el.title,
+      segment_title: el.segment_title,
     }));
 
     setExamples(dataWithClass);

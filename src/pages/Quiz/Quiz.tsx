@@ -91,7 +91,7 @@ export default function Quiz() {
     data: wordsData,
     error: wordsError,
   } = useUserCreatedListVocabularyQuery(selectedLanguage, parseInt(id!));
-  console.log({ wordsData });
+
   const handleStartQuizUserCreatedQuiz = async () => {
     setQuizState((prevState) => ({ ...prevState, step: QUIZ_STEPS.PROGRESS }));
 
