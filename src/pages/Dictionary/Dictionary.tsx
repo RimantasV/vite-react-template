@@ -3,11 +3,12 @@ import { ChangeEvent, useCallback, useState } from 'react';
 import { Modal } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 
-import { AddWordToListModal } from '../../components';
+import {
+  AddWordToListModal,
+  DictionaryTranslationCard,
+} from '../../components';
 import { useLanguageStore } from '../../store';
 import { EnglishTranslation } from '../../types/types';
-
-import styles from './examples.module.scss';
 
 type Word = { word_id: string; info: EnglishTranslation };
 
@@ -26,7 +27,7 @@ export default function Dictionary() {
   const fetchWords = useCallback(async () => {
     const ENDPOINT = `${
       import.meta.env.VITE_BASE_URL
-    }/api/dictionary/search/${searchTerm}?lang=${selectedLanguage}`;
+    }/api/dictionary/search/${searchTerm}?lang=${selectedLanguage?.language_id}`;
 
     const response = await fetch(ENDPOINT);
     const data = await response.json();
@@ -37,46 +38,6 @@ export default function Dictionary() {
   const handleSearch = () => {
     if (searchTerm) {
       fetchWords();
-    }
-  };
-
-  const getCountryCode = (el: string[]) => {
-    const country = el[0];
-
-    switch (country) {
-      case 'Argentina':
-        return 'AR';
-      case 'Mexico':
-        return 'MX';
-      case 'Costa-Rica':
-        return 'CR';
-      case 'Spain':
-        return 'ES';
-
-      default:
-        return '';
-    }
-  };
-
-  const renderFlag = (tags: string | string[] | undefined) => {
-    if (Array.isArray(tags)) {
-      if (
-        tags.some((el) =>
-          ['Argentina', 'Costa-Rica', 'Mexico', 'Spain'].includes(el),
-        )
-      ) {
-        const countryCode = getCountryCode(
-          tags.filter((el) =>
-            ['Argentina', 'Costa-Rica', 'Mexico', 'Spain'].includes(el),
-          ),
-        );
-        return (
-          <img
-            title={countryCode}
-            src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${countryCode}.svg`}
-          />
-        );
-      }
     }
   };
 
@@ -102,32 +63,10 @@ export default function Dictionary() {
       <ul style={{ listStyle: 'none' }}>
         {words.map((word) => (
           <li key={word.word_id} style={{ display: 'flex', flex: '1' }}>
-            <div
-              className={styles.translationsCard}
-              style={{ flex: '1', marginRight: '20px' }}
-            >
-              <div className={styles.headerContainer}>
-                <h2>{word.word_id?.split('-')[0]}</h2>
-                <p>{word.word_id?.split('-')[1]}</p>
-              </div>
-              <div className={styles.languageContainer}>
-                <div className={styles.flagContainer}>
-                  <img
-                    title={'us'}
-                    src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/US.svg`}
-                  />
-                </div>
-                <ol>
-                  {word?.info?.translation?.map((el, i) => (
-                    <li key={i}>
-                      {renderFlag(el.tags)}
-                      {/* {`${el.glosses} (${el.tags?.join(' ')})`} */}
-                      {`${el.glosses} `}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            </div>
+            <DictionaryTranslationCard
+              wordId={word.word_id}
+              englishTranslation={word?.info}
+            />
             <button
               onClick={() => handleLearn(word)}
               style={{

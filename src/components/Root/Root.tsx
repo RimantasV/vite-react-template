@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 
 import cx from 'clsx';
@@ -27,11 +27,13 @@ import {
   IconSun,
 } from '@tabler/icons-react';
 
+import { useLanguageStore } from '../../store';
 import { LanguageSelect } from '../LanguageSelect';
 
 import classes from './root.module.scss';
 
 export default function Root() {
+  // const theme = useMantineTheme();
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme('light', {
     getInitialValueInEffect: true,
@@ -43,6 +45,14 @@ export default function Root() {
     navigate('/auth');
   }
   const [opened, { toggle }] = useDisclosure();
+
+  const { selectedLanguage } = useLanguageStore();
+
+  useEffect(() => {
+    if (!selectedLanguage?.language_id) {
+      navigate('select-language');
+    }
+  }, [navigate, selectedLanguage?.language_id]);
 
   return (
     <AppShell

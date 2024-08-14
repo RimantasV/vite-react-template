@@ -1,13 +1,14 @@
 import { create } from 'zustand';
-import { Languages } from '../types';
+
+import { Language } from '../types';
 
 interface LanguageState {
-  selectedLanguage: Languages;
-  setSelectedLanguage: (language: Languages) => void;
+  selectedLanguage: Language | null;
+  setSelectedLanguage: (language: Language) => void;
 }
 
 export const useLanguageStore = create<LanguageState>((set) => ({
-  selectedLanguage: Languages.es,
-  setSelectedLanguage: (language: Languages) =>
+  selectedLanguage: null,
+  setSelectedLanguage: (language: Language) =>
     set({ selectedLanguage: language }),
 }));

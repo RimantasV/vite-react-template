@@ -42,9 +42,6 @@ import styles2 from './quiz.module.scss';
 export default function Quiz() {
   const { selectedLanguage } = useLanguageStore();
   const [searchParams] = useSearchParams();
-  // const resource = searchParams.get('resource');
-  // const key = searchParams.get('key');
-  // const chapter_or_episode = searchParams.get('chapter_or_episode');
   const mediaItemId = searchParams.get('media-item-id');
   const [, setWords] = useState<Wordsx>([]);
   // const [quizWords, setQuizWords] = useState<Wordsx>([]);
@@ -93,7 +90,7 @@ export default function Quiz() {
     isError: isErrorWordsMovies,
     data: wordsMoviesData,
     error: wordsMoviesError,
-  } = useMovieVocabularyQuery(selectedLanguage, mediaItemId!);
+  } = useMovieVocabularyQuery(selectedLanguage?.language_id, mediaItemId!);
 
   const handleStartQuizUserCreatedQuiz = async () => {
     setQuizState((prevState) => ({ ...prevState, step: QUIZ_STEPS.PROGRESS }));

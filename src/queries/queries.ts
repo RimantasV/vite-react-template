@@ -29,7 +29,7 @@ const fetchUserCreatedLists = async (
 
 export const useUserCreatedListsQuery = (lang: Languages) =>
   useQuery({
-    queryKey: ['userCreatedLists'],
+    queryKey: ['userCreatedLists', lang],
     queryFn: () => fetchUserCreatedLists(lang),
   });
 
@@ -47,7 +47,7 @@ const fetchResources = async (lang: Languages): Promise<Resource[]> => {
 
 export const useResourcesQuery = (lang: Languages) =>
   useQuery({
-    queryKey: ['resources'],
+    queryKey: ['resources', lang],
     queryFn: () => fetchResources(lang),
   });
 
@@ -96,13 +96,7 @@ export const useUserCreatedListVocabularyQuery = (
     queryFn: () => fetchUserCreatedListVocabulary(lang, id),
   });
 
-const fetchMovieVocabulary = async (
-  // resource: string,
-  // key: string,
-  // chapter_or_episode: string
-  lang: Languages,
-  mediaItemId: string,
-) => {
+const fetchMovieVocabulary = async (lang: Languages, mediaItemId: string) => {
   const ENDPOINT = `${
     import.meta.env.VITE_BASE_URL
   }/api/vocabulary-translation/movies/?lang=${lang}&media-item-id=${mediaItemId}`;
@@ -136,13 +130,7 @@ const fetchMovieVocabulary = async (
   } else throw new Error((await response.json()).message);
 };
 
-export const useMovieVocabularyQuery = (
-  // resource: string,
-  // key: string,
-  // chapter_or_episode: string
-  lang: Languages,
-  mediaItemId: string,
-) =>
+export const useMovieVocabularyQuery = (lang: Languages, mediaItemId: string) =>
   useQuery({
     queryKey: ['movieVocabulary', mediaItemId],
     queryFn: () => fetchMovieVocabulary(lang, mediaItemId),
@@ -163,7 +151,7 @@ const fetchSubtitles = async (lang: Languages, mediaItemId: string) => {
 
 export const useSubtitlesQuery = (lang: Languages, mediaItemId: string) =>
   useQuery({
-    queryKey: ['subtitles', mediaItemId],
+    queryKey: ['subtitles', mediaItemId, lang],
     queryFn: () => fetchSubtitles(lang, mediaItemId),
   });
 

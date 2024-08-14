@@ -12,10 +12,8 @@ type Props = {
 };
 
 type VideoDetails = {
-  // resource: string;
-  // key: string;
-  // chapter_or_episode: string;
   title: string;
+  segment_title: string;
   sentence_id: string;
   id: number;
 };
@@ -35,10 +33,8 @@ export default function Video({ examples }: Props) {
             calculateTimeDifference(el.sentence_timestamps) > 2,
         )
         .map((el) => ({
-          // resource: el.resource,
-          // key: el.key,
-          // chapter_or_episode: el.chapter_or_episode,
           title: el.title,
+          segment_title: el.segment_title,
           sentence_id: el.sentence_id,
           id: el.id,
         }))
@@ -47,10 +43,10 @@ export default function Video({ examples }: Props) {
   }, [examples]);
 
   const checkIfVideoExists = useCallback(
-    async ({ sentence_id, id, title }: VideoDetails) => {
+    async ({ sentence_id, id, title, segment_title }: VideoDetails) => {
       if (id) {
         const ENDPOINT =
-          `https://movie-tongue.b-cdn.net/clips/${selectedLanguage}/${title}` +
+          `https://movie-tongue.b-cdn.net/clips/${selectedLanguage?.language_id}/${title}` +
           // (chapter_or_episode === 'n/a' ? '' : `/${chapter_or_episode}`) +
           `/${sentence_id}.mp4`;
         const response = await fetch(ENDPOINT, {
@@ -60,7 +56,8 @@ export default function Video({ examples }: Props) {
           setVideoIds((prevState) => {
             if (prevState.some((el) => el.id === id)) {
               return prevState;
-            } else return [...prevState, { sentence_id, id, title }];
+            } else
+              return [...prevState, { sentence_id, id, title, segment_title }];
           });
         } else {
           console.log('HTTP error:', response.status, response.statusText);
@@ -89,7 +86,7 @@ export default function Video({ examples }: Props) {
 
   return (
     <>
-      {videoIds.length && (
+      {videoIds.length ? (
         <>
           <div
             style={{
@@ -104,7 +101,7 @@ export default function Video({ examples }: Props) {
               style={{ position: 'relative' }}
               playing={playing}
               url={
-                `https://movie-tongue.b-cdn.net/clips/${selectedLanguage}/${videoIds[playIndex].title}` + //${videoIds[playIndex].key}` +
+                `https://movie-tongue.b-cdn.net/clips/${selectedLanguage?.language_id}/${videoIds[playIndex].title}` + //${videoIds[playIndex].key}` +
                 // (videoIds[playIndex].chapter_or_episode === 'n/a'
                 // ? ''
                 // : `/${videoIds[playIndex].chapter_or_episode}`) +
@@ -171,7 +168,7 @@ export default function Video({ examples }: Props) {
             </div>
           </Group>
         </>
-      )}
+      ) : null}
     </>
   );
 }

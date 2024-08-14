@@ -17,7 +17,7 @@ export default function ListTitle() {
   const [newName, setNewName] = useState(state.listName);
 
   const handleRenameTitle = async () => {
-    const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/user-created-list?lang=${selectedLanguage}`;
+    const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/user-created-list?lang=${selectedLanguage?.language_id}`;
     const payload = { listId: id, newName };
 
     try {

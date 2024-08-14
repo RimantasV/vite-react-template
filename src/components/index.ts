@@ -1,4 +1,5 @@
 export { AddWordToListModal } from './AddWordToListModal';
+export { DictionaryTranslationCard } from './DictionaryTranslationCard';
 export { ExamplesMoviesModal } from './ExamplesMoviesModal';
 export { LanguageSelect } from './LanguageSelect';
 export { Layout } from './Layout';
@@ -7,6 +8,7 @@ export { ListTitle } from './ListTitle';
 export { MyLists } from './MyLists';
 export { MyMoviesAndTV } from './MyMoviesAndTV';
 export { Root } from './Root';
+export { SentenceRow } from './SentenceRow';
 export { SheetContent } from './SheetContent';
 export { Translation } from './Translation';
 export { Video } from './Video';

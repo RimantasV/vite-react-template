@@ -31,12 +31,12 @@ export default function AddWordToListModal({ activeWord, close }: Props) {
     isError: isErrorUserCreatedLists,
     data: userCreatedListData,
     // error: userCreatedListError,
-  } = useUserCreatedListsQuery(selectedLanguage);
+  } = useUserCreatedListsQuery(selectedLanguage?.language_id);
 
   const fetchAddWordToList = async (list: UserCreatedList) => {
     const ENDPOINT = `${
       import.meta.env.VITE_BASE_URL
-    }/api/user-created-list/word?lang=${selectedLanguage}`;
+    }/api/user-created-list/word?lang=${selectedLanguage?.language_id}`;
 
     const payload = { listId: list.custom_item_id, word: activeWord };
 
@@ -70,7 +70,7 @@ export default function AddWordToListModal({ activeWord, close }: Props) {
   const fetchCreateNewList = async () => {
     const ENDPOINT = `${
       import.meta.env.VITE_BASE_URL
-    }/api/user-created-lists/list-word?lang=${selectedLanguage}`;
+    }/api/user-created-lists/list-word?lang=${selectedLanguage?.language_id}`;
 
     const payload = { word: activeWord };
 

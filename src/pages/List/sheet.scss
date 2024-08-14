@@ -2,10 +2,12 @@
 //   /* custom styles */
 // }
 .react-modal-sheet-container {
-  background-color: light-dark(
-    var(--mantine-color-gray-0),
-    var(--mantine-color-dark-6)
-  ) !important;
+  background-color: var(--mantine-color-body) !important;
+
+  // background-color: light-dark(
+  //   var(--mantine-color-gray-0),
+  //   var(--mantine-color-dark-6)
+  // ) !important;
 
   // width: var(--container-size-xl) !important;
   // width: calc(71.25rem * var(--mantine-scale)) !important;

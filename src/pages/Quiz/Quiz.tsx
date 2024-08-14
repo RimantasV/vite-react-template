@@ -90,7 +90,10 @@ export default function Quiz() {
     isError: isErrorWords,
     data: wordsData,
     error: wordsError,
-  } = useUserCreatedListVocabularyQuery(selectedLanguage, parseInt(id!));
+  } = useUserCreatedListVocabularyQuery(
+    selectedLanguage?.language_id,
+    parseInt(id!),
+  );
 
   const handleStartQuizUserCreatedQuiz = async () => {
     setQuizState((prevState) => ({ ...prevState, step: QUIZ_STEPS.PROGRESS }));

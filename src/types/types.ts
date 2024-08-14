@@ -10,7 +10,7 @@ export type EnglishTranslation = {
   translation: [
     {
       glosses: string;
-      tags?: string[];
+      tags: string[];
     },
   ];
 };
@@ -119,19 +119,6 @@ export enum TRANSLATION_STATUS {
 }
 
 export type SentenceObj = {
-  chapter_or_episode: string;
-  created_at: Date;
-  id: number;
-  key: string;
-  resource: string;
-  sentence: string;
-  sentence_en_literal: string;
-  sentence_en_semantic: string;
-  sentence_html: string;
-  word_ids: string[];
-};
-
-export type SentencesRespose = {
   id: number;
   sentence_id: string;
   media_item_id: string;
@@ -152,9 +139,26 @@ export type SentencesRespose = {
   media_type: string;
   title: string;
   segment_title: string;
-}[];
+};
+
+export type SentencesRespose = SentenceObj[];
+
+export type Language = {
+  language_id: Languages;
+  country_id: Countries;
+  title: string;
+  icon: string;
+};
 
 export enum Languages {
-  es = 'es',
-  de = 'de',
+  ES = 'es',
+  FR = 'fr',
+  DE = 'de',
+  SV = 'sv',
+}
+export enum Countries {
+  ES = 'ES',
+  FR = 'FR',
+  DE = 'DE',
+  SE = 'SE',
 }

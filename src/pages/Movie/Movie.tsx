@@ -43,21 +43,21 @@ export default function Movie() {
     // data: toggleQueryData,
     // error: toggleQueryError,
     refetch: refetchToggleQuery,
-  } = useToggleFollowQuery(selectedLanguage, id!, setIsFollowing);
+  } = useToggleFollowQuery(selectedLanguage?.language_id, id!, setIsFollowing);
 
   const {
     isPending: isPendingResourceStatus,
     isError: isErrorResourceStatus,
     data: resourceStatusData,
     // error: resourceStatusError,
-  } = useResourceStatusQuery(selectedLanguage, id!);
+  } = useResourceStatusQuery(selectedLanguage?.language_id, id!);
 
   const {
     isPending: isPendingWords,
     isError: isErrorWords,
     data: wordsData,
     error: wordsError,
-  } = useMovieVocabularyQuery(selectedLanguage, id!);
+  } = useMovieVocabularyQuery(selectedLanguage?.language_id, id!);
 
   useEffect(() => {
     setIsFollowing(resourceStatusData?.is_following || false);

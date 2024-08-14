@@ -1,60 +1,80 @@
-import { Paper, Select } from '@mantine/core';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-// import { ES, US } from 'country-flag-icons/react/3x2';
-// import { useState } from 'react';
+import cx from 'clsx';
+
+import { Avatar, Group, Menu, Paper, UnstyledButton, rem } from '@mantine/core';
+import { IconChevronDown, IconPlus } from '@tabler/icons-react';
+
+import { languages } from '../../const';
 import { useLanguageStore } from '../../store';
-import { Languages } from '../../types';
+import { Language } from '../../types';
 
-// import styles from './languageSelect.module.scss';
-
-const countryFlags = {
-  es: { value: '🇪🇸', disabled: false },
-  fr: { value: '🇫🇷 (coming soon)', disabled: true },
-  de: { value: '🇩🇪 (coming soon)', disabled: false },
-  se: { value: '🇸🇪 (coming soon)', disabled: true },
-};
+import styles from './languageSelect.module.scss';
 
 const LanguageSelect = () => {
-  // const [selectedLanguage, setSelectedLanguage] = useState<string>('es');
   const { selectedLanguage, setSelectedLanguage } = useLanguageStore();
-
-  const data = Object.entries(countryFlags).map(([value, label]) => ({
-    value: value,
-    label: label.value,
-    disabled: label.disabled,
-  }));
+  const [userMenuOpened, setUserMenuOpened] = useState(false);
+  const navigate = useNavigate();
+  const handleMenuItemClicked = (language: Language) => {
+    setSelectedLanguage(language);
+    navigate('/');
+  };
 
   return (
     <Paper visibleFrom='xs'>
-      <Select
-        w={75}
-        // className={styles.select}
-        value={selectedLanguage}
-        onChange={(value) => setSelectedLanguage(value as Languages)}
-        data={data}
-        defaultValue='es'
-        allowDeselect={false}
-        //   style={(theme) => ({
-        //     item: {
-        //       '&[data-selected]': {
-        //         '&, &:hover': {
-        //           backgroundColor:
-        //             theme === 'dark' ? theme.colors.dark[7] : theme.colors.gray[1],
-        //           color: theme.colorScheme === 'dark' ? theme.white : theme.black,
-        //         },
-        //       },
-        //     },
-        //   })}
-        //   itemComponent={({ value, label }) => (
-        //     <div className='flex items-center'>
-        //       <span className='mr-2'>{label}</span>
-        //       {value === selectedLanguage && (
-        //         <CheckIcon size={12} className='text-blue-500' />
-        //       )}
-        //     </div>
-        //   )}
-      />
-      {/* <ES title='United States' width={40} /> */}
+      <Menu
+        // width={260}
+        position='bottom-end'
+        transitionProps={{ transition: 'pop-top-right' }}
+        onClose={() => setUserMenuOpened(false)}
+        onOpen={() => setUserMenuOpened(true)}
+        withinPortal
+      >
+        <Menu.Target>
+          <UnstyledButton
+            className={cx(styles.user, {
+              [styles.userActive]: userMenuOpened,
+            })}
+          >
+            <Group gap={7}>
+              <Avatar
+                src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${selectedLanguage?.country_id}.svg`}
+                alt={'user.name'}
+                radius='xl'
+                size={20}
+              />
+              <IconChevronDown
+                style={{ width: rem(12), height: rem(12) }}
+                stroke={1.5}
+              />
+            </Group>
+          </UnstyledButton>
+        </Menu.Target>
+        <Menu.Dropdown>
+          <Menu.Label>Select Language</Menu.Label>
+          {languages.map((language) => (
+            <Menu.Item
+              key={language.language_id}
+              onClick={() => handleMenuItemClicked(language)}
+              leftSection={<Avatar size={rem(16)} src={language.icon} />}
+            >
+              {language.title}
+            </Menu.Item>
+          ))}
+          <Menu.Divider />
+          <Menu.Item
+            leftSection={
+              <IconPlus
+                style={{ width: rem(16), height: rem(16) }}
+                stroke={1.5}
+              />
+            }
+          >
+            Add Language
+          </Menu.Item>
+        </Menu.Dropdown>
+      </Menu>
     </Paper>
   );
 };

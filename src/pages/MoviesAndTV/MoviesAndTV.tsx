@@ -80,7 +80,7 @@ export default function MoviesAndTV() {
         ? '/media-items.json'
         : `${
             import.meta.env.VITE_BASE_URL
-          }/api/media-items?lang=${selectedLanguage}`;
+          }/api/media-items?lang=${selectedLanguage?.language_id}`;
 
     const response = await fetch(ENDPOINT);
     const data = await response.json();
@@ -110,6 +110,7 @@ export default function MoviesAndTV() {
         align={'flex-start'}
         justify='flex-start'
         wrap='wrap'
+        gap='15px'
       >
         {mediaItems
           .slice(itemsPerPage * (activePage - 1), itemsPerPage * activePage)

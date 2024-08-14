@@ -12,7 +12,7 @@ export default function MyMoviesAndTV() {
     isError: isErrorResources,
     data: resourcesData,
     error: respurcesError,
-  } = useResourcesQuery(selectedLanguage);
+  } = useResourcesQuery(selectedLanguage?.language_id);
 
   if (isPendingResources) {
     return <span>Loading...</span>;

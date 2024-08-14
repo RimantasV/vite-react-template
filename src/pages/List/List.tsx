@@ -34,7 +34,10 @@ export default function List() {
     isError: isErrorWords,
     data: wordsData,
     error: wordsError,
-  } = useUserCreatedListVocabularyQuery(selectedLanguage, parseInt(id!));
+  } = useUserCreatedListVocabularyQuery(
+    selectedLanguage?.language_id,
+    parseInt(id!),
+  );
 
   const { mutate } = useUpdateWordStatusMutation();
   const { mutate: mutateDeleteWord } = useDeleteWordFromListMutation();

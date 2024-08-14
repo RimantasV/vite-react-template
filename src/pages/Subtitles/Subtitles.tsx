@@ -3,28 +3,25 @@ import { Sheet } from 'react-modal-sheet';
 import { useSearchParams } from 'react-router-dom';
 
 import {
-  ActionIcon,
   Checkbox,
-  Flex,
   Group,
   NativeSelect,
   Pagination,
-  Paper,
   Skeleton,
-  Space,
   Stack,
   Text,
+  TextInput,
+  rem,
 } from '@mantine/core';
-import { IconStar } from '@tabler/icons-react';
+import { IconX } from '@tabler/icons-react';
 
-import { Layout } from '../../components';
+import { Layout, SentenceRow } from '../../components';
 import { SheetContent } from '../../components/';
 import { useSubtitlesQuery } from '../../queries';
 import { useLanguageStore } from '../../store';
 import { DictionaryRecord } from '../../types';
 
 import styles from '../../components/SheetContent/sheetContent.module.scss';
-import styles2 from './subtitles.module.scss';
 
 enum SORT_ORDER {
   CHRONOLOGICALLY = 'Chronologically',
@@ -46,6 +43,7 @@ export default function Subtitles() {
   const [activeWords, setActiveWords] = useState<string[]>();
   const [activeForm, setActiveForm] = useState<string>();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [filterValue, setFilterValue] = useState('');
 
   const [orderBy, setOrderBy] = useState('');
   const [activePage, setPage] = useState(1);
@@ -55,14 +53,14 @@ export default function Subtitles() {
     isError: isErrorSubtitles,
     data: subtitlesData,
     error: subtitlesError,
-  } = useSubtitlesQuery(selectedLanguage, mediaItemId!);
+  } = useSubtitlesQuery(selectedLanguage?.language_id, mediaItemId!);
 
   const fetchDictionaryRecord = useCallback(
     async (id: string) => {
       const response = await fetch(
         `${
           import.meta.env.VITE_BASE_URL
-        }/api/dictionary/${id}?lang=${selectedLanguage}`,
+        }/api/dictionary/${id}?lang=${selectedLanguage?.language_id}`,
       );
 
       const data: DictionaryRecord[] = await response.json();
@@ -109,13 +107,40 @@ export default function Subtitles() {
     }
   };
 
+  const handleFilterChange = (e: {
+    target: { value: React.SetStateAction<string> };
+  }) => {
+    setFilterValue(e.target.value);
+    setPage(1);
+  };
+
+  const filteredSubtitlesData = subtitlesData?.filter((sentence) =>
+    sentence.sentence_original
+      .toLowerCase()
+      .replace('í', 'i')
+      .replace('ó', 'o')
+      .replace('á', 'a')
+      .replace('ú', 'u')
+      .replace('é', 'e')
+      .replace('ñ', 'n')
+      .includes(
+        filterValue
+          .toLowerCase()
+          .replace('í', 'i')
+          .replace('ó', 'o')
+          .replace('á', 'a')
+          .replace('ú', 'u')
+          .replace('é', 'e')
+          .replace('ñ', 'n'),
+      ),
+  );
+
   return (
     <Layout>
       <Stack w='100%'>
-        <Group align='center'>
+        <Group align='end' mb='lg'>
           <NativeSelect
             label='Order by'
-            description='Select sorting criteria'
             value={orderBy}
             onChange={(event) => setOrderBy(event.currentTarget.value)}
             data={[
@@ -124,18 +149,37 @@ export default function Subtitles() {
               SORT_ORDER.SHORTEST_TO_LONGEST,
             ]}
           />
+          <TextInput
+            autoComplete='off'
+            label='Search for words'
+            type='search'
+            name='search'
+            id='search'
+            value={filterValue}
+            onChange={handleFilterChange}
+            placeholder='Enter search term'
+            rightSection={
+              <IconX
+                onClick={() => {
+                  setFilterValue('');
+                  setPage(1);
+                }}
+                style={{ width: rem(16), height: rem(16) }}
+              />
+            }
+          />
           <Checkbox
             maw={190}
             defaultChecked
             label='Show translation'
-            description='Show english translation under each sentence'
+            // description='Show english translation under each sentence'
           />
         </Group>
         <Pagination
           value={activePage}
           onChange={setPage}
           siblings={1}
-          total={Math.ceil((subtitlesData?.length || 0) / 100)}
+          total={Math.ceil((filteredSubtitlesData?.length || 0) / 100)}
           mx='auto'
         />
         {isPendingSubtitles ? (
@@ -149,41 +193,20 @@ export default function Subtitles() {
         ) : isErrorSubtitles ? (
           <Text>Error: {subtitlesError?.message}</Text>
         ) : (
-          subtitlesData
-            .slice(100 * (activePage - 1), 100 * activePage)
+          filteredSubtitlesData
+            ?.slice(100 * (activePage - 1), 100 * activePage)
             .map((sentenceObj, i) => (
-              <Paper key={i} bg='whitesmoke' radius='sm' p='xs' shadow='xs'>
-                <Flex align='center' justify='space-between' gap='xs'>
-                  <div>
-                    <Text
-                      key={i}
-                      fz='h4'
-                      onClick={handleWordClick}
-                      dangerouslySetInnerHTML={{
-                        __html: sentenceObj.sentence_html,
-                      }}
-                    />
-                    <Space h='xs' />
-                    <Text fz='sm' className={styles2.translation}>
-                      {sentenceObj.sentence_en_semantic}
-                    </Text>
-                  </div>
-                  <ActionIcon
-                    bg='lightgrey'
-                    variant='default'
-                    radius='md'
-                    size={36}
-                  >
-                    <IconStar color='yellow' stroke={1.5} />
-                  </ActionIcon>
-                </Flex>
-              </Paper>
+              <SentenceRow
+                key={i}
+                handleWordClick={handleWordClick}
+                sentenceObj={sentenceObj}
+              />
             ))
         )}
         <Pagination
           value={activePage}
           onChange={setPage}
-          total={Math.ceil((subtitlesData?.length || 0) / 100)}
+          total={Math.ceil((filteredSubtitlesData?.length || 0) / 100)}
           mx='auto'
         />
         <Sheet
