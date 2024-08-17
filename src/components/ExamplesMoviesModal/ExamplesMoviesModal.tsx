@@ -90,6 +90,7 @@ const ExamplesMoviesModal: React.FC<Props> = ({
       media_type: el.media_type,
       title: el.title,
       segment_title: el.segment_title,
+      video_id: el.video_id,
     }));
 
     setExamples(dataWithClass);

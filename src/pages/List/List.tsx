@@ -35,7 +35,7 @@ export default function List() {
     data: wordsData,
     error: wordsError,
   } = useUserCreatedListVocabularyQuery(
-    selectedLanguage?.language_id,
+    selectedLanguage!.language_id,
     parseInt(id!),
   );
 
@@ -50,6 +50,7 @@ export default function List() {
     e.stopPropagation();
     word.forEach((el) =>
       mutate({
+        language: selectedLanguage!.language_id,
         word: el,
         isLearning: false,
         isExcluded: true,
@@ -65,7 +66,7 @@ export default function List() {
     e.stopPropagation();
     word.forEach((el) =>
       mutateDeleteWord({
-        lang: selectedLanguage,
+        lang: selectedLanguage!.language_id,
         wordId: el.word_id,
         customItemId: id!,
       }),
@@ -75,7 +76,7 @@ export default function List() {
   const handleDeleteListClick = () => {
     mutateDeleteList(
       {
-        lang: selectedLanguage,
+        lang: selectedLanguage!.language_id,
         customItemId: id!,
       },
       {

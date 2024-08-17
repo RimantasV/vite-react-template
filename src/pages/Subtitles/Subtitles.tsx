@@ -53,7 +53,7 @@ export default function Subtitles() {
     isError: isErrorSubtitles,
     data: subtitlesData,
     error: subtitlesError,
-  } = useSubtitlesQuery(selectedLanguage?.language_id, mediaItemId!);
+  } = useSubtitlesQuery(selectedLanguage!.language_id, mediaItemId!);
 
   const fetchDictionaryRecord = useCallback(
     async (id: string) => {

@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Languages, UserCreatedList, Wordsx, Wordx } from '../types';
 
 type UpdateWordStatus = {
+  language: Languages;
   word: Wordx;
   isLearning: boolean;
   isExcluded: boolean;
@@ -10,11 +11,12 @@ type UpdateWordStatus = {
 };
 
 const fetchUpdateWordStatus = async (
+  lang: Languages,
   word: Wordx,
   isLearning: boolean,
   isExcluded: boolean,
 ) => {
-  const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/words/progress`;
+  const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/words/progress?lang=${lang}`;
   const payload = {
     word: word.word_id,
     learningLevel: word.learning_level,
@@ -41,8 +43,13 @@ const fetchUpdateWordStatus = async (
 export const useUpdateWordStatusMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ word, isLearning, isExcluded }: UpdateWordStatus) =>
-      fetchUpdateWordStatus(word, isLearning, isExcluded),
+    mutationFn: ({
+      language,
+      word,
+      isLearning,
+      isExcluded,
+    }: UpdateWordStatus) =>
+      fetchUpdateWordStatus(language, word, isLearning, isExcluded),
 
     onSuccess: (_, variables) => {
       const updateNestedState = (

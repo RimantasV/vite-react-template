@@ -2,6 +2,7 @@ import { ActionIcon, Flex, Paper, Space, Text } from '@mantine/core';
 import { IconStar } from '@tabler/icons-react';
 
 import { SentenceObj } from '../../types';
+import { TextToSpeech } from '../TextToSpeech';
 
 import styles from './sentenceRow.module.scss';
 
@@ -16,6 +17,7 @@ export default function SentenceRow({ handleWordClick, sentenceObj }: Props) {
   return (
     <Paper className={styles.item} radius='sm' p='xs' shadow='xs'>
       <Flex align='center' justify='space-between' gap='lg'>
+        <TextToSpeech autoplay={false} text={sentenceObj.sentence_original} />
         <ActionIcon bg='lightgrey' variant='default' radius='md' size={36}>
           <IconStar color='yellow' stroke={1.5} />
         </ActionIcon>

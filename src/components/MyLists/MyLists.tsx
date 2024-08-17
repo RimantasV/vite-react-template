@@ -12,7 +12,7 @@ export default function MyLists() {
     isError: isErrorUserCreatedLists,
     data: userCreatedListData,
     error: userCreatedListError,
-  } = useUserCreatedListsQuery(selectedLanguage?.language_id);
+  } = useUserCreatedListsQuery(selectedLanguage!.language_id);
 
   if (isPendingUsserCreatedLists) {
     return <span>Loading...</span>;

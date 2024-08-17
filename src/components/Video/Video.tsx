@@ -29,6 +29,7 @@ export default function Video({ examples }: Props) {
       examples
         .filter(
           (el) =>
+            el.video_id &&
             el.sentence_timestamps &&
             calculateTimeDifference(el.sentence_timestamps) > 2,
         )
@@ -38,6 +39,7 @@ export default function Video({ examples }: Props) {
           sentence_id: el.sentence_id,
           id: el.id,
         }))
+
         .slice(0, 10),
     );
   }, [examples]);
@@ -90,15 +92,23 @@ export default function Video({ examples }: Props) {
         <>
           <div
             style={{
-              outline: '1px solid black',
+              // outline: '1px solid red',
+              position: 'relative',
+              paddingTop: '56.25%',
               // width: '100%',
               // display: 'flex',
               // position: 'relative',
-              backgroundColor: 'black',
+              // backgroundColor: 'black',
             }}
           >
             <ReactPlayer
-              style={{ position: 'relative' }}
+              // style={{ position: 'relative' }}
+              style={{
+                // border: '20px solid green',
+                position: 'absolute',
+                top: '0',
+                left: '0',
+              }}
               playing={playing}
               url={
                 `https://movie-tongue.b-cdn.net/clips/${selectedLanguage?.language_id}/${videoIds[playIndex].title}` + //${videoIds[playIndex].key}` +
@@ -109,8 +119,7 @@ export default function Video({ examples }: Props) {
               }
               controls
               width={'100%'}
-              // height={'450px'}
-
+              height={'100%'}
               playsinline
               config={{
                 attributes: {
@@ -128,11 +137,13 @@ export default function Video({ examples }: Props) {
               // transform: 'translate(-50%)',
               backgroundColor: 'black',
               padding: '10px',
+              paddingTop: '0',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               // width: '100%',
               textAlign: 'center',
+              // border: '1px solid red',
             }}
           >
             <p style={{ marginBottom: '10px' }}>

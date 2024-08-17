@@ -25,6 +25,7 @@ import {
 } from '@tabler/icons-react';
 
 import { Layout } from '../../components';
+import { TextToSpeech } from '../../components/TextToSpeech';
 import { useUserCreatedListVocabularyQuery } from '../../queries';
 import { useLanguageStore } from '../../store';
 import {
@@ -91,7 +92,7 @@ export default function Quiz() {
     data: wordsData,
     error: wordsError,
   } = useUserCreatedListVocabularyQuery(
-    selectedLanguage?.language_id,
+    selectedLanguage!.language_id,
     parseInt(id!),
   );
 
@@ -217,7 +218,7 @@ export default function Quiz() {
     markedToLearn,
     markedToExclude,
   }: WordProgressPayload) => {
-    const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/words/progress`;
+    const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/words/progress?lang=${selectedLanguage?.language_id}`;
     const payload = {
       word,
       learningLevel,
@@ -327,7 +328,15 @@ export default function Quiz() {
             <Card shadow='md' bg='whitesmoke' flex={1} w='100%' mb='xl' p='xl'>
               {/* Foreign word */}
               <Card.Section p='xl' withBorder>
-                <Flex justify='center'>
+                <Flex justify='center' align='center'>
+                  <Paper mr='md' bg='gray' p='sm' radius='xl'>
+                    <TextToSpeech
+                      autoplay
+                      text={
+                        wordsData![quizState.index][0].word_id.split('-')[0]
+                      }
+                    />
+                  </Paper>
                   <Title fz={42} order={2}>
                     {wordsData![quizState.index][0].word_id.split('-')[0]}
                   </Title>

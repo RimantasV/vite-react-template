@@ -7,6 +7,7 @@ import {
   Text,
   ThemeIcon,
   Title,
+  UnstyledButton,
   rem,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
@@ -31,7 +32,7 @@ export default function AddWordToListModal({ activeWord, close }: Props) {
     isError: isErrorUserCreatedLists,
     data: userCreatedListData,
     // error: userCreatedListError,
-  } = useUserCreatedListsQuery(selectedLanguage?.language_id);
+  } = useUserCreatedListsQuery(selectedLanguage!.language_id);
 
   const fetchAddWordToList = async (list: UserCreatedList) => {
     const ENDPOINT = `${
@@ -146,13 +147,21 @@ export default function AddWordToListModal({ activeWord, close }: Props) {
                 Create new list
               </Button>
               {userCreatedListData.map((list) => (
-                <List.Item
-                  onClick={() => handleAddWordToList(list)}
+                // <List.Item
+                // bg='grape'
+                // >
+                <UnstyledButton
+                  mb='sm'
                   key={list.custom_item_id}
+                  // w='100%'/
+                  // component={List.Item}
+                  // bg='cyan'
+                  onClick={() => handleAddWordToList(list)}
                   className={styles.listItem}
                 >
-                  {list.title}
-                </List.Item>
+                  <List.Item>{list.title}</List.Item>
+                </UnstyledButton>
+                // </List.Item>
               ))}
             </List>
           </div>

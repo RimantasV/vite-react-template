@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import {
   DataMovies,
+  DictionaryRecord,
   Languages,
   Resource,
   SentenceObj,
@@ -105,7 +106,7 @@ const fetchMovieVocabulary = async (lang: Languages, mediaItemId: string) => {
 
   if (response.ok) {
     let data: DataMovies = await response.json();
-    data = data.filter((el) => !el.marked_to_exclude);
+    // data = data.filter((el) => !el.marked_to_exclude);
     data = data.map((el) => ({
       ...el,
       nextReviewDate: getNextReviewDate(el.learning_level, el.last_answer_ts),
@@ -245,4 +246,78 @@ export const useUserSettingsQuery = () =>
     queryKey: ['userSettings'],
     queryFn: () => fetchUserSettings(),
     enabled: false,
+  });
+
+// const fetchDictionaryRecord = useCallback(async () => {
+//   const response = await fetch(
+//     `${
+//       import.meta.env.VITE_BASE_URL
+//     }/api/dictionary/${id}?lang=${selectedLanguage?.language_id}`,
+//   );
+
+//   const data = await response.json();
+//   setEnglishTranslation(data[0]?.info);
+// }, [id, selectedLanguage]);
+
+// const fetchDictionaryRecord = useCallback(
+//   async (id: string) => {
+//     const response = await fetch(
+//       `${
+//         import.meta.env.VITE_BASE_URL
+//       }/api/dictionary/${id}?lang=${selectedLanguage?.language_id}`,
+//     );
+
+//     const data: DictionaryRecord[] = await response.json();
+//     if (data[0].word_id) {
+//       setDictionaryRecord((prevState) => [...prevState, data[0]]);
+//     }
+//   },
+//   [selectedLanguage],
+// );
+
+const fetchDictionaryRecord = async (lang: Languages, wordId: string) => {
+  const ENDPOINT = `${
+    import.meta.env.VITE_BASE_URL
+  }/api/dictionary/${wordId}?lang=${lang}`;
+
+  const response = await fetch(ENDPOINT);
+  if (response.ok) {
+    const data: DictionaryRecord[] = await response.json();
+    return data;
+  } else throw new Error((await response.json()).message);
+};
+
+export const useDictionaryRecordQuery = (lang: Languages, wordId: string) =>
+  useQuery({
+    queryKey: ['dictionaryRecord', wordId, lang],
+    queryFn: () => fetchDictionaryRecord(lang, wordId),
+  });
+
+const fetchSearchDictionary = async (
+  lang: Languages,
+  searchTerm: string,
+  signal: AbortSignal,
+) => {
+  // await sleep(3000);
+  const ENDPOINT = `${
+    import.meta.env.VITE_BASE_URL
+  }/api/dictionary/search/${searchTerm}?lang=${lang}`;
+
+  const response = await fetch(ENDPOINT, { signal });
+  if (response.ok) {
+    const data: DictionaryRecord[] = await response.json();
+    return data.sort(
+      (a, b) => a.word_id.split('-')[0].length - b.word_id.split('-')[0].length,
+    );
+    // .slice(0, 10);
+  } else throw new Error((await response.json()).message);
+};
+
+export const useSearchDictionaryQuery = (lang: Languages, searchTerm: string) =>
+  useQuery({
+    queryKey: ['searchDictionary', searchTerm, lang],
+    queryFn: ({ signal }) => fetchSearchDictionary(lang, searchTerm, signal),
+    enabled: false,
+    staleTime: Infinity,
+    // gcTime: Infinity,
   });

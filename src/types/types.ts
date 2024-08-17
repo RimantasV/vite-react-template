@@ -139,6 +139,7 @@ export type SentenceObj = {
   media_type: string;
   title: string;
   segment_title: string;
+  video_id: string;
 };
 
 export type SentencesRespose = SentenceObj[];
