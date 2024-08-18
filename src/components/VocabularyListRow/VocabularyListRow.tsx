@@ -52,16 +52,19 @@ export default function VocabularyListRow({
         ))}
       </div>
       <Flex gap='lg' justify='center'>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          {getDisplayDate(
-            getNextReviewDate(item[0].learning_level, item[0].last_answer_ts),
-          )}
-        </div>
+        <Tooltip label='Due for review'>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+            aria-label='Due for review'
+          >
+            {getDisplayDate(
+              getNextReviewDate(item[0].learning_level, item[0].last_answer_ts),
+            )}
+          </div>
+        </Tooltip>
 
         {hasAddToListIcon && (
           <Tooltip label='Add word to your own list'>

@@ -44,6 +44,8 @@ export type Wordx = {
   nextReviewDate: string | null;
 };
 
+export type WordxMultiple = Wordx & { options: string[] };
+
 export type WordObjectx = Record<string, Wordx[]>;
 
 export type Wordsx = Wordx[][];
@@ -109,7 +111,10 @@ export type UserCreatedList = {
 
 export enum QUIZ_STEPS {
   SETTINGS = 'settings',
-  PROGRESS = 'progress',
+  FLASHCARDS = 'flashcards',
+  MULTIPLE_CHOICE = 'multipleChoice',
+  MATCHING_PAIRS = 'matchingPairs',
+  TYPING = 'typing',
   SUMMARY = 'summary',
 }
 

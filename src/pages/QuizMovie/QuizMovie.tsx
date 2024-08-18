@@ -71,7 +71,7 @@ export default function Quiz() {
     setQuizState((prevState) => {
       const isLastWord = wordsMoviesData!.length - 1 === prevState.index;
       return {
-        step: isLastWord ? QUIZ_STEPS.SUMMARY : QUIZ_STEPS.PROGRESS,
+        step: isLastWord ? QUIZ_STEPS.SUMMARY : QUIZ_STEPS.FLASHCARDS,
         translation: TRANSLATION_STATUS.HIDDEN,
         index: isLastWord ? 0 : prevState.index + 1,
       };
@@ -94,7 +94,10 @@ export default function Quiz() {
   } = useMovieVocabularyQuery(selectedLanguage!.language_id, mediaItemId!);
 
   const handleStartQuizUserCreatedQuiz = async () => {
-    setQuizState((prevState) => ({ ...prevState, step: QUIZ_STEPS.PROGRESS }));
+    setQuizState((prevState) => ({
+      ...prevState,
+      step: QUIZ_STEPS.FLASHCARDS,
+    }));
 
     // setActiveKey(key);
     // const words = await fetchUserCreatedListVocabulary(key);
@@ -281,7 +284,7 @@ export default function Quiz() {
     );
   }
 
-  if (quizState.step === QUIZ_STEPS.PROGRESS) {
+  if (quizState.step === QUIZ_STEPS.FLASHCARDS) {
     return (
       <Layout>
         <Stack flex={1} align='center'>

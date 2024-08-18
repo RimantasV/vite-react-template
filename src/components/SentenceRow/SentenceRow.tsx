@@ -12,8 +12,6 @@ type Props = {
 };
 
 export default function SentenceRow({ handleWordClick, sentenceObj }: Props) {
-  console.log({ xxx: sentenceObj.title });
-
   return (
     <Paper className={styles.item} radius='sm' p='xs' shadow='xs'>
       <Flex align='center' justify='space-between' gap='lg'>

@@ -248,7 +248,6 @@ export default function Movie() {
           />
           <ul style={{ listStyle: 'none', padding: '0' }}>
             {filteredWordsData
-              .slice(100 * (activePage - 1), 100 * activePage)
               .filter((word) => !word[0].marked_to_exclude)
               .sort((a, b) => {
                 if (a[0].nextReviewDate === null) {
@@ -262,6 +261,7 @@ export default function Movie() {
                   new Date(b[0].nextReviewDate).getTime()
                 );
               })
+              .slice(100 * (activePage - 1), 100 * activePage)
               .map((item, id) => (
                 <VocabularyListRow
                   hasAddToListIcon={true}

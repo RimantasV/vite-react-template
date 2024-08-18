@@ -146,11 +146,18 @@ export default function Video({ examples }: Props) {
               // border: '1px solid red',
             }}
           >
-            <p style={{ marginBottom: '10px' }}>
-              {
+            <p
+              style={{ marginBottom: '10px' }}
+              dangerouslySetInnerHTML={{
+                __html: examples.filter(
+                  (el) => el.id === videoIds[playIndex].id,
+                )[0].sentence_html,
+              }}
+            >
+              {/* {
                 examples.filter((el) => el.id === videoIds[playIndex].id)[0]
-                  .sentence_original
-              }
+                  .sentence_html
+              } */}
             </p>
             <p style={{ color: 'white', fontSize: '14px' }}>
               {

@@ -1,31 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import {
-  ActionIcon,
-  Button,
-  Card,
-  CloseButton,
-  Flex,
-  Grid,
-  Group,
-  List,
-  Paper,
-  Progress,
-  Stack,
-  Text,
-  Title,
-} from '@mantine/core';
-import {
-  IconCheck,
-  IconEye,
-  IconEyeOff,
-  IconRepeat,
-  IconX,
-} from '@tabler/icons-react';
+import { CloseButton, Grid, Stack } from '@mantine/core';
 
 import { Layout } from '../../components';
-import { TextToSpeech } from '../../components/TextToSpeech';
+import {
+  Flashcards,
+  MatchingPairs,
+  MultipleChoice,
+  Summary,
+  Typing,
+} from '../../components/Quizes';
 import { useUserCreatedListVocabularyQuery } from '../../queries';
 import { useLanguageStore } from '../../store';
 import {
@@ -33,12 +18,10 @@ import {
   TRANSLATION_STATUS,
   Wordsx,
   Wordx,
+  WordxMultiple,
 } from '../../types/types';
-import RenderFlag from './RenderFlag';
 import { Settings } from './components';
-
-import styles from '../Learn/learn.module.scss';
-import styles2 from './quiz.module.scss';
+import { transformToMultipleChoice } from './test';
 
 export default function Quiz() {
   const { selectedLanguage } = useLanguageStore();
@@ -51,27 +34,18 @@ export default function Quiz() {
   // >('hidden');
   // const [activeKey, setActiveKey] = useState<string | number>('');
   const navigate = useNavigate();
-  const [progressValue, setProgressValue] = useState(80);
+  // const [progressValue, setProgressValue] = useState(80);
   const [quizState, setQuizState] = useState({
     step: QUIZ_STEPS.SETTINGS,
     index: 0,
     translation: TRANSLATION_STATUS.HIDDEN,
   });
 
-  const resetQuizState = () => {
-    setProgressValue(80);
-    setQuizState({
-      step: QUIZ_STEPS.SETTINGS,
-      translation: TRANSLATION_STATUS.HIDDEN,
-      index: 0,
-    });
-  };
-
   const goToNextWord = () => {
     setQuizState((prevState) => {
       const isLastWord = wordsData!.length - 1 === prevState.index;
       return {
-        step: isLastWord ? QUIZ_STEPS.SUMMARY : QUIZ_STEPS.PROGRESS,
+        step: isLastWord ? QUIZ_STEPS.SUMMARY : prevState.step, //QUIZ_STEPS.FLASHCARDS,
         translation: TRANSLATION_STATUS.HIDDEN,
         index: isLastWord ? 0 : prevState.index + 1,
       };
@@ -96,8 +70,11 @@ export default function Quiz() {
     parseInt(id!),
   );
 
-  const handleStartQuizUserCreatedQuiz = async () => {
-    setQuizState((prevState) => ({ ...prevState, step: QUIZ_STEPS.PROGRESS }));
+  const handleStartFlashcardsQuiz = () => {
+    setQuizState((prevState) => ({
+      ...prevState,
+      step: QUIZ_STEPS.FLASHCARDS,
+    }));
 
     // setActiveKey(key);
     // const words = await fetchUserCreatedListVocabulary(key);
@@ -146,6 +123,27 @@ export default function Quiz() {
     // setTranslationStatus('hidden');
   };
 
+  const handleStartMultipleChoiceQuiz = () => {
+    setQuizState((prevState) => ({
+      ...prevState,
+      step: QUIZ_STEPS.MULTIPLE_CHOICE,
+    }));
+  };
+
+  const handleStartTypingQuiz = () => {
+    setQuizState((prevState) => ({
+      ...prevState,
+      step: QUIZ_STEPS.TYPING,
+    }));
+  };
+
+  const handleStartMatchingPairsQuiz = () => {
+    setQuizState((prevState) => ({
+      ...prevState,
+      step: QUIZ_STEPS.MATCHING_PAIRS,
+    }));
+  };
+
   const handleSubmitPositive = (x: Wordx) => {
     const payload: WordProgressPayload = {
       word: x.word_id,
@@ -190,12 +188,12 @@ export default function Quiz() {
     // }
   };
 
-  const handleTranslationReveal = () => {
-    setQuizState((prevState) => ({
-      ...prevState,
-      translation: TRANSLATION_STATUS.VISIBLE,
-    }));
-  };
+  // const handleTranslationReveal = () => {
+  //   setQuizState((prevState) => ({
+  //     ...prevState,
+  //     translation: TRANSLATION_STATUS.VISIBLE,
+  //   }));
+  // };
 
   const handleExcludeWordClick = (word: Wordx[]) => {
     word.forEach((el) => {
@@ -264,6 +262,15 @@ export default function Quiz() {
     }
   };
 
+  const [multipleChoiceQuizWords, setMultipleChoiceQuizWords] =
+    useState<WordxMultiple[][]>();
+
+  useEffect(() => {
+    if (wordsData) {
+      setMultipleChoiceQuizWords(transformToMultipleChoice(wordsData));
+    }
+  }, [wordsData]);
+
   if (quizState.step === QUIZ_STEPS.SETTINGS) {
     return (
       <Layout>
@@ -278,227 +285,88 @@ export default function Quiz() {
           </Grid>
           <Settings
             wordsData={wordsData}
-            onClick={() => handleStartQuizUserCreatedQuiz()}
+            handleStartFlashcardsQuiz={handleStartFlashcardsQuiz}
+            handleStartMultipleChoiceQuiz={handleStartMultipleChoiceQuiz}
+            handleStartTypingQuiz={handleStartTypingQuiz}
+            handleStartMatchingPairsQuiz={handleStartMatchingPairsQuiz}
           />
         </Stack>
       </Layout>
     );
   }
 
-  if (quizState.step === QUIZ_STEPS.PROGRESS) {
+  if (quizState.step === QUIZ_STEPS.MULTIPLE_CHOICE) {
     return (
-      <Layout>
-        <Stack flex={1} align='center'>
-          <Grid w={'100%'} align='center' mb='xl'>
-            <Grid.Col span={2}>
-              <CloseButton onClick={() => navigate(-1)} />
-            </Grid.Col>
-            <Grid.Col span={8}>
-              <Progress
-                transitionDuration={200}
-                value={(quizState.index / (wordsData?.length || 0 - 1)) * 100}
-                size='lg'
-                radius='lg'
-              />
-            </Grid.Col>
-            <Grid.Col
-              span={2}
-              style={{
-                marginLeft: 'auto',
-                display: 'flex',
-                justifyContent: 'flex-end',
-              }}
-            >
-              <ActionIcon
-                size='lg'
-                variant='subtle'
-                aria-label='Exclude word'
-                onClick={() =>
-                  handleExcludeWordClick(wordsData![quizState.index])
-                }
-              >
-                <IconEyeOff stroke={2} />
-              </ActionIcon>
-            </Grid.Col>
-          </Grid>
+      <MultipleChoice
+        multipleChoiceQuizWords={multipleChoiceQuizWords!}
+        handleExcludeWordClick={handleExcludeWordClick}
+        navigate={navigate}
+        wordsData={wordsData!}
+        goToNextWord={goToNextWord}
+        quizState={quizState}
+        setQuizState={setQuizState}
+      />
+    );
+  }
 
-          {isPendingWords && <Text>Loading...</Text>}
-          {isErrorWords && <Text>Error: {wordsError?.message}</Text>}
-          <Stack w='100%'>
-            <Card shadow='md' bg='whitesmoke' flex={1} w='100%' mb='xl' p='xl'>
-              {/* Foreign word */}
-              <Card.Section p='xl' withBorder>
-                <Flex justify='center' align='center'>
-                  <Paper mr='md' bg='gray' p='sm' radius='xl'>
-                    <TextToSpeech
-                      autoplay
-                      text={
-                        wordsData![quizState.index][0].word_id.split('-')[0]
-                      }
-                    />
-                  </Paper>
-                  <Title fz={42} order={2}>
-                    {wordsData![quizState.index][0].word_id.split('-')[0]}
-                  </Title>
-                </Flex>
-              </Card.Section>
-              {/* Translation */}
-              <Card.Section p='xl' mah='300' style={{ overflow: 'auto' }}>
-                {wordsData![quizState.index].map((el, i) => (
-                  <div
-                    className={`${styles2.translation} ${
-                      quizState.translation === TRANSLATION_STATUS.HIDDEN
-                        ? styles2.hidden
-                        : styles2.visible
-                    }`}
-                    key={i}
-                  >
-                    <Title
-                      fz={20}
-                      order={5}
-                      mb='xs'
-                      fw='bolder'
-                      style={{
-                        textTransform: 'uppercase',
-                      }}
-                    >
-                      {el.word_id.split('-')[1]}
-                    </Title>
-                    <List
-                      type='ordered'
-                      size='xl'
-                      listStyleType='decimal'
-                      withPadding
-                    >
-                      {el.info?.map((el, i) => (
-                        <List.Item key={i}>
-                          <div style={{ display: 'flex' }}>
-                            {<RenderFlag tags={el.tags} />}
-                            <Text size='xl'>{el.glosses}</Text>
-                          </div>
-                        </List.Item>
-                      ))}
-                    </List>
-                  </div>
-                ))}
-              </Card.Section>
-            </Card>
-            <div className={styles.toolbar}>
-              <div className={styles.iconsContainer}>
-                {quizState.translation === TRANSLATION_STATUS.VISIBLE && (
-                  <ActionIcon
-                    size='48'
-                    fz='36px'
-                    radius='xl'
-                    variant='filled'
-                    color='green'
-                    aria-label='I got this word right'
-                    onClick={() =>
-                      handleSubmitPositive(wordsData![quizState.index][0])
-                    }
-                  >
-                    <IconCheck
-                      stroke={2.5}
-                      style={{ width: '36', height: '36' }}
-                    />
-                  </ActionIcon>
-                )}
-                {quizState.translation === TRANSLATION_STATUS.HIDDEN && (
-                  <ActionIcon
-                    size='48'
-                    fz='36px'
-                    radius='xl'
-                    variant='filled'
-                    color='gray'
-                    aria-label='Reveal translation'
-                    onClick={handleTranslationReveal}
-                  >
-                    <IconEye stroke={2} style={{ width: '36', height: '36' }} />
-                  </ActionIcon>
-                )}
-                {quizState.translation === TRANSLATION_STATUS.VISIBLE && (
-                  <ActionIcon
-                    size='48'
-                    fz='36px'
-                    radius='xl'
-                    variant='filled'
-                    color='red'
-                    aria-label="I didn't get this word right'"
-                    onClick={() =>
-                      handleSubmitNegative(wordsData![quizState.index][0])
-                    }
-                  >
-                    <IconX stroke={2.5} style={{ width: '36', height: '36' }} />
-                  </ActionIcon>
-                )}
-              </div>
-            </div>
-          </Stack>
-        </Stack>
-      </Layout>
+  if (quizState.step === QUIZ_STEPS.TYPING) {
+    return (
+      <Typing
+        quizState={quizState}
+        setQuizState={setQuizState}
+        goToNextWord={goToNextWord}
+        wordsData={wordsData!}
+        onComplete={() =>
+          setQuizState((preState) => ({
+            ...preState,
+            step: QUIZ_STEPS.SUMMARY,
+          }))
+        }
+        handleExcludeWordClick={handleExcludeWordClick}
+        navigate={navigate}
+      />
+    );
+  }
+
+  if (quizState.step === QUIZ_STEPS.MATCHING_PAIRS) {
+    return (
+      <MatchingPairs
+        wordsData={wordsData!.slice(0, 10)}
+        onComplete={() =>
+          setQuizState((preState) => ({
+            ...preState,
+            step: QUIZ_STEPS.SETTINGS,
+          }))
+        }
+      />
+    );
+  }
+
+  if (quizState.step === QUIZ_STEPS.FLASHCARDS) {
+    return (
+      <Flashcards
+        wordsData={wordsData!}
+        isPendingWords={isPendingWords}
+        isErrorWords={isErrorWords}
+        wordsError={wordsError}
+        quizState={quizState}
+        setQuizState={setQuizState}
+        handleSubmitPositive={handleSubmitPositive}
+        handleSubmitNegative={handleSubmitNegative}
+        handleExcludeWordClick={handleExcludeWordClick}
+      />
     );
   }
   if (quizState.step === QUIZ_STEPS.SUMMARY) {
     setTimeout(() => {
-      setProgressValue(100);
+      // setProgressValue(100);
     }, 0);
     return (
-      <Layout>
-        <Stack flex={1} align='center'>
-          <Grid w={'100%'} align='center'>
-            <Grid.Col span={2}>
-              <CloseButton
-                style={{ marginRight: 'auto' }}
-                onClick={() => navigate(-1)}
-              />
-            </Grid.Col>
-            <Grid.Col span={8}>
-              <Progress
-                transitionDuration={500}
-                value={progressValue}
-                size='lg'
-                radius='lg'
-              />
-            </Grid.Col>
-            <Grid.Col span={2}></Grid.Col>
-          </Grid>
-          <Group h={'100%'} w={'100%'} justify='center' align='center' flex={1}>
-            <Flex align='center' direction='column'>
-              <Paper
-                mb='lg'
-                style={{
-                  border: '7px solid green',
-                  borderRadius: '50%',
-                  padding: '15px',
-                }}
-              >
-                <IconCheck color='green' size={64} stroke={3} />
-              </Paper>
-              <Title mb='lg'>Congratulations!</Title>
-              <Text mb='xl' fz='lg'>
-                You have reviewed {wordsData?.length} word
-                {(wordsData?.length || 0) > 1 && 's'}
-              </Text>
-              <Group>
-                <Button
-                  size='lg'
-                  variant='outline'
-                  onClick={() => navigate(-1)}
-                >
-                  Go back
-                </Button>
-                <Button
-                  size='lg'
-                  leftSection={<IconRepeat size={18} />}
-                  onClick={resetQuizState}
-                >
-                  New quiz
-                </Button>
-              </Group>
-            </Flex>
-          </Group>
-        </Stack>
-      </Layout>
+      <Summary
+        wordsData={wordsData!}
+        quizState={quizState}
+        setQuizState={setQuizState}
+      />
     );
   }
 }
