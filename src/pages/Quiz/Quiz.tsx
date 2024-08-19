@@ -20,6 +20,7 @@ import {
   Wordx,
   WordxMultiple,
 } from '../../types/types';
+import { shuffleArray } from '../../utils';
 import { Settings } from './components';
 import { transformToMultipleChoice } from './test';
 
@@ -28,6 +29,16 @@ export default function Quiz() {
   const [searchParams] = useSearchParams();
   const id = searchParams.get('id');
   const [, setWords] = useState<Wordsx>([]);
+  const {
+    isPending: isPendingWords,
+    isError: isErrorWords,
+    data: wordsData_,
+    error: wordsError,
+  } = useUserCreatedListVocabularyQuery(
+    selectedLanguage!.language_id,
+    parseInt(id!),
+  );
+  const [wordsData, setWordsData] = useState(wordsData_);
   // const [quizWords, setQuizWords] = useState<Wordsx>([]);
   // const [translationStatus, setTranslationStatus] = useState<
   //   'hidden' | 'visible'
@@ -60,15 +71,11 @@ export default function Quiz() {
     markedToExclude: boolean;
   };
 
-  const {
-    isPending: isPendingWords,
-    isError: isErrorWords,
-    data: wordsData,
-    error: wordsError,
-  } = useUserCreatedListVocabularyQuery(
-    selectedLanguage!.language_id,
-    parseInt(id!),
-  );
+  useEffect(() => {
+    if (wordsData_) {
+      setWordsData(shuffleArray(wordsData_));
+    }
+  }, [wordsData_]);
 
   const handleStartFlashcardsQuiz = () => {
     setQuizState((prevState) => ({

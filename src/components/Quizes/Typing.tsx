@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { NavigateFunction } from 'react-router-dom';
 
 import {
@@ -69,6 +75,8 @@ const TypingQuiz: React.FC<Props> = ({
   navigate,
 }) => {
   // const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const correctAudio = useMemo(() => new Audio(Correct), []);
+  const incorrectAudio = useMemo(() => new Audio(Wrong), []);
   const [userAnswer, setUserAnswer] = useState<string[]>([]);
   const [showHint, setShowHint] = useState(false);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
@@ -84,30 +92,39 @@ const TypingQuiz: React.FC<Props> = ({
   }, [quizState.index]);
 
   useEffect(() => {
-    const correctAudio = new Audio(Correct);
-    const incorrectAudio = new Audio(Wrong);
-
     if (isAnswerCorrect === true) {
       correctAudio.play();
     } else if (isAnswerCorrect === false) {
       incorrectAudio.play();
     }
-  }, [isAnswerCorrect]);
+  }, [correctAudio, incorrectAudio, isAnswerCorrect]);
 
   const handleInputChange = (index: number, value: string) => {
-    const newAnswer = [...userAnswer];
-    newAnswer[index] = value.toUpperCase();
-    setUserAnswer(newAnswer);
+    if (value !== ' ') {
+      console.log({ value });
+      const newAnswer = [...userAnswer];
+      newAnswer[index] = value.toUpperCase();
+      setUserAnswer(newAnswer);
 
-    if (value && index < currentQuestion[0].word_id.split('-')[0].length - 1) {
-      inputRefs.current[index + 1]?.focus();
-    }
-
-    if (
-      newAnswer.join('').length ===
-      currentQuestion[0].word_id.split('-')[0].toUpperCase().length
-    ) {
-      checkAnswer(newAnswer);
+      if (
+        value &&
+        index < currentQuestion[0].word_id.split('-')[0].length - 1
+      ) {
+        inputRefs.current[index + 1]?.focus();
+      }
+      console.log(
+        newAnswer.join('').length,
+        currentQuestion[0].word_id.split('-')[0].toUpperCase().length,
+        newAnswer.join(''),
+        currentQuestion[0].word_id.split('-')[0].toUpperCase(),
+        currentQuestion[0].word_id,
+      );
+      if (
+        newAnswer.join('').length ===
+        currentQuestion[0].word_id.split('-')[0].toUpperCase().length
+      ) {
+        checkAnswer(newAnswer);
+      }
     }
   };
 
@@ -138,7 +155,7 @@ const TypingQuiz: React.FC<Props> = ({
     }
   };
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = useCallback(() => {
     if (quizState.index < wordsData.length - 1) {
       // setCurrentQuestionIndex(currentQuestionIndex + 1);
       goToNextWord();
@@ -150,7 +167,7 @@ const TypingQuiz: React.FC<Props> = ({
       // alert(`Quiz completed! Your score: ${score}/${wordsData.length}`);
       onComplete();
     }
-  };
+  }, [goToNextWord, onComplete, quizState.index, wordsData.length]);
 
   const revealHint = () => {
     setShowHint(true);
@@ -163,6 +180,21 @@ const TypingQuiz: React.FC<Props> = ({
     setUserAnswer(hintAnswer);
     inputRefs.current[1]?.focus();
   };
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (isAnswerCorrect !== null) {
+        if (event.key === ' ' || event.key === 'Enter') {
+          handleNextQuestion();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [currentQuestion, handleNextQuestion, isAnswerCorrect]);
 
   return (
     <Layout>

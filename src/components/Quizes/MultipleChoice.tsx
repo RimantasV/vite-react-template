@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 
 import {
@@ -59,6 +59,8 @@ const Quiz: React.FC<Props> = ({
   wordsData,
   goToNextWord,
 }) => {
+  const correctAudio = useMemo(() => new Audio(Correct), []);
+  const incorrectAudio = useMemo(() => new Audio(Wrong), []);
   // const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
@@ -68,15 +70,12 @@ const Quiz: React.FC<Props> = ({
   const currentQuestion = multipleChoiceQuizWords[quizState.index];
 
   useEffect(() => {
-    const correctAudio = new Audio(Correct);
-    const incorrectAudio = new Audio(Wrong);
-
     if (isAnswerCorrect === true) {
       correctAudio.play();
     } else if (isAnswerCorrect === false) {
       incorrectAudio.play();
     }
-  }, [isAnswerCorrect]);
+  }, [correctAudio, incorrectAudio, isAnswerCorrect]);
 
   const handleAnswerClick = useCallback(
     (answerIndex: number) => {
@@ -259,6 +258,7 @@ const Quiz: React.FC<Props> = ({
           <Stack>
             {currentQuestion[0].options.map((option, index) => (
               <Button
+                size='lg'
                 key={index}
                 onClick={() => handleAnswerClick(index)}
                 variant={
@@ -278,7 +278,7 @@ const Quiz: React.FC<Props> = ({
                 disabled={selectedAnswer !== null}
                 fullWidth
               >
-                {option}
+                {option.split('-')[0]}
               </Button>
             ))}
           </Stack>

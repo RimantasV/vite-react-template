@@ -12,3 +12,7 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+div:has(.react-modal-sheet-container) {
+  z-index: 199 !important;
+}
