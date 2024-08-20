@@ -1,4 +1,4 @@
-import { Key, useState } from 'react';
+import { Key, useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import {
@@ -9,6 +9,7 @@ import {
   Flex,
   Grid,
   Group,
+  Kbd,
   List,
   Paper,
   Progress,
@@ -26,6 +27,7 @@ import {
 
 import { Layout } from '../../components';
 import { TextToSpeech } from '../../components/TextToSpeech';
+import { useKeyPressClass } from '../../hooks';
 import { useMovieVocabularyQuery } from '../../queries';
 import { useLanguageStore } from '../../store';
 import {
@@ -41,6 +43,7 @@ import styles from '../Learn/learn.module.scss';
 import styles2 from './quiz.module.scss';
 
 export default function Quiz() {
+  const [wordsMoviesData, setWordsMoviesData] = useState<Wordx[][]>();
   const { selectedLanguage } = useLanguageStore();
   const [searchParams] = useSearchParams();
   const mediaItemId = searchParams.get('media-item-id');
@@ -50,6 +53,14 @@ export default function Quiz() {
   //   'hidden' | 'visible'
   // >('hidden');
   // const [activeKey, setActiveKey] = useState<string | number>('');
+  const getClassNamePositive = useKeyPressClass(
+    'KeyA',
+    styles2.pressedPositive,
+  );
+  const getClassNameNegative = useKeyPressClass(
+    'KeyD',
+    styles2.pressedNegative,
+  );
   const navigate = useNavigate();
   const [progressValue, setProgressValue] = useState(80);
   const [quizState, setQuizState] = useState({
@@ -67,7 +78,7 @@ export default function Quiz() {
     });
   };
 
-  const goToNextWord = () => {
+  const goToNextWord = useCallback(() => {
     setQuizState((prevState) => {
       const isLastWord = wordsMoviesData!.length - 1 === prevState.index;
       return {
@@ -76,7 +87,7 @@ export default function Quiz() {
         index: isLastWord ? 0 : prevState.index + 1,
       };
     });
-  };
+  }, [wordsMoviesData]);
 
   type WordProgressPayload = {
     word: string;
@@ -89,9 +100,18 @@ export default function Quiz() {
   const {
     isPending: isPendingWordsMovies,
     isError: isErrorWordsMovies,
-    data: wordsMoviesData,
+    data: wordsMoviesData_,
     error: wordsMoviesError,
   } = useMovieVocabularyQuery(selectedLanguage!.language_id, mediaItemId!);
+
+  useEffect(() => {
+    if (wordsMoviesData_) {
+      console.log('set new words movies data value');
+      setWordsMoviesData(
+        wordsMoviesData_.filter((el) => !el[0].marked_to_exclude),
+      );
+    }
+  }, [wordsMoviesData_]);
 
   const handleStartQuizUserCreatedQuiz = async () => {
     setQuizState((prevState) => ({
@@ -146,56 +166,145 @@ export default function Quiz() {
     // setTranslationStatus('hidden');
   };
 
-  const handleSubmitPositive = (x: Wordx) => {
-    const payload: WordProgressPayload = {
-      word: x.word_id,
-      learningLevel: !x.learning_level
-        ? 1
-        : x.learning_level === 5
-          ? 5
-          : x.learning_level + 1,
-      lastAnswerTs: new Date(),
-      markedToLearn: x.marked_to_learn,
-      markedToExclude: x.marked_to_exclude,
-    };
+  const handleUpdateWordProgress = useCallback(
+    async ({
+      word,
+      learningLevel,
+      lastAnswerTs,
+      markedToLearn,
+      markedToExclude,
+    }: WordProgressPayload) => {
+      const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/words/progress?lang=${selectedLanguage?.language_id}`;
+      const payload = {
+        word,
+        learningLevel,
+        lastAnswerTs,
+        markedToLearn,
+        markedToExclude,
+      };
 
-    handleUpdateWordProgress(payload);
+      const response = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: {
+          Accept: 'application.json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      if (response.ok) {
+        //I would like to be able to update words array with info which words have been excluded,
+        //as to avoid ading them to the quiz, in case user will repeast the quiz without fetching list again.
+        // But that triggers repopulation of quiz words.
 
-    // if (translationStatus === 'hidden') {
-    //   setTranslationStatus('visible');
-    // } else {
-    //   setTranslationStatus('hidden');
-    //   const newArr = [...quizWords];
-    //   setQuizWords(newArr.slice(1));
-    // }
-  };
+        // const newArr = [...quizWords];
+        // setQuizWords(newArr.slice(1));
+        // setTranslationStatus('hidden');
 
-  const handleSubmitNegative = (x: Wordx) => {
-    const payload: WordProgressPayload = {
-      word: x.word_id,
-      learningLevel: !x.learning_level ? 0 : x.learning_level - 1,
-      lastAnswerTs: new Date(),
-      markedToLearn: x.marked_to_learn,
-      markedToExclude: x.marked_to_exclude,
-    };
+        // Utility function to deeply clone and update the state
+        const updateNestedState = (words: Wordsx, id: string): Wordsx => {
+          return words.map((wordList) =>
+            wordList.map((word) =>
+              word.word_id === id
+                ? {
+                    ...word,
+                    //TODO update other properties too.
+                    marked_to_learn: markedToLearn,
+                    marked_to_exclude: markedToExclude,
+                  }
+                : word,
+            ),
+          );
+        };
+        setWords((prevWords) => updateNestedState(prevWords, word));
+        goToNextWord();
+      }
+    },
+    [goToNextWord, selectedLanguage?.language_id],
+  );
 
-    handleUpdateWordProgress(payload);
+  const handleSubmitPositive = useCallback(
+    (x: Wordx) => {
+      const payload: WordProgressPayload = {
+        word: x.word_id,
+        learningLevel: !x.learning_level
+          ? 1
+          : x.learning_level === 5
+            ? 5
+            : x.learning_level + 1,
+        lastAnswerTs: new Date(),
+        markedToLearn: x.marked_to_learn,
+        markedToExclude: x.marked_to_exclude,
+      };
 
-    // if (translationStatus === 'hidden') {
-    //   setTranslationStatus('visible');
-    // } else {
-    //   setTranslationStatus('hidden');
-    //   const newArr = [...quizWords];
-    //   setQuizWords(newArr.slice(1));
-    // }
-  };
+      handleUpdateWordProgress(payload);
 
-  const handleTranslationReveal = () => {
+      // if (translationStatus === 'hidden') {
+      //   setTranslationStatus('visible');
+      // } else {
+      //   setTranslationStatus('hidden');
+      //   const newArr = [...quizWords];
+      //   setQuizWords(newArr.slice(1));
+      // }
+    },
+    [handleUpdateWordProgress],
+  );
+
+  const handleSubmitNegative = useCallback(
+    (x: Wordx) => {
+      const payload: WordProgressPayload = {
+        word: x.word_id,
+        learningLevel: !x.learning_level ? 0 : x.learning_level - 1,
+        lastAnswerTs: new Date(),
+        markedToLearn: x.marked_to_learn,
+        markedToExclude: x.marked_to_exclude,
+      };
+
+      handleUpdateWordProgress(payload);
+
+      // if (translationStatus === 'hidden') {
+      //   setTranslationStatus('visible');
+      // } else {
+      //   setTranslationStatus('hidden');
+      //   const newArr = [...quizWords];
+      //   setQuizWords(newArr.slice(1));
+      // }
+    },
+    [handleUpdateWordProgress],
+  );
+
+  const handleTranslationReveal = useCallback(() => {
     setQuizState((prevState) => ({
       ...prevState,
       translation: TRANSLATION_STATUS.VISIBLE,
     }));
-  };
+  }, []);
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === 'e') {
+        handleTranslationReveal();
+      } else if (quizState.translation === TRANSLATION_STATUS.VISIBLE) {
+        if (event.key === 'a') {
+          handleSubmitPositive(wordsMoviesData![quizState.index][0]);
+        }
+        if (event.key === 'd') {
+          handleSubmitNegative(wordsMoviesData![quizState.index][0]);
+        }
+      }
+    };
+
+    window.addEventListener('keyup', handleKeyPress);
+    return () => {
+      window.removeEventListener('keyup', handleKeyPress);
+    };
+  }, [
+    handleSubmitNegative,
+    handleSubmitPositive,
+    handleTranslationReveal,
+    quizState.index,
+    quizState.translation,
+    wordsMoviesData,
+  ]);
 
   const handleExcludeWordClick = (word: Wordx[]) => {
     word.forEach((el) => {
@@ -211,58 +320,6 @@ export default function Quiz() {
     });
   };
 
-  const handleUpdateWordProgress = async ({
-    word,
-    learningLevel,
-    lastAnswerTs,
-    markedToLearn,
-    markedToExclude,
-  }: WordProgressPayload) => {
-    const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/words/progress?lang=${selectedLanguage?.language_id}`;
-    const payload = {
-      word,
-      learningLevel,
-      lastAnswerTs,
-      markedToLearn,
-      markedToExclude,
-    };
-
-    const response = await fetch(ENDPOINT, {
-      method: 'POST',
-      headers: {
-        Accept: 'application.json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-    if (response.ok) {
-      //I would like to be able to update words array with info which words have been excluded,
-      //as to avoid ading them to the quiz, in case user will repeast the quiz without fetching list again.
-      // But that triggers repopulation of quiz words.
-
-      // const newArr = [...quizWords];
-      // setQuizWords(newArr.slice(1));
-      // setTranslationStatus('hidden');
-
-      // Utility function to deeply clone and update the state
-      const updateNestedState = (words: Wordsx, id: string): Wordsx => {
-        return words.map((wordList) =>
-          wordList.map((word) =>
-            word.word_id === id
-              ? {
-                  ...word,
-                  //TODO update other properties too.
-                  marked_to_learn: markedToLearn,
-                  marked_to_exclude: markedToExclude,
-                }
-              : word,
-          ),
-        );
-      };
-      setWords((prevWords) => updateNestedState(prevWords, word));
-      goToNextWord();
-    }
-  };
   if (quizState.step === QUIZ_STEPS.SETTINGS) {
     return (
       <Layout>
@@ -348,7 +405,7 @@ export default function Quiz() {
                 </Flex>
               </Card.Section>
               {/* Translation */}
-              <Card.Section p='xl' mah='300' style={{ overflow: 'auto' }}>
+              <Card.Section p='xl' mah='500' style={{ overflow: 'auto' }}>
                 {wordsMoviesData![quizState.index].map(
                   (
                     el: {
@@ -399,22 +456,28 @@ export default function Quiz() {
             <div className={styles.toolbar}>
               <div className={styles.iconsContainer}>
                 {quizState.translation === TRANSLATION_STATUS.VISIBLE && (
-                  <ActionIcon
-                    size='48'
-                    fz='36px'
-                    radius='xl'
-                    variant='filled'
-                    color='green'
-                    aria-label='I got this word right'
-                    onClick={() =>
-                      handleSubmitPositive(wordsMoviesData![quizState.index][0])
-                    }
-                  >
-                    <IconCheck
-                      stroke={2.5}
-                      style={{ width: '36', height: '36' }}
-                    />
-                  </ActionIcon>
+                  <Stack>
+                    <ActionIcon
+                      size='48'
+                      fz='36px'
+                      radius='xl'
+                      variant='filled'
+                      color='green'
+                      aria-label='I got this word right'
+                      onClick={() =>
+                        handleSubmitPositive(
+                          wordsMoviesData![quizState.index][0],
+                        )
+                      }
+                      className={getClassNamePositive('')}
+                    >
+                      <IconCheck
+                        stroke={2.5}
+                        style={{ width: '36', height: '36' }}
+                      />
+                    </ActionIcon>
+                    <Kbd style={{ alignSelf: 'center' }}>A</Kbd>
+                  </Stack>
                 )}
                 {quizState.translation === TRANSLATION_STATUS.HIDDEN && (
                   <ActionIcon
@@ -430,19 +493,28 @@ export default function Quiz() {
                   </ActionIcon>
                 )}
                 {quizState.translation === TRANSLATION_STATUS.VISIBLE && (
-                  <ActionIcon
-                    size='48'
-                    fz='36px'
-                    radius='xl'
-                    variant='filled'
-                    color='red'
-                    aria-label="I didn't get this word right'"
-                    onClick={() =>
-                      handleSubmitNegative(wordsMoviesData![quizState.index][0])
-                    }
-                  >
-                    <IconX stroke={2.5} style={{ width: '36', height: '36' }} />
-                  </ActionIcon>
+                  <Stack>
+                    <ActionIcon
+                      size='48'
+                      fz='36px'
+                      radius='xl'
+                      variant='filled'
+                      color='red'
+                      aria-label="I didn't get this word right'"
+                      onClick={() =>
+                        handleSubmitNegative(
+                          wordsMoviesData![quizState.index][0],
+                        )
+                      }
+                      className={getClassNameNegative('')}
+                    >
+                      <IconX
+                        stroke={2.5}
+                        style={{ width: '36', height: '36' }}
+                      />
+                    </ActionIcon>
+                    <Kbd style={{ alignSelf: 'center' }}>D</Kbd>
+                  </Stack>
                 )}
               </div>
             </div>

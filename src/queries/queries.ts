@@ -13,7 +13,7 @@ import {
 } from '../types';
 import { getNextReviewDate } from '../utils';
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+// const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const fetchUserCreatedLists = async (
   lang: Languages,
@@ -231,7 +231,7 @@ export const useResourceStatusQuery = (lang: Languages, id: string) =>
   });
 
 const fetchUserSettings = async () => {
-  await sleep(2000);
+  // await sleep(2000);
   const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/user-settings`;
   const response = await fetch(ENDPOINT);
   if (response.ok) {

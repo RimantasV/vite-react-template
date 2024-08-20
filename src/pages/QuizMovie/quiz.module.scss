@@ -21,6 +21,14 @@
     filter: blur(0);
   }
   &.hidden {
-    filter: blur(6px);
+    filter: blur(1px);
   }
+}
+
+.pressedPositive {
+  background-color: #236b30;
+}
+
+.pressedNegative {
+  background-color: rgb(99, 31, 31);
 }
