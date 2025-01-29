@@ -76,6 +76,9 @@ function App() {
     return savedProgress;
   });
   const [isLessonCompleted, setIsLessonCompleted] = useState(false);
+  const [quizOptions, setQuizOptions] = useState([]);
+  const [selectedQuizOption, setSelectedQuizOption] = useState(null);
+  const [isQuizCompleted, setIsQuizCompleted] = useState(false);
 
   const currentWord = wordsData[currentIndex];
 
@@ -83,6 +86,30 @@ function App() {
   useEffect(() => {
     localStorage.setItem('learningProgress', JSON.stringify(learningProgress));
   }, [learningProgress]);
+
+  // Generate quiz options when the word changes
+  useEffect(() => {
+    if (
+      learningProgress[currentWord.word]?.seen &&
+      !learningProgress[currentWord.word]?.quizCompleted
+    ) {
+      generateQuizOptions();
+    }
+  }, [currentWord.word, learningProgress]);
+
+  const generateQuizOptions = () => {
+    const correctTranslation = currentWord.translation;
+    const otherTranslations = wordsData
+      .filter((word) => word.translation !== correctTranslation)
+      .map((word) => word.translation)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 3); // Pick 3 random incorrect translations
+
+    const options = [...otherTranslations, correctTranslation].sort(
+      () => Math.random() - 0.5,
+    );
+    setQuizOptions(options);
+  };
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
@@ -102,6 +129,8 @@ function App() {
       setIsFlipped(false);
       setUserInput('');
       setShowCorrectAnswer(false);
+      setSelectedQuizOption(null);
+      setIsQuizCompleted(false);
     }
   };
 
@@ -157,9 +186,23 @@ function App() {
     }
   };
 
+  const handleQuizOptionClick = (option) => {
+    setSelectedQuizOption(option);
+    if (option === currentWord.translation) {
+      // Correct answer
+      setLearningProgress((prev) => ({
+        ...prev,
+        [currentWord.word]: { ...prev[currentWord.word], quizCompleted: true },
+      }));
+      setIsQuizCompleted(true);
+    }
+  };
+
   // Check if the current word has been seen before
   const isWordSeen = learningProgress[currentWord.word]?.seen;
   const isTypingCompleted = learningProgress[currentWord.word]?.typingCompleted;
+  const isQuizCompletedForWord =
+    learningProgress[currentWord.word]?.quizCompleted;
 
   const progress = ((currentIndex + 1) / wordsData.length) * 100;
 
@@ -191,7 +234,30 @@ function App() {
         <div className='progress' style={{ width: `${progress}%` }}></div>
       </div>
       <div className='content-container'>
-        {isWordSeen && !isTypingCompleted ? (
+        {isWordSeen && !isTypingCompleted && !isQuizCompletedForWord ? (
+          <div className='quiz-task'>
+            <h2>What is the correct translation of "{currentWord.word}"?</h2>
+            <div className='quiz-options'>
+              {quizOptions.map((option, index) => (
+                <button
+                  key={index}
+                  className={`quiz-option ${
+                    selectedQuizOption === option
+                      ? option === currentWord.translation
+                        ? 'correct'
+                        : 'incorrect'
+                      : ''
+                  }`}
+                  onClick={() => handleQuizOptionClick(option)}
+                  disabled={isQuizCompleted}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+            {isQuizCompleted && <p className='quiz-feedback'>Correct! 🎉</p>}
+          </div>
+        ) : isWordSeen && !isTypingCompleted ? (
           <div className='typing-task'>
             <h2>What is the translation of "{currentWord.word}"?</h2>
             <input
@@ -236,7 +302,7 @@ function App() {
         )}
       </div>
 
-      {!isWordSeen || isTypingCompleted ? (
+      {!isWordSeen || isTypingCompleted || isQuizCompletedForWord ? (
         <div className='sentences-list'>
           <h3>Example Sentences</h3>
           {currentWord.sentences.map((sentence, index) => (

@@ -233,3 +233,47 @@ h1 {
 .finish-button:hover {
   background-color: #218838;
 }
+
+.quiz-task {
+  text-align: center;
+  margin: 20px auto;
+}
+
+.quiz-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.quiz-option {
+  padding: 10px;
+  font-size: 16px;
+  background-color: #f4f4f9;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.quiz-option:hover {
+  background-color: #e0e0e0;
+}
+
+.quiz-option.correct {
+  background-color: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.quiz-option.incorrect {
+  background-color: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+.quiz-feedback {
+  margin-top: 20px;
+  font-size: 1.2rem;
+  color: #28a745;
+}
