@@ -1,6 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 // Icons for read aloud and favorite
-import { FaArrowRight, FaHeart, FaRegHeart, FaVolumeUp } from 'react-icons/fa';
+import {
+  FaArrowRight,
+  FaCheck,
+  FaHeart,
+  FaRegHeart,
+  FaVolumeUp,
+} from 'react-icons/fa';
 
 import './test.css';
 
@@ -61,18 +67,55 @@ function App() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [favorites, setFavorites] = useState([]);
+  const [userInput, setUserInput] = useState('');
+  const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
+  const [learningProgress, setLearningProgress] = useState(() => {
+    // Load progress from localStorage or initialize
+    const savedProgress =
+      JSON.parse(localStorage.getItem('learningProgress')) || {};
+    return savedProgress;
+  });
+  const [isLessonCompleted, setIsLessonCompleted] = useState(false);
 
   const currentWord = wordsData[currentIndex];
+
+  // Save progress to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('learningProgress', JSON.stringify(learningProgress));
+  }, [learningProgress]);
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
   };
 
   const handleNextWord = () => {
+    // Mark the current word as seen when transitioning to the next word
+    if (!learningProgress[currentWord.word]?.seen) {
+      setLearningProgress((prev) => ({
+        ...prev,
+        [currentWord.word]: { ...prev[currentWord.word], seen: true },
+      }));
+    }
+
     if (currentIndex < wordsData.length - 1) {
       setCurrentIndex(currentIndex + 1);
-      setIsFlipped(false); // Reset flip state for the next word
+      setIsFlipped(false);
+      setUserInput('');
+      setShowCorrectAnswer(false);
     }
+  };
+
+  const handleFinishLesson = () => {
+    // Mark the last word as seen
+    if (!learningProgress[currentWord.word]?.seen) {
+      setLearningProgress((prev) => ({
+        ...prev,
+        [currentWord.word]: { ...prev[currentWord.word], seen: true },
+      }));
+    }
+
+    // Show the congratulations screen
+    setIsLessonCompleted(true);
   };
 
   const handleReadAloud = (text) => {
@@ -88,7 +131,58 @@ function App() {
     }
   };
 
+  const handleTypingTask = () => {
+    if (
+      userInput.trim().toLowerCase() === currentWord.translation.toLowerCase()
+    ) {
+      // Correct answer
+      setLearningProgress((prev) => ({
+        ...prev,
+        [currentWord.word]: {
+          ...prev[currentWord.word],
+          typingCompleted: true,
+        },
+      }));
+      setShowCorrectAnswer(false);
+
+      // Move to the next word or finish the lesson
+      if (currentIndex === wordsData.length - 1) {
+        handleFinishLesson();
+      } else {
+        handleNextWord();
+      }
+    } else {
+      // Incorrect answer
+      setShowCorrectAnswer(true);
+    }
+  };
+
+  // Check if the current word has been seen before
+  const isWordSeen = learningProgress[currentWord.word]?.seen;
+  const isTypingCompleted = learningProgress[currentWord.word]?.typingCompleted;
+
   const progress = ((currentIndex + 1) / wordsData.length) * 100;
+
+  if (isLessonCompleted) {
+    return (
+      <div className='congratulations-screen'>
+        <h1>🎉 Congratulations! 🎉</h1>
+        <p>You've completed the lesson!</p>
+        <button
+          className='restart-button'
+          onClick={() => {
+            setCurrentIndex(0);
+            setIsFlipped(false);
+            setUserInput('');
+            setShowCorrectAnswer(false);
+            setIsLessonCompleted(false);
+          }}
+        >
+          Restart Lesson
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className='app'>
@@ -97,69 +191,93 @@ function App() {
         <div className='progress' style={{ width: `${progress}%` }}></div>
       </div>
       <div className='content-container'>
-        <div
-          className={`flip-card ${isFlipped ? 'flipped' : ''}`}
-          onClick={handleFlip}
-        >
-          <div className='flip-card-inner'>
-            <div className='flip-card-front'>
-              <h2>{currentWord.word}</h2>
-            </div>
-            <div className='flip-card-back'>
-              <h2>{currentWord.translation}</h2>
-            </div>
+        {isWordSeen && !isTypingCompleted ? (
+          <div className='typing-task'>
+            <h2>What is the translation of "{currentWord.word}"?</h2>
+            <input
+              type='text'
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              placeholder='Type the translation...'
+            />
+            <button onClick={handleTypingTask}>Submit</button>
+            {showCorrectAnswer && (
+              <p className='correct-answer'>
+                Correct answer: {currentWord.translation}
+              </p>
+            )}
           </div>
-        </div>
+        ) : (
+          <>
+            <div
+              className={`flip-card ${isFlipped ? 'flipped' : ''}`}
+              onClick={handleFlip}
+            >
+              <div className='flip-card-inner'>
+                <div className='flip-card-front'>
+                  <h2>{currentWord.word}</h2>
+                </div>
+                <div className='flip-card-back'>
+                  <h2>{currentWord.translation}</h2>
+                </div>
+              </div>
+            </div>
 
-        <div className='video-container'>
-          <iframe
-            title='example-usage'
-            src={currentWord.videoUrl}
-            frameBorder='0'
-            allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
-            allowFullScreen
-          ></iframe>
-        </div>
+            <div className='video-container'>
+              <iframe
+                title='example-usage'
+                src={currentWord.videoUrl}
+                frameBorder='0'
+                allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+                allowFullScreen
+              ></iframe>
+            </div>
+          </>
+        )}
       </div>
 
-      <div className='sentences-list'>
-        <h3>Example Sentences</h3>
-        {currentWord.sentences.map((sentence, index) => (
-          <div key={index} className='sentence-item'>
-            <p>
-              <strong>{sentence.text}</strong> - {sentence.translation}
-            </p>
-            <div className='sentence-actions'>
-              <button
-                className='icon-button'
-                onClick={() => handleReadAloud(sentence.text)}
-                aria-label='Read aloud'
-              >
-                <FaVolumeUp />
-              </button>
-              <button
-                className='icon-button'
-                onClick={() => handleToggleFavorite(sentence.text)}
-                aria-label='Toggle favorite'
-              >
-                {favorites.includes(sentence.text) ? (
-                  <FaHeart className='favorite' />
-                ) : (
-                  <FaRegHeart />
-                )}
-              </button>
+      {!isWordSeen || isTypingCompleted ? (
+        <div className='sentences-list'>
+          <h3>Example Sentences</h3>
+          {currentWord.sentences.map((sentence, index) => (
+            <div key={index} className='sentence-item'>
+              <p>
+                <strong>{sentence.text}</strong> - {sentence.translation}
+              </p>
+              <div className='sentence-actions'>
+                <button
+                  className='icon-button'
+                  onClick={() => handleReadAloud(sentence.text)}
+                  aria-label='Read aloud'
+                >
+                  <FaVolumeUp />
+                </button>
+                <button
+                  className='icon-button'
+                  onClick={() => handleToggleFavorite(sentence.text)}
+                  aria-label='Toggle favorite'
+                >
+                  {favorites.includes(sentence.text) ? (
+                    <FaHeart className='favorite' />
+                  ) : (
+                    <FaRegHeart />
+                  )}
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : null}
 
-      <button
-        className='next-button'
-        onClick={handleNextWord}
-        disabled={currentIndex === wordsData.length - 1}
-      >
-        <FaArrowRight /> Next Word
-      </button>
+      {currentIndex === wordsData.length - 1 ? (
+        <button className='finish-button' onClick={handleFinishLesson}>
+          <FaCheck /> Finish Lesson
+        </button>
+      ) : (
+        <button className='next-button' onClick={handleNextWord}>
+          <FaArrowRight /> Next Word
+        </button>
+      )}
     </div>
   );
 }

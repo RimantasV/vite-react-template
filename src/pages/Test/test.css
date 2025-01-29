@@ -92,6 +92,40 @@ h1 {
   border-radius: 10px;
 }
 
+.typing-task {
+  text-align: center;
+  margin: 20px auto;
+  width: 100%;
+}
+
+.typing-task input {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-right: 10px;
+  width: 300px;
+}
+
+.typing-task button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.typing-task button:hover {
+  background-color: #357abd;
+}
+
+.correct-answer {
+  color: #ff6b6b;
+  margin-top: 10px;
+}
+
 .sentences-list {
   text-align: left;
   max-width: 800px;
@@ -150,4 +184,52 @@ h1 {
 .next-button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+.congratulations-screen {
+  text-align: center;
+  padding: 20px;
+}
+
+.congratulations-screen h1 {
+  color: #4a90e2;
+  font-size: 2.5rem;
+}
+
+.congratulations-screen p {
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.restart-button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+.restart-button:hover {
+  background-color: #357abd;
+}
+
+.finish-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px auto;
+}
+
+.finish-button:hover {
+  background-color: #218838;
 }
