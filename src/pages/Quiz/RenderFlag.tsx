@@ -18,6 +18,7 @@ export default function RenderFlag({ tags }: Props) {
       );
       return (
         <img
+          style={{ width: '25px' }}
           title={countryCode}
           src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${countryCode}.svg`}
         />

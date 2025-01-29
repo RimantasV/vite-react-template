@@ -24,7 +24,7 @@ export default function SentenceRow({ handleWordClick, sentenceObj }: Props) {
             fz='h4'
             onClick={handleWordClick}
             dangerouslySetInnerHTML={{
-              __html: sentenceObj.sentence_html,
+              __html: sentenceObj?.sentence_html,
             }}
           />
           <Space h='xs' />

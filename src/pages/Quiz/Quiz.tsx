@@ -10,6 +10,7 @@ import {
   MultipleChoice,
   Summary,
   Typing,
+  VideoIntroduction,
 } from '../../components/Quizes';
 import { useUserCreatedListVocabularyQuery } from '../../queries';
 import { useLanguageStore } from '../../store';
@@ -148,6 +149,13 @@ export default function Quiz() {
     setQuizState((prevState) => ({
       ...prevState,
       step: QUIZ_STEPS.MATCHING_PAIRS,
+    }));
+  };
+
+  const handleStartVideoIntroductionQuiz = () => {
+    setQuizState((prevState) => ({
+      ...prevState,
+      step: QUIZ_STEPS.VIDEO_INTRODUCTION,
     }));
   };
 
@@ -296,6 +304,7 @@ export default function Quiz() {
             handleStartMultipleChoiceQuiz={handleStartMultipleChoiceQuiz}
             handleStartTypingQuiz={handleStartTypingQuiz}
             handleStartMatchingPairsQuiz={handleStartMatchingPairsQuiz}
+            handleStartVideoIntroductionQuiz={handleStartVideoIntroductionQuiz}
           />
         </Stack>
       </Layout>
@@ -312,6 +321,8 @@ export default function Quiz() {
         goToNextWord={goToNextWord}
         quizState={quizState}
         setQuizState={setQuizState}
+        handleSubmitPositive={handleSubmitPositive}
+        handleSubmitNegative={handleSubmitNegative}
       />
     );
   }
@@ -364,6 +375,21 @@ export default function Quiz() {
       />
     );
   }
+
+  if (quizState.step === QUIZ_STEPS.VIDEO_INTRODUCTION) {
+    return (
+      <VideoIntroduction
+        wordsData={wordsData!}
+        isPendingWords={isPendingWords}
+        isErrorWords={isErrorWords}
+        wordsError={wordsError}
+        quizState={quizState}
+        handleSubmitPositive={handleSubmitPositive}
+        handleExcludeWordClick={handleExcludeWordClick}
+      />
+    );
+  }
+
   if (quizState.step === QUIZ_STEPS.SUMMARY) {
     setTimeout(() => {
       // setProgressValue(100);

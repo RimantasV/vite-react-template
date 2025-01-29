@@ -1,6 +1,7 @@
 export { AddWordToListModal } from './AddWordToListModal';
 export { DictionaryTranslationCard } from './DictionaryTranslationCard';
 export { ExamplesMoviesModal } from './ExamplesMoviesModal';
+export { ImportTranslationRow } from './ImportTranslationRow';
 export { LanguageSelect } from './LanguageSelect';
 export { Layout } from './Layout';
 export { ListCard, ListCardMovie } from './ListCard';

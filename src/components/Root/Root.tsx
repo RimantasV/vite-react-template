@@ -18,7 +18,6 @@ import {
   useMantineColorScheme,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { MantineLogo } from '@mantinex/mantine-logo';
 import {
   IconChevronDown,
   IconLogout,
@@ -29,6 +28,7 @@ import {
 
 import { useLanguageStore } from '../../store';
 import { LanguageSelect } from '../LanguageSelect';
+import Logo from './Logo';
 
 import classes from './root.module.scss';
 
@@ -78,7 +78,7 @@ export default function Root() {
             />
             <Group justify='space-between' style={{ flex: 1 }}>
               <Link to={'./'}>
-                <MantineLogo size={30} />
+                <Logo />
               </Link>
               <Group ml='xl' gap={0} visibleFrom='md'>
                 <UnstyledButton

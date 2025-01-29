@@ -1,8 +1,7 @@
 import { FC } from 'react';
 
-import { Paper } from '@mantine/core';
-
-import { TextToSpeech } from '../TextToSpeech';
+// import { Paper } from '@mantine/core';
+// import { TextToSpeech } from '../TextToSpeech';
 import { Translation } from '../Translation';
 
 import styles from '../SheetContent/sheetContent.module.scss';
@@ -23,9 +22,9 @@ const WordTranslation: FC<Props> = ({ el, words, isExpanded, excluded }) => {
   return (
     <div key={el}>
       <div className={`${styles.header} ${excluded ? styles.excluded : ''}`}>
-        <Paper mr='md'>
+        {/* <Paper mr='md'>
           <TextToSpeech autoplay text={el?.split('-')[0]} />
-        </Paper>
+        </Paper> */}
         <h1>{el?.split('-').slice(0, -1)}</h1>
         <p className='subheader'>{`(${el?.split('-').slice(-1)})`}</p>
       </div>

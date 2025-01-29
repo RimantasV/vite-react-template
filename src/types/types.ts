@@ -114,6 +114,7 @@ export enum QUIZ_STEPS {
   FLASHCARDS = 'flashcards',
   MULTIPLE_CHOICE = 'multipleChoice',
   MATCHING_PAIRS = 'matchingPairs',
+  VIDEO_INTRODUCTION = 'videoIntroduction',
   TYPING = 'typing',
   SUMMARY = 'summary',
 }
@@ -145,9 +146,10 @@ export type SentenceObj = {
   title: string;
   segment_title: string;
   video_id: string;
+  reason_id: number;
 };
 
-export type SentencesRespose = SentenceObj[];
+export type SentencesResponse = SentenceObj[];
 
 export type Language = {
   language_id: Languages;

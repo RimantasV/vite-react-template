@@ -8,6 +8,7 @@ import {
   Languages,
   Resource,
   SentenceObj,
+  SentencesResponse,
   UserCreatedList,
   Wordx,
 } from '../types';
@@ -320,4 +321,66 @@ export const useSearchDictionaryQuery = (lang: Languages, searchTerm: string) =>
     enabled: false,
     staleTime: Infinity,
     // gcTime: Infinity,
+  });
+
+const fetchExamples = async (
+  lang: Languages,
+  mediaItemId: unknown,
+  wordId: unknown,
+) => {
+  const ENDPOINT = `${
+    import.meta.env.VITE_BASE_URL
+  }/api/sentences-movies?lang=${lang}&media-item-id=${mediaItemId}&word=${wordId}`;
+
+  const response = await fetch(ENDPOINT);
+  if (response.ok) {
+    const data: SentencesResponse = await response.json();
+
+    const re2 = new RegExp(
+      `<span class="clickable resolved" data-word-id="[^>]*?${wordId}[^*].*?>`,
+      'gm',
+    );
+    const re = new RegExp(
+      `<span class="clickable" data-word-id="[^>]*?${wordId}.*?>`,
+      'gm',
+    );
+
+    return data.map((el) => ({
+      id: el.id,
+      sentence: el.sentence_original,
+      sentence_html: el.sentence_html
+        .replace(re, `<span class="example" data-word-id="${wordId}">`)
+        .replace(re2, `<span class="example" data-word-id="${wordId}">`)
+        .replaceAll('class="clickable"', '')
+        .replaceAll('class="clickable resolved"', '')
+        .replaceAll('class="clickable multiple"', ''),
+      sentence_en_semantic: el.sentence_en_semantic,
+      sentence_id: el.sentence_id,
+      sentence_original: el.sentence_original,
+      sentence_en_literal: el.sentence_en_literal,
+      sentence_index: el.sentence_index,
+      media_item_id: el.media_item_id,
+      sentence_timestamps: el.sentence_timestamps,
+      word_ids: el.word_ids,
+      is_verified: el.is_verified,
+      created_at: el.created_at,
+      sentence_start_time: el.sentence_start_time,
+      sentence_end_time: el.sentence_end_time,
+      media_type: el.media_type,
+      title: el.title,
+      segment_title: el.segment_title,
+      video_id: el.video_id,
+    }));
+  } else throw new Error((await response.json()).message);
+};
+
+export const useExamplesQuery = (
+  lang: Languages,
+  mediaItemId: string,
+  wordId: string,
+) =>
+  useQuery({
+    queryKey: ['fetchExamples', lang, mediaItemId, wordId],
+    queryFn: () => fetchExamples(lang, mediaItemId, wordId),
+    staleTime: Infinity,
   });

@@ -27,10 +27,13 @@ import {
   Subtitles,
   VocabularyLevel,
 } from './pages';
+import { Admin } from './pages/Admin';
 import { LanguageSelect } from './pages/LanguageSelect';
 import { Lists } from './pages/Lists';
 import MoviesAndTV from './pages/MoviesAndTV/MoviesAndTV';
+import { MultiSelect } from './pages/MultiSelect';
 import { QuizMovie } from './pages/QuizMovie';
+import { Test } from './pages/Test';
 
 // import { useUserSettingsQuery } from './queries';
 import './App.css';
@@ -74,18 +77,21 @@ function App() {
               }
             >
               <Route index element={<Home />} />
+              <Route path='/admin' element={<Admin />} />
               <Route path='/lists' element={<Lists />} />
               <Route path='/learn' element={<Learn />} />
               <Route path='/lists/:id' element={<List />} />
               <Route path='/dictionary' element={<Dictionary />} />
               <Route path='/movies-and-tv' element={<MoviesAndTV />} />
               <Route path='/movies-and-tv/:id' element={<Movie />} />
+              <Route path='/movie/:id' element={<MultiSelect />} />
               <Route path='/subtitles' element={<Subtitles />} />
               <Route path='/settings' element={<Settings />} />
               <Route
                 path='/settings/vocabulary-level'
                 element={<VocabularyLevel />}
               />
+              <Route path='/test' element={<Test />} />
             </Route>
             <Route
               path='/quiz'

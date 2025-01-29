@@ -1,6 +1,7 @@
 import { Countries, Languages } from '../types';
 
 export const NUMBER_OF_WORDS_IN_A_QUIZ = 10;
+export const NUMBER_OF_ITEMS_PER_PAGE = 10;
 
 export const languages = [
   {

@@ -49,15 +49,19 @@ type Props = {
       translation: TRANSLATION_STATUS;
     }>
   >;
+  handleSubmitPositive: (x: Wordx) => void;
+  handleSubmitNegative: (x: Wordx) => void;
 };
 
 const Quiz: React.FC<Props> = ({
-  multipleChoiceQuizWords,
+  goToNextWord,
   handleExcludeWordClick,
+  handleSubmitNegative,
+  handleSubmitPositive,
+  multipleChoiceQuizWords,
   navigate,
   quizState,
   wordsData,
-  goToNextWord,
 }) => {
   const correctAudio = useMemo(() => new Audio(Correct), []);
   const incorrectAudio = useMemo(() => new Audio(Wrong), []);
@@ -88,9 +92,12 @@ const Quiz: React.FC<Props> = ({
       setIsAnswerCorrect(correct);
       if (correct) {
         setScore(score + 1);
+        handleSubmitPositive(currentQuestion[0]);
+      } else {
+        handleSubmitNegative(currentQuestion[0]);
       }
     },
-    [currentQuestion, score],
+    [currentQuestion, handleSubmitNegative, handleSubmitPositive, score],
   );
 
   const handleNextQuestion = useCallback(() => {

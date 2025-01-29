@@ -16,3 +16,15 @@ code {
 div:has(.react-modal-sheet-container) {
   z-index: 199 !important;
 }
+
+.xxx > .clickable {
+  color: green;
+}
+
+.xxx > .clickable.multiple {
+  color: red;
+}
+
+.xxx > .clickable.resolved {
+  color: rgb(255, 107, 107);
+}

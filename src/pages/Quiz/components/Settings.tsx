@@ -15,23 +15,26 @@ import {
   IconKeyboard,
   IconListCheck,
   IconPuzzle,
+  IconVideo,
 } from '@tabler/icons-react';
 
 import { QUIZ_STEPS, Wordx } from '../../../types';
 
 type Props = {
-  wordsData: Wordx[][] | undefined;
   handleStartFlashcardsQuiz: () => void;
+  handleStartMatchingPairsQuiz: () => void;
   handleStartMultipleChoiceQuiz: () => void;
   handleStartTypingQuiz: () => void;
-  handleStartMatchingPairsQuiz: () => void;
+  handleStartVideoIntroductionQuiz: () => void;
+  wordsData: Wordx[][] | undefined;
 };
 
 export default function Settings({
   handleStartFlashcardsQuiz,
+  handleStartMatchingPairsQuiz,
   handleStartMultipleChoiceQuiz,
   handleStartTypingQuiz,
-  handleStartMatchingPairsQuiz,
+  handleStartVideoIntroductionQuiz,
   wordsData,
 }: Props) {
   const numberOfWords = wordsData?.length;
@@ -72,6 +75,12 @@ export default function Settings({
       icon: <IconPuzzle size='1rem' />,
       action: handleStartMatchingPairsQuiz,
     },
+    {
+      name: 'Video Introduction',
+      value: QUIZ_STEPS.VIDEO_INTRODUCTION,
+      icon: <IconVideo size='1rem' />,
+      action: handleStartMatchingPairsQuiz,
+    },
   ];
 
   const handleStartQuiz = () => {
@@ -84,6 +93,8 @@ export default function Settings({
         return handleStartTypingQuiz();
       case QUIZ_STEPS.MATCHING_PAIRS:
         return handleStartMatchingPairsQuiz();
+      case QUIZ_STEPS.VIDEO_INTRODUCTION:
+        return handleStartVideoIntroductionQuiz();
       default:
         return null;
     }

@@ -14,6 +14,7 @@ import {
   CloseButton,
   Grid,
   Group,
+  Kbd,
   Paper,
   Progress,
   Stack,
@@ -26,6 +27,7 @@ import {
   IconCheck,
   IconChevronRight,
   IconEyeOff,
+  IconQuestionMark,
   IconX,
 } from '@tabler/icons-react';
 
@@ -100,6 +102,7 @@ const TypingQuiz: React.FC<Props> = ({
   }, [correctAudio, incorrectAudio, isAnswerCorrect]);
 
   const handleInputChange = (index: number, value: string) => {
+    console.log({ userAnswer });
     if (value !== ' ') {
       console.log({ value });
       const newAnswer = [...userAnswer];
@@ -138,22 +141,25 @@ const TypingQuiz: React.FC<Props> = ({
     }
   };
 
-  const checkAnswer = (newAnswer: string[]) => {
-    const isCorrect =
-      //   userAnswer.join('') === currentQuestion.answer.toUpperCase();
-      newAnswer.join('') ===
-      currentQuestion[0].word_id.split('-')[0].toUpperCase();
+  const checkAnswer = useCallback(
+    (newAnswer: string[]) => {
+      const isCorrect =
+        //   userAnswer.join('') === currentQuestion.answer.toUpperCase();
+        newAnswer.join('') ===
+        currentQuestion[0].word_id.split('-')[0].toUpperCase();
 
-    console.log(
-      newAnswer,
-      currentQuestion[0].word_id.split('-')[0].toUpperCase(),
-    );
+      console.log(
+        newAnswer,
+        currentQuestion[0].word_id.split('-')[0].toUpperCase(),
+      );
 
-    setIsAnswerCorrect(isCorrect);
-    if (isCorrect) {
-      setScore(score + 1);
-    }
-  };
+      setIsAnswerCorrect(isCorrect);
+      if (isCorrect) {
+        setScore(score + 1);
+      }
+    },
+    [currentQuestion, score],
+  );
 
   const handleNextQuestion = useCallback(() => {
     if (quizState.index < wordsData.length - 1) {
@@ -169,7 +175,7 @@ const TypingQuiz: React.FC<Props> = ({
     }
   }, [goToNextWord, onComplete, quizState.index, wordsData.length]);
 
-  const revealHint = () => {
+  const revealHint = useCallback(() => {
     setShowHint(true);
     const hintAnswer = [...userAnswer];
     hintAnswer[0] = currentQuestion[0].word_id[0].toUpperCase();
@@ -179,13 +185,21 @@ const TypingQuiz: React.FC<Props> = ({
       ].toUpperCase();
     setUserAnswer(hintAnswer);
     inputRefs.current[1]?.focus();
-  };
+  }, [currentQuestion, userAnswer]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (isAnswerCorrect !== null) {
         if (event.key === ' ' || event.key === 'Enter') {
           handleNextQuestion();
+        }
+      } else {
+        if (event.key === 'Enter') {
+          if (!showHint) {
+            revealHint();
+          } else {
+            checkAnswer(userAnswer);
+          }
         }
       }
     };
@@ -194,7 +208,34 @@ const TypingQuiz: React.FC<Props> = ({
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  }, [currentQuestion, handleNextQuestion, isAnswerCorrect]);
+  }, [
+    checkAnswer,
+    currentQuestion,
+    handleNextQuestion,
+    isAnswerCorrect,
+    revealHint,
+    showHint,
+    userAnswer,
+  ]);
+
+  const handleAddInput = (letter: string) => {
+    // const index = inputRefs.current.findIndex((el) => !el?.value);
+    // if (index !== -1) {
+    // if (inputRefs.current[index]) {
+    // inputRefs.current[index].value = letter;
+    // }
+    // }
+
+    // const newAnswer = [...userAnswer];
+    userAnswer.length;
+    const index = userAnswer.findIndex((el) => el == undefined || el == '');
+    console.log({ userAnswer });
+    console.log({ index });
+    // newAnswer[index] = letter.toUpperCase();
+    // setUserAnswer(newAnswer);
+    // console.log({ userAnswer });
+    handleInputChange(2, letter);
+  };
 
   return (
     <Layout>
@@ -275,22 +316,50 @@ const TypingQuiz: React.FC<Props> = ({
                   />
                 ))}
             </Group>
+            <Group justify='center'>
+              <Kbd
+                onClick={() => handleAddInput('Ä')}
+                size='xl'
+                style={{ alignSelf: 'center' }}
+              >
+                Ä
+              </Kbd>
+              <Kbd size='xl' style={{ alignSelf: 'center' }}>
+                Ü
+              </Kbd>
+              <Kbd size='xl' style={{ alignSelf: 'center' }}>
+                Ö
+              </Kbd>
+              <Kbd size='xl' style={{ alignSelf: 'center' }}>
+                ẞ
+              </Kbd>
+            </Group>
 
             <Group mb='md'>
-              <Button
-                onClick={revealHint}
-                leftSection={<IconBulb size='1rem' />}
-                disabled={showHint || isAnswerCorrect !== null}
-              >
-                Hint
-              </Button>
-              {/* <Button
-            // onClick={checkAnswer}
-            leftSection={<IconCheck size='1rem' />}
-            disabled={isAnswerCorrect !== null}
-            >
-            Check Answer
-            </Button> */}
+              {!showHint && (
+                <Stack gap='xs'>
+                  <Button
+                    onClick={revealHint}
+                    leftSection={<IconBulb size='1rem' />}
+                    disabled={showHint || isAnswerCorrect !== null}
+                  >
+                    Hint
+                  </Button>
+                  <Kbd style={{ alignSelf: 'center' }}>Enter</Kbd>
+                </Stack>
+              )}
+              {showHint && isAnswerCorrect === null && (
+                <Stack gap='xs'>
+                  <Button
+                    // onClick={checkAnswer}
+                    leftSection={<IconQuestionMark size='1rem' />}
+                    disabled={isAnswerCorrect !== null}
+                  >
+                    Don't know
+                  </Button>
+                  <Kbd style={{ alignSelf: 'center' }}>Enter</Kbd>
+                </Stack>
+              )}
             </Group>
 
             {isAnswerCorrect !== null && (

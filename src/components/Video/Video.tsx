@@ -3,19 +3,19 @@ import ReactPlayer from 'react-player/file';
 
 import { Button, Group } from '@mantine/core';
 
+// import video from '../../../../../../../rvilc/Videos/FlixiCam StreamOne/clips/es/theMinionsOfMidas/S01E01/'
 import { useLanguageStore } from '../../store';
-import { SentencesRespose } from '../../types';
+import { SentencesResponse } from '../../types';
 import { calculateTimeDifference } from '../../utils';
 
 type Props = {
-  examples: SentencesRespose;
+  examples: SentencesResponse;
 };
 
 type VideoDetails = {
   title: string;
   segment_title: string;
   sentence_id: string;
-  id: number;
 };
 
 export default function Video({ examples }: Props) {
@@ -23,15 +23,17 @@ export default function Video({ examples }: Props) {
   const [playIndex, setPlayIndex] = useState<number>(0);
   const [videoIds, setVideoIds] = useState<VideoDetails[]>([]);
   const [videoDetails, setVideoDetails] = useState<VideoDetails[]>();
+  console.log(videoDetails);
   const [playing, setPlaying] = useState(false);
   useEffect(() => {
+    console.log(examples);
     setVideoDetails(
       examples
         .filter(
           (el) =>
             el.video_id &&
             el.sentence_timestamps &&
-            calculateTimeDifference(el.sentence_timestamps) > 2,
+            calculateTimeDifference(el.sentence_timestamps) > 1.5,
         )
         .map((el) => ({
           title: el.title,
@@ -45,21 +47,22 @@ export default function Video({ examples }: Props) {
   }, [examples]);
 
   const checkIfVideoExists = useCallback(
-    async ({ sentence_id, id, title, segment_title }: VideoDetails) => {
-      if (id) {
+    async ({ sentence_id, title, segment_title }: VideoDetails) => {
+      console.log(sentence_id, title, segment_title);
+      if (sentence_id) {
+        // const ENDPOINT = `../../../../../../../rvilc/Videos/FlixiCam StreamOne/clips/es/theMinionsOfMidas/S01E01/${sentence_id}.mp4`;
         const ENDPOINT =
           `https://movie-tongue.b-cdn.net/clips/${selectedLanguage?.language_id}/${title}` +
-          // (chapter_or_episode === 'n/a' ? '' : `/${chapter_or_episode}`) +
+          (!segment_title ? '' : `/${segment_title}`) +
           `/${sentence_id}.mp4`;
         const response = await fetch(ENDPOINT, {
           method: 'HEAD',
         });
         if (response.ok) {
           setVideoIds((prevState) => {
-            if (prevState.some((el) => el.id === id)) {
+            if (prevState.some((el) => el.sentence_id === sentence_id)) {
               return prevState;
-            } else
-              return [...prevState, { sentence_id, id, title, segment_title }];
+            } else return [...prevState, { sentence_id, title, segment_title }];
           });
         } else {
           console.log('HTTP error:', response.status, response.statusText);
@@ -112,9 +115,9 @@ export default function Video({ examples }: Props) {
               playing={playing}
               url={
                 `https://movie-tongue.b-cdn.net/clips/${selectedLanguage?.language_id}/${videoIds[playIndex].title}` + //${videoIds[playIndex].key}` +
-                // (videoIds[playIndex].chapter_or_episode === 'n/a'
-                // ? ''
-                // : `/${videoIds[playIndex].chapter_or_episode}`) +
+                (!videoIds[playIndex].segment_title
+                  ? ''
+                  : `/${videoIds[playIndex].segment_title}`) +
                 `/${videoIds[playIndex].sentence_id}.mp4`
               }
               controls
@@ -150,8 +153,8 @@ export default function Video({ examples }: Props) {
               style={{ marginBottom: '10px' }}
               dangerouslySetInnerHTML={{
                 __html: examples.filter(
-                  (el) => el.id === videoIds[playIndex].id,
-                )[0].sentence_html,
+                  (el) => el.sentence_id === videoIds[playIndex].sentence_id,
+                )[0]?.sentence_html,
               }}
             >
               {/* {
@@ -161,30 +164,40 @@ export default function Video({ examples }: Props) {
             </p>
             <p style={{ color: 'white', fontSize: '14px' }}>
               {
-                examples.filter((el) => el.id === videoIds[playIndex].id)[0]
-                  .sentence_en_semantic
+                examples.filter(
+                  (el) => el.sentence_id === videoIds[playIndex].sentence_id,
+                )[0]?.sentence_en_semantic
+              }
+            </p>
+            <p style={{ color: 'white', fontSize: '14px' }}>
+              {
+                examples.filter(
+                  (el) => el.sentence_id === videoIds[playIndex].sentence_id,
+                )[0]?.sentence_en_literal
               }
             </p>
           </div>
-          <Group>
-            <Button
-              disabled={!videoIds.length || playIndex === 0}
-              my='md'
-              onClick={previousVideo}
-            >
-              Previous
-            </Button>
-            <Button
-              disabled={!videoIds.length || playIndex === videoIds.length - 1}
-              my='md'
-              onClick={nextVideo}
-            >
-              Next
-            </Button>
-            <div>
-              {playIndex + 1} / {videoIds.length}
-            </div>
-          </Group>
+          {videoIds.length > 1 && (
+            <Group>
+              <Button
+                disabled={!videoIds.length || playIndex === 0}
+                my='md'
+                onClick={previousVideo}
+              >
+                Previous
+              </Button>
+              <Button
+                disabled={!videoIds.length || playIndex === videoIds.length - 1}
+                my='md'
+                onClick={nextVideo}
+              >
+                Next
+              </Button>
+              <div>
+                {playIndex + 1} / {videoIds.length}
+              </div>
+            </Group>
+          )}
         </>
       ) : null}
     </>

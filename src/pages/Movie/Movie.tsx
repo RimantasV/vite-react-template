@@ -42,6 +42,7 @@ export default function Movie() {
   const { mutate } = useUpdateWordStatusMutation();
   const { id } = useParams();
   const [activePage, setPage] = useState(1);
+  const [activePageExcluded, setPageExcluded] = useState(1);
   const [isOpen, setOpen] = useState(false);
   const [activeWord, setActiveWord] = useState<Wordx>();
   const [isFollowing, setIsFollowing] = useState(false);
@@ -128,7 +129,7 @@ export default function Movie() {
         ((el.frequency >= sliderValue[0] && el.frequency <= sliderValue[1]) ||
           !el.frequency) &&
         (el.word_id
-          .toLowerCase()
+          ?.toLowerCase()
           .replace('í', 'i')
           .replace('ó', 'o')
           .replace('á', 'a')
@@ -137,7 +138,7 @@ export default function Movie() {
           .replace('ñ', 'n')
           .includes(
             filterValue
-              .toLowerCase()
+              ?.toLowerCase()
               .replace('í', 'i')
               .replace('ó', 'o')
               .replace('á', 'a')
@@ -145,8 +146,8 @@ export default function Movie() {
               .replace('é', 'e')
               .replace('ñ', 'n'),
           ) ||
-          el.info.some((el) =>
-            el.glosses.toLowerCase().includes(filterValue.toLowerCase()),
+          el.info?.some((el) =>
+            el.glosses?.toLowerCase().includes(filterValue?.toLowerCase()),
           )),
     ),
   );
@@ -242,7 +243,10 @@ export default function Movie() {
             value={activePage}
             onChange={setPage}
             siblings={1}
-            total={Math.ceil((filteredWordsData.length || 0) / 100)}
+            total={Math.ceil(
+              (filteredWordsData.filter((word) => !word[0].marked_to_exclude)
+                .length || 0) / 100,
+            )}
             mx='auto'
             my='lg'
           />
@@ -298,12 +302,24 @@ export default function Movie() {
           </Sheet>
         </Tabs.Panel>
         <Tabs.Panel value='excluded'>
-          <Title order={2} mb='lg'>
+          <Title order={2} my='lg'>
             Excluded
           </Title>
+          <Pagination
+            value={activePageExcluded}
+            onChange={setPageExcluded}
+            siblings={1}
+            total={Math.ceil(
+              (filteredWordsData.filter((word) => word[0].marked_to_exclude)
+                .length || 0) / 100,
+            )}
+            mx='auto'
+            my='lg'
+          />
           <ul style={{ listStyle: 'none', padding: '0' }}>
             {filteredWordsData
               .filter((word) => word[0].marked_to_exclude)
+              .slice(100 * (activePageExcluded - 1), 100 * activePageExcluded)
               .map((item, id) => (
                 <VocabularyListRow
                   hasAddToListIcon={true}
