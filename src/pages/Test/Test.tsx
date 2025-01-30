@@ -30,6 +30,13 @@ const wordsData = [
         translation: 'Hola, mi nombre es John.',
       },
     ],
+    listeningExercise: {
+      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Replace with your video URL
+      sentence: '____, how are you?',
+      translation: 'Hola, ¿cómo estás?',
+      options: ['Hello', 'Goodbye', 'Thank you', 'Please'],
+      correctOption: 'Hello',
+    },
   },
   {
     word: 'Goodbye',
@@ -45,6 +52,13 @@ const wordsData = [
         translation: 'Adiós, que tengas un buen día.',
       },
     ],
+    listeningExercise: {
+      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Replace with your video URL
+      sentence: '____, see you later!',
+      translation: 'Adiós, ¡hasta luego!',
+      options: ['Hello', 'Goodbye', 'Thank you', 'Please'],
+      correctOption: 'Goodbye',
+    },
   },
   {
     word: 'Thank you',
@@ -60,6 +74,13 @@ const wordsData = [
         translation: '¡Muchas gracias!',
       },
     ],
+    listeningExercise: {
+      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Replace with your video URL
+      sentence: '____ for your help.',
+      translation: 'Gracias por tu ayuda.',
+      options: ['Hello', 'Goodbye', 'Thank you', 'Please'],
+      correctOption: 'Thank you',
+    },
   },
 ];
 
@@ -79,6 +100,8 @@ function App() {
   const [quizOptions, setQuizOptions] = useState([]);
   const [selectedQuizOption, setSelectedQuizOption] = useState(null);
   const [isQuizCompleted, setIsQuizCompleted] = useState(false);
+  const [selectedListeningOption, setSelectedListeningOption] = useState(null);
+  const [isListeningCompleted, setIsListeningCompleted] = useState(false);
 
   const currentWord = wordsData[currentIndex];
 
@@ -131,6 +154,8 @@ function App() {
       setShowCorrectAnswer(false);
       setSelectedQuizOption(null);
       setIsQuizCompleted(false);
+      setSelectedListeningOption(null);
+      setIsListeningCompleted(false);
     }
   };
 
@@ -198,11 +223,28 @@ function App() {
     }
   };
 
+  const handleListeningOptionClick = (option) => {
+    setSelectedListeningOption(option);
+    if (option === currentWord.listeningExercise.correctOption) {
+      // Correct answer
+      setLearningProgress((prev) => ({
+        ...prev,
+        [currentWord.word]: {
+          ...prev[currentWord.word],
+          listeningCompleted: true,
+        },
+      }));
+      setIsListeningCompleted(true);
+    }
+  };
+
   // Check if the current word has been seen before
   const isWordSeen = learningProgress[currentWord.word]?.seen;
   const isTypingCompleted = learningProgress[currentWord.word]?.typingCompleted;
   const isQuizCompletedForWord =
     learningProgress[currentWord.word]?.quizCompleted;
+  const isListeningCompletedForWord =
+    learningProgress[currentWord.word]?.listeningCompleted;
 
   const progress = ((currentIndex + 1) / wordsData.length) * 100;
 
@@ -234,7 +276,50 @@ function App() {
         <div className='progress' style={{ width: `${progress}%` }}></div>
       </div>
       <div className='content-container'>
-        {isWordSeen && !isTypingCompleted && !isQuizCompletedForWord ? (
+        {isWordSeen &&
+        !isTypingCompleted &&
+        !isQuizCompletedForWord &&
+        !isListeningCompletedForWord ? (
+          <div className='listening-exercise'>
+            <h2>Listen and fill in the blank:</h2>
+            <div className='video-container'>
+              <iframe
+                title='listening-exercise'
+                src={currentWord.listeningExercise.videoUrl}
+                frameBorder='0'
+                allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+                allowFullScreen
+              ></iframe>
+            </div>
+            <p className='sentence-with-blank'>
+              {currentWord.listeningExercise.sentence}
+            </p>
+            <p className='translated-sentence'>
+              {currentWord.listeningExercise.translation}
+            </p>
+            <div className='listening-options'>
+              {currentWord.listeningExercise.options.map((option, index) => (
+                <button
+                  key={index}
+                  className={`listening-option ${
+                    selectedListeningOption === option
+                      ? option === currentWord.listeningExercise.correctOption
+                        ? 'correct'
+                        : 'incorrect'
+                      : ''
+                  }`}
+                  onClick={() => handleListeningOptionClick(option)}
+                  disabled={isListeningCompleted}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+            {isListeningCompleted && (
+              <p className='listening-feedback'>Correct! 🎉</p>
+            )}
+          </div>
+        ) : isWordSeen && !isTypingCompleted && !isQuizCompletedForWord ? (
           <div className='quiz-task'>
             <h2>What is the correct translation of "{currentWord.word}"?</h2>
             <div className='quiz-options'>
@@ -302,7 +387,10 @@ function App() {
         )}
       </div>
 
-      {!isWordSeen || isTypingCompleted || isQuizCompletedForWord ? (
+      {!isWordSeen ||
+      isTypingCompleted ||
+      isQuizCompletedForWord ||
+      isListeningCompletedForWord ? (
         <div className='sentences-list'>
           <h3>Example Sentences</h3>
           {currentWord.sentences.map((sentence, index) => (
