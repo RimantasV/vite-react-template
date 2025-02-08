@@ -98,9 +98,23 @@ export default function Root() {
                 <UnstyledButton
                   className={classes.control}
                   component={Link}
+                  to={'./reader'}
+                >
+                  Reader
+                </UnstyledButton>
+                <UnstyledButton
+                  className={classes.control}
+                  component={Link}
                   to={'./dictionary'}
                 >
                   Translate
+                </UnstyledButton>
+                <UnstyledButton
+                  className={classes.control}
+                  component={Link}
+                  to={'./music'}
+                >
+                  Music
                 </UnstyledButton>
               </Group>
               <Group>

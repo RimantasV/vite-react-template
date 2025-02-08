@@ -41,9 +41,18 @@ h1 {
   margin-bottom: 20px;
 }
 
+/* Responsive layout for smaller screens */
+@media (max-width: 768px) {
+  .content-container {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
 .flip-card {
   perspective: 1000px;
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
   height: 315px;
   cursor: pointer;
   position: relative;
@@ -84,6 +93,7 @@ h1 {
 .video-container {
   flex: 1;
   max-width: 600px;
+  width: 100%;
 }
 
 .video-container iframe {
@@ -95,7 +105,6 @@ h1 {
 .typing-task {
   text-align: center;
   margin: 20px auto;
-  width: 100%;
 }
 
 .typing-task input {
@@ -124,114 +133,6 @@ h1 {
 .correct-answer {
   color: #ff6b6b;
   margin-top: 10px;
-}
-
-.sentences-list {
-  text-align: left;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.sentence-item {
-  background-color: #fff;
-  padding: 15px;
-  margin: 10px 0;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.sentence-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.icon-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #4a90e2;
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.icon-button:hover {
-  color: #357abd;
-}
-
-.favorite {
-  color: #ff6b6b;
-}
-
-.next-button {
-  background-color: #4a90e2;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 20px auto;
-}
-
-.next-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.congratulations-screen {
-  text-align: center;
-  padding: 20px;
-}
-
-.congratulations-screen h1 {
-  color: #4a90e2;
-  font-size: 2.5rem;
-}
-
-.congratulations-screen p {
-  font-size: 1.2rem;
-  color: #333;
-}
-
-.restart-button {
-  background-color: #4a90e2;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  margin-top: 20px;
-}
-
-.restart-button:hover {
-  background-color: #357abd;
-}
-
-.finish-button {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 20px auto;
-}
-
-.finish-button:hover {
-  background-color: #218838;
 }
 
 .quiz-task {
@@ -331,4 +232,103 @@ h1 {
   margin-top: 20px;
   font-size: 1.2rem;
   color: #28a745;
+}
+
+.sentences-list {
+  text-align: left;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.sentence-item {
+  background-color: #fff;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sentence-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #4a90e2;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-button:hover {
+  color: #357abd;
+}
+
+.favorite {
+  color: #ff6b6b;
+}
+
+.next-button,
+.finish-button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px auto;
+}
+
+.finish-button {
+  background-color: #28a745;
+}
+
+.finish-button:hover {
+  background-color: #218838;
+}
+
+.next-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.congratulations-screen {
+  text-align: center;
+  padding: 20px;
+}
+
+.congratulations-screen h1 {
+  color: #4a90e2;
+  font-size: 2.5rem;
+}
+
+.congratulations-screen p {
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.restart-button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+.restart-button:hover {
+  background-color: #357abd;
 }

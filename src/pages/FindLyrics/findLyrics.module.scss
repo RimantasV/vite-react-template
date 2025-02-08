@@ -1,0 +1,19 @@
+.subtitles {
+  height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-top: 20px;
+  scroll-behavior: smooth; /* Enable smooth scrolling */
+}
+
+.subtitle {
+  padding: 10px; /* Add padding for better spacing */
+  transition: background-color 0.3s;
+  cursor: pointer; /* Indicate clickable subtitles */
+}
+
+.subtitle.active {
+  background-color: yellow;
+  font-weight: bold;
+}

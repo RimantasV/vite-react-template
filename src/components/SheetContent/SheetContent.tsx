@@ -41,6 +41,8 @@ const SheetContent: FC<Props> = ({
     setOpen(false);
   };
 
+  console.log({ dictionaryRecord });
+
   function removeTextInBrackets(input: string): string {
     const regex = /\s*\([^)]*\)\s*$/;
 
@@ -67,7 +69,7 @@ const SheetContent: FC<Props> = ({
 
     return hasMoreThanTwoTranslations || hasBracketsAtTheEnd;
   });
-
+  console.log(activeWords);
   return (
     <div className={styles.content}>
       <div className={styles.wrapper}>
@@ -78,14 +80,16 @@ const SheetContent: FC<Props> = ({
               .map((word) =>
                 dictionaryRecord
                   .find((record) => record.word_id === word)
-                  ?.info.forms.filter((el) => el.form === activeForm)
+                  ?.info.forms.filter(
+                    (el) => el.form === activeForm.toLowerCase(),
+                  )
                   .map((el, i) => {
                     return el.tags ? (
                       <p key={i} className={styles.form}>{`${
                         el.form
                       } - ${el.tags?.join(' ')} form of ${
                         word.split('-')[0]
-                      }`}</p>
+                      } (${word.split('-')[1]})`}</p>
                     ) : null;
                   }),
               )}

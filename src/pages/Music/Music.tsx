@@ -4,16 +4,15 @@ import { List, ListItem, Title } from '@mantine/core';
 
 import { Layout } from '../../components';
 
-export default function Home() {
+export default function Music() {
   return (
     <Layout>
-      <Title mb='md'>Homepage</Title>
+      <Title mb='md' order={1}>
+        Select a song
+      </Title>
       <List>
         <ListItem>
-          <Link to={'admin'}>Admin</Link>
-        </ListItem>
-        <ListItem>
-          <Link to={'test'}>Test</Link>
+          <Link to={'song'}>Juanes - La camisa Negra</Link>
         </ListItem>
       </List>
     </Layout>

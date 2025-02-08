@@ -23,10 +23,10 @@ export default function Video({ examples }: Props) {
   const [playIndex, setPlayIndex] = useState<number>(0);
   const [videoIds, setVideoIds] = useState<VideoDetails[]>([]);
   const [videoDetails, setVideoDetails] = useState<VideoDetails[]>();
-  console.log(videoDetails);
+  // console.log(videoDetails);
   const [playing, setPlaying] = useState(false);
   useEffect(() => {
-    console.log(examples);
+    // console.log(examples);
     setVideoDetails(
       examples
         .filter(
@@ -48,7 +48,7 @@ export default function Video({ examples }: Props) {
 
   const checkIfVideoExists = useCallback(
     async ({ sentence_id, title, segment_title }: VideoDetails) => {
-      console.log(sentence_id, title, segment_title);
+      // console.log(sentence_id, title, segment_title);
       if (sentence_id) {
         // const ENDPOINT = `../../../../../../../rvilc/Videos/FlixiCam StreamOne/clips/es/theMinionsOfMidas/S01E01/${sentence_id}.mp4`;
         const ENDPOINT =

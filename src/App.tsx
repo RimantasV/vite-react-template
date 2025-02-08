@@ -17,23 +17,29 @@ import {
   SuperTokensConfig,
 } from './config/config';
 import {
+  Admin,
   Dictionary,
+  FindLyrics,
   Home,
+  LanguageSelect,
   Learn,
   List,
+  Lists,
   Movie,
+  MoviesAndTV,
+  MultiSelect,
+  Music,
   Quiz,
+  QuizMovie,
+  Reader,
+  ReviewClips,
+  ReviewSongs,
   Settings,
+  Song,
   Subtitles,
+  Test,
   VocabularyLevel,
 } from './pages';
-import { Admin } from './pages/Admin';
-import { LanguageSelect } from './pages/LanguageSelect';
-import { Lists } from './pages/Lists';
-import MoviesAndTV from './pages/MoviesAndTV/MoviesAndTV';
-import { MultiSelect } from './pages/MultiSelect';
-import { QuizMovie } from './pages/QuizMovie';
-import { Test } from './pages/Test';
 
 // import { useUserSettingsQuery } from './queries';
 import './App.css';
@@ -92,6 +98,12 @@ function App() {
                 element={<VocabularyLevel />}
               />
               <Route path='/test' element={<Test />} />
+              <Route path='/reader' element={<Reader />} />
+              <Route path='/music' element={<Music />} />
+              <Route path='/music/song' element={<Song />} />
+              <Route path='/admin/find-lyrics' element={<FindLyrics />} />
+              <Route path='/admin/review-clips' element={<ReviewClips />} />
+              <Route path='/admin/review-songs' element={<ReviewSongs />} />
             </Route>
             <Route
               path='/quiz'
