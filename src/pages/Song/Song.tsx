@@ -1,4 +1,4 @@
-import { MouseEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import YouTube, { YouTubePlayer, YouTubeProps } from 'react-youtube';
 
 import { ActionIcon, Box, Checkbox, Flex, Modal } from '@mantine/core';
@@ -12,6 +12,8 @@ import {
 import { Layout, SheetContent } from '../../components';
 import { useLanguageStore } from '../../store';
 import { DictionaryRecord } from '../../types';
+import HTMLWithPopovers from './HTMLWithPopovers';
+import testData from './testData.json';
 
 import styles from './song.module.scss';
 
@@ -57,9 +59,13 @@ type Song = {
   }[];
 };
 
+const testDataTyped = testData as Song[];
+
 export default function Song() {
   const { selectedLanguage } = useLanguageStore();
   const [opened, { open, close }] = useDisclosure(false);
+  // const [popoverOpened, { open: openPopover, close: closePopover }] =
+  //   useDisclosure(false);
   const [activeWords, setActiveWords] = useState<string[]>();
   const [activeForm, setActiveForm] = useState<string>();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -79,12 +85,14 @@ export default function Song() {
   const [videoId, setVideoId] = useState<string>('');
 
   const fetchSongs = useCallback(async () => {
-    const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/song?lang=${selectedLanguage?.language_id}`;
+    // const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/song?lang=${selectedLanguage?.language_id}`;
 
     try {
-      const response = await fetch(ENDPOINT);
+      const response = await fetch('/src/pages/Song/testData.json');
+
+      console.log(response);
       const data: Song[] = await response.json();
-      setLyrics(data[0].lyrics_html);
+      setLyrics(data[0]?.lyrics_html);
       setVideoId(data[0].youtube_video_id);
     } catch (error) {
       console.error(error);
@@ -232,7 +240,8 @@ export default function Song() {
   };
 
   const handleLyricsClick = (
-    e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>,
+    target: Element,
+    // e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>,
     sub: {
       startMs: number;
       durMs?: number;
@@ -240,14 +249,18 @@ export default function Song() {
       text_html?: string;
     },
   ) => {
+    // console.log(e);
+    console.log(sub);
     changeTime(sub.startMs / 1000);
 
-    const target = e.target as HTMLParagraphElement;
+    // const target = e.target as HTMLParagraphElement;
+
+    console.log({ target });
 
     if (!target.classList.contains('clickable')) return;
     target.classList.toggle(styles.highlight);
 
-    const wordId = target.dataset.wordId;
+    const wordId = (target as HTMLElement).dataset.wordId;
     let wordIdArray: string[] = [];
     if (wordId) {
       wordIdArray = wordId?.split('_');
@@ -272,16 +285,17 @@ export default function Song() {
         />
 
         <Box w={640} className={styles.subtitles}>
-          {lyrics?.map((sub, index) => (
-            <div
-              dangerouslySetInnerHTML={{ __html: sub.text_html }}
-              ref={(el) => (subtitleRefs.current[index] = el)} // Attach ref to each subtitle
-              className={`${styles.subtitle} ${activeSubtitle === sub ? styles.active : ''}`}
-              onClick={(e) => handleLyricsClick(e, sub)}
-              key={index}
-            >
-              {/* {sub.text} */}
-            </div>
+          {lyrics?.map((sub, _index) => (
+            // <div
+            //   dangerouslySetInnerHTML={{ __html: sub.text_html }}
+            //   ref={(el) => (subtitleRefs.current[index] = el)} // Attach ref to each subtitle
+            //   className={`${styles.subtitle} ${activeSubtitle === sub ? styles.active : ''}`}
+            //   onClick={(e) => handleLyricsClick(e, sub)}
+            //   key={index}
+            // >
+            //   {/* {sub.text} */}
+            // </div>
+            <HTMLWithPopovers handleLyricsClick={handleLyricsClick} sub={sub} />
           ))}
         </Box>
         <Flex w={640} style={{ position: 'relative' }}>
