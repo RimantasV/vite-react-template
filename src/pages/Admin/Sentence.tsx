@@ -18,6 +18,7 @@ import {
 import { SentenceRow, SheetContent, Video } from '../../components';
 import { useLanguageStore } from '../../store';
 import { DictionaryRecord, SentenceObj } from '../../types';
+import { checkHTML } from '../../utils';
 import SelectbleAttribute from './SelectableAttribute';
 
 type Props = {
@@ -83,12 +84,6 @@ export default function Sentence({
     const data: { translations: { text: string }[] } = await response.json();
 
     setTranslationMachine(data.translations[0].text);
-  };
-
-  const checkHTML = (html: string) => {
-    const doc = document.createElement('div');
-    doc.innerHTML = html;
-    return doc.innerHTML === html;
   };
 
   const updateWord = (index: number, value: string) => {

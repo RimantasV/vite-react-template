@@ -1,6 +1,10 @@
+import React from 'react';
+
 import { Button, Popover } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+// import { useDisclosure } from '@mantine/hooks';
 import { IconCircleChevronRight } from '@tabler/icons-react';
+
+import styles from './song.module.scss';
 
 interface HTMLWithPopoversProps {
   handleLyricsClick: (
@@ -14,13 +18,21 @@ interface HTMLWithPopoversProps {
     },
   ) => void;
   sub: { startMs: number; durMs: number; text: string; text_html: string };
+  onPopoverChange: (isOpen: boolean) => void;
+  subtitleRefs: React.MutableRefObject<(HTMLSpanElement | null)[]>;
+  activeSubtitle: any;
+  rowIndex: number;
 }
 
 const HTMLWithPopovers = ({
   sub,
   handleLyricsClick,
+  onPopoverChange,
+  subtitleRefs,
+  activeSubtitle,
+  rowIndex,
 }: HTMLWithPopoversProps) => {
-  const [opened, { open, close }] = useDisclosure(false);
+  // const [opened, { open, close }] = useDisclosure(false);
 
   // Function to parse HTML string and create React elements
   const createElements = (sub: {
@@ -32,7 +44,10 @@ const HTMLWithPopovers = ({
     // Create a temporary DOM element
     const div = document.createElement('div');
     div.innerHTML = sub.text_html!;
-
+    // console.log({ active: activeSubtitle?.startMs });
+    // console.log({ sub: sub?.startMs });
+    // console.log('render');
+    // console.log(ref);
     // Convert the HTML collection to an array
     return Array.from(div.childNodes).map((node, index) => {
       if (
@@ -49,11 +64,14 @@ const HTMLWithPopovers = ({
             position='top'
             // withArrow
             shadow='md'
-            opened={opened}
+            // opened={opened}
+            onOpen={() => onPopoverChange(true)}
+            onClose={() => onPopoverChange(false)}
+            zIndex={301}
           >
             <Popover.Target>
               <span
-                onClick={opened ? close : open}
+                // onClick={opened ? close : open}
                 dangerouslySetInnerHTML={{
                   __html: (node as Element).outerHTML,
                 }}
@@ -96,7 +114,17 @@ const HTMLWithPopovers = ({
     });
   };
 
-  return <div className='p-4'>{createElements(sub)}</div>;
+  return (
+    <div
+      className={`p-4 ${styles.subtitle} ${activeSubtitle?.startMs == sub?.startMs ? styles.active : ''}`}
+      ref={(el) => {
+        console.log(el?.textContent);
+        return (subtitleRefs.current[rowIndex] = el);
+      }} // Attach ref to each subtitle
+    >
+      {createElements(sub)}
+    </div>
+  );
 };
-
-export default HTMLWithPopovers;
+const MemoizedHTMLWithPopovers = React.memo(HTMLWithPopovers);
+export default MemoizedHTMLWithPopovers;

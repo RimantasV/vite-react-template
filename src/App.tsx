@@ -38,6 +38,7 @@ import {
   Song,
   Subtitles,
   Test,
+  Test2,
   VocabularyLevel,
 } from './pages';
 
@@ -98,6 +99,7 @@ function App() {
                 element={<VocabularyLevel />}
               />
               <Route path='/test' element={<Test />} />
+              <Route path='/test2' element={<Test2 />} />
               <Route path='/reader' element={<Reader />} />
               <Route path='/music' element={<Music />} />
               <Route path='/music/song' element={<Song />} />

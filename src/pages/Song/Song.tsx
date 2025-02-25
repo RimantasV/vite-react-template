@@ -13,7 +13,6 @@ import { Layout, SheetContent } from '../../components';
 import { useLanguageStore } from '../../store';
 import { DictionaryRecord } from '../../types';
 import HTMLWithPopovers from './HTMLWithPopovers';
-import testData from './testData.json';
 
 import styles from './song.module.scss';
 
@@ -59,11 +58,12 @@ type Song = {
   }[];
 };
 
-const testDataTyped = testData as Song[];
-
 export default function Song() {
+  const popoverOpenRef = useRef(false);
+  // console.log(popoverOpenRef.current);
   const { selectedLanguage } = useLanguageStore();
   const [opened, { open, close }] = useDisclosure(false);
+  // const [isAnyPopoverOpen, setIsAnyPopoverOpen] = useState(false);
   // const [popoverOpened, { open: openPopover, close: closePopover }] =
   //   useDisclosure(false);
   const [activeWords, setActiveWords] = useState<string[]>();
@@ -79,25 +79,30 @@ export default function Song() {
   const [player, setPlayer] = useState<YouTubePlayer>();
   const [activeSubtitle, setActiveSubtitle] = useState<Lyrics[number]>();
   const [activeSubtitleIndex, setActiveSubtitleIndex] = useState<number>();
-  const subtitleRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const subtitleRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const [pauseAfterRow, setPauseAfterRow] = useState(false);
   const [playerState, setPlayerState] = useState<number>();
   const [videoId, setVideoId] = useState<string>('');
 
-  const fetchSongs = useCallback(async () => {
-    // const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/song?lang=${selectedLanguage?.language_id}`;
+  const fetchSongs = useCallback(
+    async () => {
+      // const ENDPOINT = `${import.meta.env.VITE_BASE_URL}/api/song?lang=${selectedLanguage?.language_id}`;
 
-    try {
-      const response = await fetch('/src/pages/Song/testData.json');
+      try {
+        const response = await fetch('/src/pages/Song/testData.json');
 
-      console.log(response);
-      const data: Song[] = await response.json();
-      setLyrics(data[0]?.lyrics_html);
-      setVideoId(data[0].youtube_video_id);
-    } catch (error) {
-      console.error(error);
-    }
-  }, [selectedLanguage?.language_id]);
+        console.log(response);
+        const data: Song[] = await response.json();
+        setLyrics(data[0]?.lyrics_html);
+        setVideoId(data[0].youtube_video_id);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [
+      /*selectedLanguage?.language_id*/
+    ],
+  );
 
   useEffect(() => {
     fetchSongs();
@@ -129,19 +134,22 @@ export default function Song() {
     [selectedLanguage],
   );
 
-  const fetchEng = (wordIdArray: string[]) => {
-    if (wordIdArray && wordIdArray?.length > 0) {
-      const filtered = [
-        ...new Set(wordIdArray.filter((el) => !el.endsWith('*'))),
-      ];
+  const fetchEng = useCallback(
+    (wordIdArray: string[]) => {
+      if (wordIdArray && wordIdArray?.length > 0) {
+        const filtered = [
+          ...new Set(wordIdArray.filter((el) => !el.endsWith('*'))),
+        ];
 
-      filtered.forEach((word: string) => {
-        fetchDictionaryRecord(word);
-      });
-    } else {
-      setDictionaryRecord([]);
-    }
-  };
+        filtered.forEach((word: string) => {
+          fetchDictionaryRecord(word);
+        });
+      } else {
+        setDictionaryRecord([]);
+      }
+    },
+    [fetchDictionaryRecord],
+  );
 
   const getActiveSubtitleIndex = useCallback(() => {
     return lyrics?.findLastIndex(
@@ -180,7 +188,10 @@ export default function Song() {
   useEffect(() => {
     if (activeSubtitle) {
       const index = lyrics?.indexOf(activeSubtitle);
+      console.log({ index });
       const subtitleElement = subtitleRefs.current[index || 0];
+      console.log(subtitleRefs);
+      console.log({ text: subtitleElement?.textContent });
       if (subtitleElement) {
         subtitleElement.scrollIntoView({
           behavior: 'smooth',
@@ -198,23 +209,26 @@ export default function Song() {
   // Handle video state changes (e.g., play, pause)
   const onStateChange = (event: { data: number }) => {
     setPlayerState(event.data);
-    if (event.data === window.YT?.PlayerState.PLAYING) {
+    if (event.data === window.YT?.PlayerState?.PLAYING) {
       // Update current time every 100ms
       const interval = setInterval(() => {
         if (player && player.getCurrentTime) {
           setCurrentTime(player.getCurrentTime());
         }
-      }, 100);
+      }, 500);
 
       // Cleanup interval on unmount or pause
       return () => clearInterval(interval);
     }
   };
 
-  const changeTime = (seconds: number) => {
-    console.log(seconds);
-    player?.seekTo(seconds);
-  };
+  const changeTime = useCallback(
+    (seconds: number) => {
+      console.log(seconds);
+      player?.seekTo(seconds);
+    },
+    [player],
+  );
 
   const handlePause = () => {
     player?.pauseVideo();
@@ -239,63 +253,97 @@ export default function Song() {
     }
   };
 
-  const handleLyricsClick = (
-    target: Element,
-    // e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>,
-    sub: {
-      startMs: number;
-      durMs?: number;
-      text?: string;
-      text_html?: string;
+  // const handlePopoverChange = (isOpen: boolean) => {
+  //   setIsAnyPopoverOpen(isOpen);
+  // };
+
+  const handlePopoverChange = useCallback((isOpen: boolean) => {
+    popoverOpenRef.current = isOpen;
+    console.log('Any Popover Open:', popoverOpenRef.current);
+  }, []);
+
+  const handleLyricsClick = useCallback(
+    (
+      target: Element,
+      // e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>,
+      sub: {
+        startMs: number;
+        durMs?: number;
+        text?: string;
+        text_html?: string;
+      },
+    ) => {
+      // console.log(e);
+      console.log(sub);
+      changeTime(sub.startMs / 1000);
+
+      // const target = e.target as HTMLParagraphElement;
+
+      console.log({ target });
+
+      if (!target.classList.contains('clickable')) return;
+      target.classList.toggle(styles.highlight);
+
+      const wordId = (target as HTMLElement).dataset.wordId;
+      let wordIdArray: string[] = [];
+      if (wordId) {
+        wordIdArray = wordId?.split('_');
+      }
+
+      if (wordId) {
+        setActiveForm(target.textContent!);
+        setActiveWords(wordIdArray);
+        open();
+        fetchEng(wordIdArray);
+      }
     },
-  ) => {
-    // console.log(e);
-    console.log(sub);
-    changeTime(sub.startMs / 1000);
-
-    // const target = e.target as HTMLParagraphElement;
-
-    console.log({ target });
-
-    if (!target.classList.contains('clickable')) return;
-    target.classList.toggle(styles.highlight);
-
-    const wordId = (target as HTMLElement).dataset.wordId;
-    let wordIdArray: string[] = [];
-    if (wordId) {
-      wordIdArray = wordId?.split('_');
-    }
-
-    if (wordId) {
-      setActiveForm(target.textContent!);
-      setActiveWords(wordIdArray);
-      open();
-      fetchEng(wordIdArray);
-    }
-  };
+    [changeTime, fetchEng, open],
+  );
 
   return (
     <Layout>
-      <Flex direction='column' align='center' justify='center' mb='md'>
+      <Flex
+        direction='column'
+        align='center'
+        justify='center'
+        mb='md'
+        // style={{ zIndex: 300 }}
+      >
+        {/* <TestChild /> */}
         <YouTube
           videoId={videoId} // Replace with your YouTube video ID
           opts={opts}
           onReady={onReady}
           onStateChange={onStateChange}
+          style={{ zIndex: 350 }}
         />
 
-        <Box w={640} className={styles.subtitles}>
-          {lyrics?.map((sub, _index) => (
+        <Box
+          w={640}
+          className={`${styles.subtitles} ${popoverOpenRef.current ? styles.scrollDisabled : styles.scrollEnabled}`}
+        >
+          {lyrics?.map((sub, index) => (
             // <div
             //   dangerouslySetInnerHTML={{ __html: sub.text_html }}
-            //   ref={(el) => (subtitleRefs.current[index] = el)} // Attach ref to each subtitle
+            //   ref={(el) => {
+            //     console.log(el);
+            //     return (subtitleRefs.current[index] = el);
+            //   }} // Attach ref to each subtitle
             //   className={`${styles.subtitle} ${activeSubtitle === sub ? styles.active : ''}`}
             //   onClick={(e) => handleLyricsClick(e, sub)}
             //   key={index}
             // >
             //   {/* {sub.text} */}
             // </div>
-            <HTMLWithPopovers handleLyricsClick={handleLyricsClick} sub={sub} />
+            <HTMLWithPopovers
+              subtitleRefs={subtitleRefs}
+              key={index}
+              handleLyricsClick={handleLyricsClick}
+              sub={sub}
+              onPopoverChange={handlePopoverChange}
+              activeSubtitle={activeSubtitle}
+              rowIndex={index}
+            />
           ))}
         </Box>
         <Flex w={640} style={{ position: 'relative' }}>
@@ -332,7 +380,7 @@ export default function Song() {
                 stroke={1.5}
               />
             </ActionIcon> */}
-            {playerState === window.YT?.PlayerState.PLAYING ? (
+            {playerState === window.YT?.PlayerState?.PLAYING ? (
               <ActionIcon
                 variant='transparent'
                 color='gray'
@@ -383,7 +431,7 @@ export default function Song() {
           onChange={handleSetPauseAfterRow}
         />
       </Box>
-      <Modal opened={opened} onClose={close} centered>
+      <Modal opened={opened} onClose={close} centered zIndex={351}>
         <SheetContent
           activeWords={activeWords}
           activeForm={activeForm!}

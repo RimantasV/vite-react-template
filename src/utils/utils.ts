@@ -147,3 +147,9 @@ export function calculateTimeDifference(timeObj: TimeData): number {
 
   return endSeconds - startSeconds;
 }
+
+export const checkHTML = (html: string) => {
+  const doc = document.createElement('div');
+  doc.innerHTML = html;
+  return doc.innerHTML === html;
+};

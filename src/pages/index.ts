@@ -20,3 +20,4 @@ export { VocabularyLevel } from './VocabularyLevel';
 export { LanguageSelect } from './LanguageSelect';
 export { MultiSelect } from './MultiSelect';
 export { Test } from './Test';
+export { Test2 } from './Test2';
